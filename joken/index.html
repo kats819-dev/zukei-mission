@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>条件ハンター</title>
+<style>
+:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+a{color:var(--blue)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.chip{padding:5px 10px;border-radius:99px}
+.chip.pt{background:var(--gold-soft);color:var(--gold)}
+.chip.box{background:var(--blue-soft);color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note{font-size:13px;color:var(--sub)}
+button,.btnlink{font-family:inherit;font-size:15px;font-weight:700;min-height:46px;border-radius:10px;border:1px solid var(--blue);background:#fff;color:var(--blue);padding:0 14px;cursor:pointer}
+.btnlink{display:inline-flex;align-items:center;text-decoration:none}
+button.main{background:var(--blue);color:#fff;border-color:var(--blue)}
+button.org{background:var(--org);color:#fff;border-color:var(--org)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,.seg:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mis{min-height:54px;font-size:18px}
+.mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.steps{display:flex;gap:4px;margin:8px 0}
+.st{flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.2;color:var(--sub);padding:0 2px}
+.st.now{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
+.st.ok{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:700}
+.fb{border-radius:10px;padding:10px 12px;font-size:14px;margin:8px 0}
+.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
+.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
+.fb.hint{background:var(--gold-soft);border:1px solid #C9A24A;color:var(--gold)}
+.paper{border-top:1px dashed #B8B4A8;margin-top:10px;padding-top:8px}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.back{min-height:44px;padding:0 10px}
+.task{background:#FFF8E5;border:1px solid #C9A24A;border-radius:12px;padding:10px 12px;margin:8px 0;display:flex;flex-direction:column;gap:6px}
+.tk{display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.5}
+.tag{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:2px;background:#6B4A06;color:#fff}
+.tag.act{background:#1F4E79}
+.goal{font-size:15px;line-height:1.6}
+.goal b{color:#C2410C}
+/* 問題文と、しるし */
+.prob{font-size:17px;line-height:2.3;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:8px 0}
+.seg{border-radius:6px;padding:2px 0;touch-action:manipulation}
+.seg[role=button]{cursor:pointer}
+.seg[role=button]:active{background:var(--blue-soft)}
+.seg.circ{border:2.5px solid var(--org);border-radius:99px;padding:1px 6px;margin:0 1px}
+.seg.und{text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:var(--blue);text-underline-offset:5px;background:var(--blue-soft)}
+.seg.hint{box-shadow:0 0 0 3px #F59E0B;background:#FFF8E5}
+.seg.qbox{border:2px solid var(--ink);border-radius:4px;padding:1px 4px}
+.bd{font-size:13px;font-weight:700;color:var(--blue);margin:0 2px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;padding:10px 14px;line-height:1.45}
+.opts button.ok{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.cq{font-size:15px;margin-bottom:8px}
+.cq b{color:var(--blue)}
+.chk{width:100%;text-align:left;padding:10px 14px;line-height:1.45;margin-bottom:8px}
+.chk.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.ans{font-size:20px}
+.calc{margin:6px 0 0;padding-left:0;list-style:none;font-size:15px;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ===================== 問題 ===================== */
+// 書き方：[n:数]＝数（○をつける） [c1:ことば]＝条件の中身（下線。番号はcの数字） [q:…]＝問いの形
+const P = [
+  {
+    title: 'ペットボトルの水',
+    text: 'ペットボトルに[n:1.5][c1:L]の水が入っています。コップ1杯には、[n:200][c1:mL]ずつ入れます。[c2:1杯に満たない分は数えません。][q:水は、コップ何杯分になりますか。]',
+    forms: ['□杯（整数）', '□.□杯（小数）', '□mL（水の量）'], form: 0,
+    conds: {
+      1: { opts: ['L と mL がまじっている → そろえてから計算する', 'L のままで、そのまま割ればよい', 'mL は答えに関係ない'], ans: 0, hint: 'どちらも「水の量」。単位がちがうと、そのままでは割れないよ。' },
+      2: { opts: ['0.5杯ぶんは、切り上げて1杯にする', '0.5杯ぶんは数えず、整数だけにする', '小数のまま答える'], ans: 1, hint: '「数えません」と書いてあるよ。' }
+    },
+    ans: ['7.5杯', '8杯', '7杯', '0.75杯'], right: 2,
+    why: { 0: '1500÷200＝7.5 までは合っています。でも、条件②「満たない分は数えません」を見直そう。', 1: '切り上げていないかな。条件②は「数えません」。', 3: 'L と mL をそろえたかな。条件①を見直そう。' },
+    calc: ['① 1.5L ＝ 1500mL（条件①：単位をそろえる）', '② 1500 ÷ 200 ＝ 7.5', '③ 0.5杯ぶんは数えない（条件②）→ 7杯']
+  },
+  {
+    title: '桜の記録',
+    text: 'ある町で、[n:2003]年から[n:2020]年までの毎年、桜が咲いた日を記録しました。[c1:2003年と2020年の両方をふくみます。]ただし、[n:2011]年と[n:2015]年は[c2:記録がありません。][q:記録がある年は、全部で何年分ですか。]',
+    forms: ['□年分（記録のある年の数）', '□年間（2020−2003）', '□年（西暦）'], form: 0,
+    conds: {
+      1: { opts: ['ふくむかどうかは、答えに関係ない', '両方ふくむので、引き算の答えから1をひく', '両方ふくむので、引き算の答えに1をたす'], ans: 2, hint: '2003年も2020年も数える。2003→2004の2年なら、2003と2004で2つ。' },
+      2: { opts: ['記録がない年も、ふくめて数える', '記録がない2年分を、ひく', '記録がない2年分を、たす'], ans: 1, hint: '記録がない年は、「記録がある年」ではないよ。' }
+    },
+    ans: ['15年分', '17年分', '16年分', '18年分'], right: 2,
+    why: { 1: '2020−2003＝17 のままかな。条件①（両方ふくむ）と条件②（記録がない年）を見直そう。', 3: '両方ふくむ分の18までは合っています。条件②「記録がありません」を見直そう。', 0: '条件②は合っています。条件①「両方ふくむ」で＋1するのを見直そう。' },
+    calc: ['① 2003〜2020（両方ふくむ）：2020−2003＋1＝18年分（条件①）', '② 記録がない年：2011年と2015年の2年分（条件②）', '③ 18−2＝16年分']
+  },
+  {
+    title: '倍数をのぞく',
+    text: '1から[n:40]までの整数のうち、[c1:2の倍数でも5の倍数でもない][q:整数は、何個ありますか。]',
+    forms: ['□個（整数）', '□（あてはまる数の1つ）', '□倍'], form: 0,
+    conds: {
+      1: { opts: ['2の倍数だけをのぞく', '2の倍数も5の倍数も、両方のぞく（重なりに注意）', '2か5の倍数のどちらか1つだけをのぞく'], ans: 1, hint: '「でも…でもない」は、どちらにもあてはまらない数のこと。10の倍数は、どちらにも入っているよ。' }
+    },
+    ans: ['12個', '24個', '16個', '20個'], right: 2,
+    why: { 1: '24は「2か5の倍数」の個数（20＋8−4）。ここは「のぞく数」だよ。残りを答えよう。', 0: '40−20−8＝12。10の倍数（2でも5でも割れる4個）を、2回ひいてしまったよ。', 3: '2の倍数だけをのぞいたかな。5の倍数も、のぞこう。' },
+    calc: ['① 2の倍数：40÷2＝20個　5の倍数：40÷5＝8個', '② 10の倍数（重なり）：40÷10＝4個', '③ のぞく数：20＋8−4＝24個（条件①）', '④ のこり：40−24＝16個']
+  },
+  {
+    title: '長方形の横',
+    text: '長方形Aは、縦が[n:6]cm、横が[n:9]cmです。長方形Bは、[c1:Aと面積が同じ]で、縦が[n:7]cmです。[q:Bの横の長さを、][c2:四捨五入して小数第1位まで]の数で答えなさい。',
+    forms: ['□.□cm（小数第1位まで）', '□cm²（面積）', '□cm（整数）'], form: 0,
+    conds: {
+      1: { opts: ['AとBの縦の長さを同じにする', 'Aの横の長さをそのまま答える', 'Aの面積（54cm²）を先に求めて、Bの面積に使う'], ans: 2, hint: '「面積が同じ」→ 面積をまず出す。' },
+      2: { opts: ['小数第2位までの数で答える', '小数第2位を四捨五入して、小数第1位までにする', '整数で答える'], ans: 1, hint: '「四捨五入して小数第1位まで」→ 第2位を四捨五入。' }
+    },
+    ans: ['7.71cm', '54cm', '7.8cm', '7.7cm'], right: 3,
+    why: { 0: '54÷7＝7.714… 小数第2位まで書いているよ。条件②は、小数第1位まで。', 1: '54はAの面積。ほしいのはBの横の長さ。条件①を見直そう。', 2: '四捨五入だよ。7.714… の第2位は1だから、切り上げにはならないよ。条件②を見直そう。' },
+    calc: ['① Aの面積：6×9＝54cm²（条件①）', '② Bの横：54÷7＝7.714…cm', '③ 四捨五入して小数第1位まで（条件②）→ 7.7cm']
+  },
+  {
+    title: '食塩水の濃さ',
+    text: '水[n:240]gに食塩[n:60]gをとかして、食塩水を作りました。[c1:濃さは、食塩水全体の重さにしめる、食塩の重さの割合]とします。[q:この食塩水の濃さを、][c2:％]で答えなさい。',
+    forms: ['□％（割合）', '□g（重さ）', '□倍'], form: 0,
+    conds: {
+      1: { opts: ['分母は、水の重さ（240g）', '分母は、食塩の重さ（60g）', '分母は、食塩水全体（水＋食塩＝300g）'], ans: 2, hint: '「食塩水全体」は、水だけではないよ。' },
+      2: { opts: ['割合のまま（小数）で答える', '割合を100倍して、％にする', '1000倍する'], ans: 1, hint: '0.2は割合。％にするには？' }
+    },
+    ans: ['25％', '0.2％', '20％', '80％'], right: 2,
+    why: { 0: '60÷240＝25％。分母を水の重さにしているよ。条件①は「食塩水全体」。', 1: '0.2は割合のまま。％にするには×100。条件②を見直そう。', 3: '80％は水の割合。ほしいのは食塩の割合だよ。' },
+    calc: ['① 食塩水全体：240＋60＝300g（条件①）', '② 食塩÷全体：60÷300＝0.2', '③ ％にする：0.2×100＝20％（条件②）']
+  },
+  {
+    title: '10ミリの雨',
+    text: '[c1:「10ミリの雨」とは、1時間に10mmの深さの水がたまる雨のこと]です。10ミリの雨が[n:3]時間続きました。[q:たまった水の深さを、][c2:cm]で答えなさい。',
+    forms: ['□cm（深さ）', '□mm（深さ）', '□時間'], form: 0,
+    conds: {
+      1: { opts: ['雨が3時間でも、深さは10mmのまま', '1時間に10mmずつふえるので、3時間なら10×3＝30mm', '10ミリの雨は、3時間で10cmたまる'], ans: 1, hint: '定義の文を、この問題に当てはめよう。「1時間に」10mm。' },
+      2: { opts: ['mmのままで答える', 'mmをcmにするには、10をかける', 'mmをcmにするには、10でわる'], ans: 2, hint: '1cm＝10mm。30mmは何cm？' }
+    },
+    ans: ['30cm', '3cm', '30mm', '10cm'], right: 1,
+    why: { 0: '30は mm の数。条件②「cm」で答えるには、10でわろう。', 2: '30mmは正しい深さ。でも条件②は「cm」で答えること。', 3: '10ミリの雨は、1時間に10mm。3時間ぶんあるよ（条件①）。' },
+    calc: ['① 1時間に10mm（条件①）', '② 3時間：10×3＝30mm', '③ 30mm＝3cm（条件②：cmで答える）']
+  },
+  {
+    title: '家と駅',
+    text: '家から駅までは[n:480]mです。行きは[c1:分速][n:80]m、帰りは[c1:分速][n:60]mで歩きました。[c2:往復][q:にかかった時間は、全部で何分ですか。]',
+    forms: ['□分（かかった時間）', '□m（きょり）', '□m/分（速さ）'], form: 0,
+    conds: {
+      1: { opts: ['速さは答えに関係ない', '行きと帰りで速さがちがうので、時間は別々に出す', '行きと帰りの速さの平均で、まとめて計算する'], ans: 1, hint: '速さがちがうと、同じ道でも時間はちがうよ。' },
+      2: { opts: ['往復は、行きの時間と帰りの時間をたす', '往復は、行きの時間だけでよい', '往復は、行きの時間を2倍する'], ans: 0, hint: '往復＝行き＋帰り。' }
+    },
+    ans: ['28分', '8分', '14分', '6分'], right: 2,
+    why: { 0: '往復の距離で計算していないかな。駅までは480m。行きも帰りも480mだよ。', 1: '8分は帰りの時間（480÷60）だけ。往復は行き＋帰り。', 3: '6分は行きの時間（480÷80）だけ。往復は行き＋帰り。' },
+    calc: ['① 行き：480÷80＝6分（条件①）', '② 帰り：480÷60＝8分（条件①）', '③ 往復：6＋8＝14分（条件②）']
+  },
+  {
+    title: '2つの町の人口',
+    text: 'A町の人口は[n:12480]人、B町の人口は[n:9730]人です。[q:2つの町の人口の][c1:合計]を、[c2:四捨五入して千の位までのがい数]で表しなさい。',
+    forms: ['□人（がい数）', '□人（そのままの数）', '□倍'], form: 0,
+    conds: {
+      1: { opts: ['2つの町の人口の差', '2つの町の人口の平均', '2つの町の人口をたす'], ans: 2, hint: '合計＝ぜんぶたす。' },
+      2: { opts: ['百の位までのがい数にする（十の位を四捨五入）', '千の位までのがい数にする（百の位を四捨五入）', 'そのままの数で答える'], ans: 1, hint: '「千の位まで」→ 千の位より下を四捨五入。その1つ下は百の位。' }
+    },
+    ans: ['22210人', '22200人', '23000人', '22000人'], right: 3,
+    why: { 0: 'たし算までは合っています。条件②「千の位までのがい数」にしよう。', 1: '百の位までにしていないかな。千の位までなら、百の位を四捨五入。', 2: '22210の百の位は2。四捨五入すると、切り上げにはならないよ。' },
+    calc: ['① 合計：12480＋9730＝22210人（条件①）', '② 千の位までのがい数：百の位の2を四捨五入（切り捨て）（条件②）', '③ 22000人']
+  },
+  {
+    title: 'くつの値段',
+    text: '定価[n:2000]円のくつを、[c1:2割引き]で買いました。さらに、[n:100]円の[c2:割引券を使って]、支払いました。[q:支払ったお金は、いくらですか。]',
+    forms: ['□円（支払う金額）', '□割（わりびき）', '□円（わりびきの金額）'], form: 0,
+    conds: {
+      1: { opts: ['定価から200円ひく', '定価の0.8倍にする（2000×0.8＝1600円）', '定価に0.2をかける'], ans: 1, hint: '2割引き＝2割ぶん安くなる。2000円の2割は？' },
+      2: { opts: ['2割引きの値段から、さらに100円ひく', '定価から100円ひく', '2割引きの値段に、100円をたす'], ans: 0, hint: '「さらに」＝2割引きのあとで。' }
+    },
+    ans: ['1600円', '1900円', '1800円', '1500円'], right: 3,
+    why: { 0: '2割引きの値段までは合っています。条件②「さらに100円の割引券」を見直そう。', 1: '定価から100円だけひいたかな。条件①の2割引きが先だよ。', 2: '2割を200円と考えたかな。2000円の2割は400円。' },
+    calc: ['① 2割引き：2000×(1−0.2)＝1600円（条件①）', '② 割引券：1600−100＝1500円（条件②）']
+  },
+  {
+    title: 'ある数をさがす',
+    text: 'ある数を[n:8][c1:倍して]、[n:5][c2:をひく]と、[n:43]になります。[q:ある数は、いくつですか。]',
+    forms: ['ある数（はじめの数）', '8倍した数', '5をひいた数'], form: 0,
+    conds: {
+      1: { opts: ['8倍をもどすには、8でわる', '8倍をもどすには、8をかける', '8倍をもどすには、8をたす'], ans: 0, hint: '×8をもどす計算は？' },
+      2: { opts: ['5をひいたのをもどすには、5をひく', '5をひいたのをもどすには、5をたす', '5をひく順序は関係ない'], ans: 1, hint: '−5をもどす計算は？ 順序は、したことのぎゃくから。' }
+    },
+    ans: ['38', '48', '4.75', '6'], right: 3,
+    why: { 0: '38は43−5。「5をひく」をもどすには、ひくのではなく、たすよ。', 1: '43＋5＝48は「8倍した数」。ある数にもどすには、8でわる（条件①）。', 2: '順序がぎゃくだよ。先に「5をひく」をもどして（＋5）、それから8でわる。' },
+    calc: ['① 5をひく前にもどす：43＋5＝48（条件②）', '② 8倍する前にもどす：48÷8＝6（条件①）']
+  }
+];
+const CIRC = ['①', '②', '③', '④'];
+function parse(text) {
+  const out = [], re = /\[(n|q|c\d):([^\]]*)\]/g;
+  const plain = s => { (s.match(/[^、。]+[、。]?|[、。]/g) || []).forEach(t => out.push({ t, k: 'p', cid: 0 })); };
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) plain(text.slice(last, m.index));
+    const k = m[1];
+    out.push(k[0] === 'c' ? { t: m[2], k: 'c', cid: +k.slice(1) } : { t: m[2], k, cid: 0 });
+    last = re.lastIndex;
+  }
+  if (last < text.length) plain(text.slice(last));
+  out.forEach((s, i) => { s.i = i; });
+  return out;
+}
+P.forEach(p => {
+  p.segs = parse(p.text);
+  p.cids = [...new Set(p.segs.filter(s => s.k === 'c').map(s => s.cid))].sort();
+  p.first = {}; p.segs.forEach(s => { if (s.k === 'c' && p.first[s.cid] === undefined) p.first[s.cid] = s.i; });
+  p.words = {}; p.cids.forEach(c => { p.words[c] = p.segs.filter(s => s.k === 'c' && s.cid === c).map(s => s.t).join('／'); });
+});
+
+/* ===================== 状態の保存（端末内のみ） ===================== */
+const KEY = 'joken-hunter-v1';
+const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat) return s; } catch (e) {} return null; }
+let S = load() || blank();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
+// ポイントとごほうびは、図形ミッションと合算（ごほうびの設定は入口で行う）
+const SH = (function () {
+  const RK = 'jishu-reward-v1';
+  const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  function pts() { const z = rd('zukei-mission-v1'), j = rd('joken-hunter-v1'); return (z && +z.pt || 0) + (j && +j.pt || 0); }
+  function reward() {
+    let r = rd(RK);
+    if (!r || typeof r !== 'object') {
+      const z = rd('zukei-mission-v1');
+      r = { text: (z && z.reward && z.reward.text) || '', need: (z && z.reward && +z.reward.need) || 300, spent: (z && +z.spent) || 0 };
+      try { localStorage.setItem(RK, JSON.stringify(r)); } catch (e) {}
+    }
+    return r;
+  }
+  return { pts, reward };
+})();
+function rewardCard() {
+  const r = SH.reward(), need = Math.max(1, +r.need || 1), have = Math.max(0, SH.pts() - (+r.spent || 0)), pct = Math.min(100, Math.round(have / need * 100));
+  return `<div class="card"><h2>ごほうび</h2>${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="display:block;height:100%;background:var(--blue);width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（図形ミッションと合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}</div>`;
+}
+
+/* ===================== 画面 ===================== */
+const app = document.getElementById('app');
+let route = { page: 'home' };
+let ui = {};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function head(title, back) {
+  const chips = `<div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div>`;
+  if (back) return `<div class="top"><button class="back" data-act="home" aria-label="ホームにもどる">← もどる</button>${chips}</div><h1 style="margin:0 0 8px">${esc(title)}</h1>`;
+  return `<div class="top"><h1>${esc(title)}</h1>${chips}</div>`;
+}
+function stepBar(step, stat) {
+  const names = ['① 答えの形', '② しるし', '③ 言いかえ', '④ 答え', '⑤ なぞる'];
+  return `<div class="steps">${names.map((n, i) => `<div class="st ${stat[i] ? 'ok' : (i === step ? 'now' : '')}">${n}</div>`).join('')}</div>`;
+}
+function taskCard(T) {
+  return `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
+}
+function render() {
+  if (route.page === 'home') return renderHome();
+  if (route.page === 'parent') return renderParent();
+  if (route.page === 'm') return renderM();
+}
+
+/* ---------- ホーム ---------- */
+function renderHome() {
+  const st = S.stat;
+  app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
+  <h1 style="margin:0 0 8px">条件ハンター</h1>
+  <div class="card"><div class="note" style="margin-bottom:8px">問題文にかくれた「答えをかえる条件」を見つけて、しるしをつけてから解こう。</div>
+  <div class="grid5">${S.done.map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="start" data-i="${i}" aria-label="ミッション${i + 1}${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>
+  ${rewardCard()}
+  <div class="card"><h2>きろく</h2><div class="note">条件のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
+  <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
+}
+
+/* ---------- ミッション ---------- */
+function startM(i) {
+  route = { page: 'm', i };
+  ui = { step: 0, tries: [0, 0, 0, 0], stat: [false, false, false, false, false], mk: {}, mode: 'o', msg: null, formPick: null, rep: {}, ansPick: null, chk: {}, hintSeg: null, fin: false };
+  render();
+}
+function textHtml(p, interactive) {
+  return p.segs.map(s => {
+    const m = ui.mk[s.i] || {}, cls = ['seg'];
+    if (m.o) cls.push('circ');
+    if (m.u) cls.push('und');
+    if (ui.hintSeg === s.i) cls.push('hint');
+    if (s.k === 'q' && ui.step >= 1) cls.push('qbox');
+    const bd = (ui.step >= 2 && s.k === 'c' && p.first[s.cid] === s.i) ? `<sup class="bd">${CIRC[s.cid - 1]}</sup>` : '';
+    return interactive
+      ? `<span class="${cls.join(' ')}" data-act="seg" data-i="${s.i}" role="button" tabindex="0">${esc(s.t)}</span>${bd}`
+      : `<span class="${cls.join(' ')}">${esc(s.t)}</span>${bd}`;
+  }).join('');
+}
+function markCheck(p) {
+  let missN = 0; const missC = new Set(); let first = null;
+  p.segs.forEach(s => {
+    const m = ui.mk[s.i] || {};
+    if (s.k === 'n' && !m.o) { missN++; if (first === null) first = s.i; }
+    if (s.k === 'c' && !m.u) { missC.add(s.cid); if (first === null) first = s.i; }
+  });
+  return { missN, missC: missC.size, first };
+}
+const showBtn = pts => `<div class="row" style="margin-top:8px"><button data-act="show">答えを見る（${pts}）</button></div>`;
+function renderM() {
+  const i = route.i, p = P[i];
+  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
+  const T = [
+    { ask: 'この問題は、<b>何を、どんな形で</b>答える？', act: '問題の<b>最後の一文</b>を読んで、答えの形をえらぶ。（紙では、余白に「答：＿」と書いて、四角でかこむ）' },
+    { ask: '問題文には、<b>答えをかえてしまう条件</b>がかくれている。', act: '<b>数には○</b>、<b>条件の中身には下線</b>。ボタンでペンをえらんで、ことばをタップ。もう一度タップすると消える。', hint: '単位・「何年から何年まで」・「のぞく」・ことばの意味（定義）・「全体」・「何で答える」' },
+    { ask: '見つけた条件は、<b>この問題では、どういうこと？</b>', act: '番号ごとに、正しい言いかえをえらぶ。' },
+    { ask: '条件を<b>ぜんぶ守って</b>、答えはいくつ？', act: '紙で計算して、答えを下からえらぶ。', hint: '最後の条件まで、やりきったかな。' },
+    { ask: '<b>最後の見直し。</b>答えは、条件を守れている？', act: '条件を1つずつ、指でなぞって、✓をつける。' }
+  ];
+  let body = '';
+  if (ui.fin) {
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+      <div class="card"><div class="note">計算のたしかめ（1行ごとに、ラベルをつける）</div><ul class="calc">${p.calc.map(c => `<li>${esc(c)}</li>`).join('')}</ul><div style="margin-top:6px" class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>
+      <div class="paper note">紙に戻る：答えの形に四角。数に○、条件に下線。条件に番号。最後に条件を指でなぞる。</div>
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+  } else if (ui.step === 0) {
+    body = `${fb}<div class="card"><div class="opts">${p.forms.map((f, k) => `<button data-act="form" data-k="${k}" ${ui.formPick === k ? 'class="main"' : ''}>${esc(f)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
+  } else if (ui.step === 1) {
+    body = `${fb}<div class="card"><div class="row"><button data-act="mode" data-k="o" ${ui.mode === 'o' ? 'class="main"' : ''}>○ 数にまる</button><button data-act="mode" data-k="u" ${ui.mode === 'u' ? 'class="main"' : ''}>＿ 条件に下線</button></div>
+      <div class="note" style="margin-top:6px">いまのペン：<b>${ui.mode === 'o' ? '○（数）' : '下線（条件）'}</b></div>
+      <div class="row" style="margin-top:8px"><button class="org" data-act="markdone">しるしができた</button></div>${showBtn('0 pt')}</div>`;
+  } else if (ui.step === 2) {
+    body = `${fb}${p.cids.map(c => {
+      const C = p.conds[c], done = ui.rep[c] !== undefined;
+      return `<div class="card"><div class="cq"><b>${CIRC[c - 1]}</b> 「${esc(p.words[c])}」は、この問題では？</div><div class="opts">${C.opts.map((o, k) => `<button data-act="rep" data-c="${c}" data-k="${k}" ${done ? 'disabled' : ''} ${done && k === C.ans ? 'class="ok"' : ''}>${esc(o)}</button>`).join('')}</div></div>`;
+    }).join('')}${showBtn('0 pt')}`;
+  } else if (ui.step === 3) {
+    body = `${fb}<div class="card"><div class="opts">${p.ans.map((a, k) => `<button data-act="ans" data-k="${k}" ${ui.ansPick === k ? 'class="main"' : ''}>${esc(a)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
+  } else {
+    body = `${fb}<div class="card"><div class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>${p.cids.map(c => `<button class="chk ${ui.chk[c] ? 'done' : ''}" data-act="chk" data-c="${c}">${ui.chk[c] ? '✓' : '□'} <b>${CIRC[c - 1]}</b> ${esc(p.conds[c].opts[p.conds[c].ans])}</button>`).join('')}`;
+  }
+  app.innerHTML = `${head(`ミッション ${i + 1} / ${P.length}　${p.title}`, true)}
+  ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
+  <div class="prob">${textHtml(p, ui.step === 1 && !ui.fin)}</div>
+  ${body}`;
+}
+
+/* ---------- 進行 ---------- */
+function passForm() { ui.stat[0] = true; ui.step = 1; ui.msg = { k: 'ok', t: `答えの形は「${P[route.i].forms[P[route.i].form]}」。問題文の最後の一文に、四角をつけたよ。` }; }
+function passMarks() { const pt = award(ui.tries[1]); ui.stat[1] = true; ui.step = 2; ui.hintSeg = null; ui.msg = { k: 'ok', t: `条件が見つかった！ 番号をつけたよ。 +${pt} pt` }; }
+function passRep() { const pt = award(ui.tries[2]); ui.stat[2] = true; ui.step = 3; ui.msg = { k: 'ok', t: `言いかえができた！ +${pt} pt` }; }
+function passAns() { const p = P[route.i], pt = award(ui.tries[3]); ui.stat[3] = true; ui.step = 4; ui.msg = { k: 'ok', t: `正解！ ${p.ans[p.right]} +${pt} pt。最後に、条件を1つずつなぞって確かめよう。` }; }
+function finish() {
+  const wasNew = !S.done[route.i];
+  if (wasNew) S.done[route.i] = 1;
+  S.chest = S.done.reduce((a, b) => a + b, 0);
+  const clean = ui.tries.every(t => t === 0);
+  ui.bonus = (wasNew && clean) ? 10 : 0; S.pt += ui.bonus;
+  S.stat.mT++; if (ui.tries[1] === 0) S.stat.mF++;
+  S.stat.aT++; if (ui.tries[3] === 0) S.stat.aF++;
+  save(); ui.stat[4] = true; ui.fin = true;
+}
+function segTap(idx) {
+  const p = P[route.i], s = p.segs[idx], m = ui.mk[idx] = ui.mk[idx] || {};
+  if (ui.mode === 'o') m.o = !m.o; else m.u = !m.u;
+  ui.hintSeg = null;
+  ui.msg = null;
+  if (ui.mode === 'u' && m.u && s.k === 'q') ui.msg = { k: 'hint', t: 'ここは「何を答えるか」（問いの形）。この線はいつも上手。今日は、条件の中身（単位・期間・のぞく・意味・全体）をさがそう。' };
+  render();
+}
+function markDone() {
+  const p = P[route.i], r = markCheck(p);
+  if (r.missN === 0 && r.missC === 0) return passMarks(), render();
+  ui.tries[1]++;
+  const parts = [];
+  if (r.missC) parts.push(`条件の中身が、あと${r.missC}つ、かくれているよ`);
+  if (r.missN) parts.push(`○のつけていない数が、あと${r.missN}こ`);
+  ui.msg = { k: 'ng', t: parts.join('。') + '。' };
+  if (ui.tries[1] >= 2) { ui.hintSeg = r.first; ui.msg.t += '（光っているところを見てみよう）'; }
+  render();
+}
+function showAnswer() {
+  const p = P[route.i];
+  if (ui.step === 0) { ui.formPick = p.form; return passForm(), render(); }
+  if (ui.step === 1) { p.segs.forEach(s => { if (s.k === 'n') (ui.mk[s.i] = ui.mk[s.i] || {}).o = true; if (s.k === 'c') (ui.mk[s.i] = ui.mk[s.i] || {}).u = true; }); ui.tries[1] = Math.max(ui.tries[1], 3); return passMarks(), render(); }
+  if (ui.step === 2) { p.cids.forEach(c => { ui.rep[c] = p.conds[c].ans; }); ui.tries[2] = Math.max(ui.tries[2], 3); return passRep(), render(); }
+  if (ui.step === 3) { ui.ansPick = p.right; ui.tries[3] = Math.max(ui.tries[3], 3); return passAns(), render(); }
+}
+function mAction(a, el) {
+  const p = P[route.i];
+  if (a === 'seg') return ui.step === 1 ? segTap(+el.dataset.i) : undefined;
+  if (a === 'mode') { ui.mode = el.dataset.k; ui.msg = null; return render(); }
+  if (a === 'markdone') return markDone();
+  if (a === 'show') return showAnswer();
+  if (a === 'form') {
+    const k = +el.dataset.k; ui.formPick = k;
+    if (k === p.form) { passForm(); } else { ui.tries[0]++; ui.msg = { k: 'ng', t: '問題の最後の一文を、もう一度読もう。「何を」「どんな形で」答える？' }; }
+    return render();
+  }
+  if (a === 'rep') {
+    const c = +el.dataset.c, k = +el.dataset.k, C = p.conds[c];
+    if (k === C.ans) { ui.rep[c] = k; ui.msg = { k: 'ok', t: `${CIRC[c - 1]} そのとおり！` }; if (p.cids.every(x => ui.rep[x] !== undefined)) passRep(); }
+    else { ui.tries[2]++; ui.msg = { k: 'ng', t: `${CIRC[c - 1]} もう一度。${C.hint}` }; }
+    return render();
+  }
+  if (a === 'ans') {
+    const k = +el.dataset.k; ui.ansPick = k;
+    if (k === p.right) { passAns(); } else { ui.tries[3]++; ui.msg = { k: 'ng', t: p.why[k] || 'もう一度。条件を、1つずつ守れているか見直そう。' }; }
+    return render();
+  }
+  if (a === 'chk') {
+    const c = +el.dataset.c; ui.chk[c] = !ui.chk[c]; ui.msg = null;
+    if (p.cids.every(x => ui.chk[x])) finish();
+    return render();
+  }
+}
+
+/* ---------- おうちの人向け ---------- */
+function renderParent() {
+  const a = 3 + Math.floor(Math.random() * 6), b = 4 + Math.floor(Math.random() * 6);
+  ui = { gate: a * b };
+  app.innerHTML = `${head('おうちの人向け', true)}
+  <div class="card"><div class="note">子どもが設定を変えないための確認です。答えを入れてください。</div><div style="margin:8px 0;font-size:18px">${a} × ${b} ＝</div>
+  <input id="gate" inputmode="numeric" style="width:100%;min-height:46px;font-size:18px;padding:0 10px;border:1px solid var(--line);border-radius:10px" aria-label="確認の答え"><div class="row" style="margin-top:8px"><button class="main" data-act="gate">開く</button></div><div id="gm"></div></div>`;
+}
+function renderParentOpen() {
+  const st = S.stat;
+  app.innerHTML = `${head('おうちの人向け', true)}
+  <div class="card"><h2>きろく</h2><div class="note">ポイント：${S.pt}　クリア：${S.chest} / ${P.length}<br>条件のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div>
+  <div class="note" style="margin-top:6px">紙の答案でも、「条件に下線・番号を書いた設問の割合」を数えると、変化が見えます。</div></div>
+  <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントは図形ミッションと合算）。</div></div>
+  <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
+}
+
+/* ---------- 入力 ---------- */
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'home') { route = { page: 'home' }; ui = {}; return render(); }
+  if (a === 'start') return startM(+el.dataset.i);
+  if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
+  if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
+  if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = blank(); save(); route = { page: 'home' }; ui = {}; return render(); }
+  if (route.page === 'm') return mAction(a, el);
+});
+document.addEventListener('keydown', ev => {
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.seg[role=button]')) { ev.preventDefault(); ev.target.click(); }
+});
+window.JK = { P, get S() { return S; }, get ui() { return ui; }, startM, markCheck, render };
+render();
+</script>
+</body>
+</html>

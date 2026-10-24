@@ -5,960 +5,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex,nofollow">
-<title>図形ミッション</title>
+<title>自習ミッション</title>
 <style>
-:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--cut:#2563A8;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
+:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
-#app{max-width:520px;margin:0 auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
-h1{font-size:22px;margin:0}
+#app{max-width:520px;margin:0 auto;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:24px;margin:0 0 4px}
 h2{font-size:17px;margin:0 0 8px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:700}
-.chip{padding:5px 10px;border-radius:99px}
+.sub{font-size:14px;color:var(--sub);margin:0 0 14px}
+.door{display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.door:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
+.door:active{background:var(--blue-soft)}
+.door h2{font-size:19px;margin:0 0 4px;color:var(--blue)}
+.door p{font-size:14px;color:var(--sub);margin:0 0 8px}
+.prog{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.chip{padding:4px 10px;border-radius:99px}
 .chip.pt{background:var(--gold-soft);color:var(--gold)}
 .chip.box{background:var(--blue-soft);color:var(--blue)}
+.go{display:block;margin-top:8px;font-size:15px;font-weight:700;color:var(--blue);text-align:right}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
 .note{font-size:13px;color:var(--sub)}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--blue)}
+.fb{border-radius:10px;padding:10px 12px;font-size:14px;margin:8px 0}
+.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
+.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
 button{font-family:inherit;font-size:15px;font-weight:700;min-height:46px;border-radius:10px;border:1px solid var(--blue);background:#fff;color:var(--blue);padding:0 14px;cursor:pointer}
-button.main{background:var(--blue);color:#fff;border-color:var(--blue)}
-button.org{background:var(--org);color:#fff;border-color:var(--org)}
+button.main{background:var(--blue);color:#fff}
 button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>button{flex:1}
-.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.mis{min-height:54px;font-size:18px}
-.mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
-.steps{display:flex;gap:6px;margin:8px 0}
-.st{flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--sub)}
-.st.now{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
-.st.ok{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:700}
-.fb{border-radius:10px;padding:10px 12px;font-size:14px;margin:8px 0}
-.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
-.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
-.fb.hint{background:var(--gold-soft);border:1px solid #C9A24A;color:var(--gold)}
-svg{display:block;max-width:100%;touch-action:none;user-select:none;-webkit-user-select:none}
-.scene{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px}
-input[type=range]{width:100%;height:44px}
-.paper{border-top:1px dashed #B8B4A8;margin-top:10px;padding-top:8px}
-.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
-.bar>i{display:block;height:100%;background:var(--blue)}
-.back{min-height:44px;padding:0 10px}
-.task{background:#FFF8E5;border:1px solid #C9A24A;border-radius:12px;padding:10px 12px;margin:8px 0;display:flex;flex-direction:column;gap:6px}
-.tk{display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.5}
-.tag{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:2px;background:#6B4A06;color:#fff}
-.tag.act{background:#1F4E79}
-.goal{font-size:15px;line-height:1.6}
-.goal b{color:#C2410C}
-.flatbox{border:2px solid var(--line)}
-.flatbox.tapme{border-color:#1F4E79;box-shadow:0 0 0 3px #E0EAF4}
-.tapnote{font-size:13px;font-weight:700;color:#1F4E79;margin:2px 6px}
-.shape{display:flex;gap:6px}
-.shape>div{flex:1;border:1px solid var(--line);border-radius:10px;background:#fff;text-align:center;padding:6px 2px;font-size:12px;color:var(--sub)}
-.shape>div.now{border:2px solid var(--blue);background:var(--blue-soft);color:var(--blue);font-weight:700}
+input{width:100%;min-height:46px;font-size:16px;padding:0 10px;border:1px solid var(--line);border-radius:10px}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 'use strict';
-/* ===================== 状態の保存（端末内のみ） ===================== */
-const KEY = 'zukei-mission-v1';
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {} return null; }
-let S = load() || { pt: 0, chest: 0, done: { cut: [0, 0, 0, 0, 0], net: [0, 0, 0, 0, 0] }, reward: { text: '', need: 300 }, spent: 0 };
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
-
-/* ===================== 立方体の幾何 ===================== */
-// x:右 y:上 z:手前。A..D が上の面、E..H が下の面（EはAの真下）
-const V = { A: [0, 1, 1], B: [1, 1, 1], C: [1, 1, 0], D: [0, 1, 0], E: [0, 0, 1], F: [1, 0, 1], G: [1, 0, 0], H: [0, 0, 0] };
-const EDGES = ['AB', 'BC', 'CD', 'DA', 'EF', 'FG', 'GH', 'HE', 'AE', 'BF', 'CG', 'DH'];
-const FACES = { top: 'ABCD', bottom: 'EFGH', front: 'ABFE', back: 'DCGH', left: 'ADHE', right: 'BCGF' };
-const FACE_N = { top: [0, 1, 0], bottom: [0, -1, 0], front: [0, 0, 1], back: [0, 0, -1], left: [-1, 0, 0], right: [1, 0, 0] };
-const FACE_JP = { top: '上の面', bottom: '下の面', front: '手前の面', back: '奥の面', left: '左の面', right: '右の面' };
-const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-const len = a => Math.hypot(a[0], a[1], a[2]);
-const nrm = a => { const l = len(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
-const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
-const edgePt = (e, t) => lerp(V[e[0]], V[e[1]], t);
-const facesOf = e => Object.keys(FACES).filter(f => FACES[f].includes(e[0]) && FACES[f].includes(e[1]));
-
-// 平面 n·x = d が立方体の辺と交わる点（辺ごとに1点）。頂点上は拾わない
-function cutAt(n, d) {
-  const out = [];
-  for (const e of EDGES) {
-    const a = V[e[0]], b = V[e[1]];
-    const fa = dot(n, a) - d, fb = dot(n, b) - d;
-    if (fa * fb < -1e-12) { const t = fa / (fa - fb); out.push({ e, t, p: lerp(a, b, t) }); }
-  }
-  return out;
-}
-function orderPoly(pts, n) {
-  if (pts.length < 3) return pts.slice();
-  const c = [0, 0, 0]; pts.forEach(q => { c[0] += q.p[0]; c[1] += q.p[1]; c[2] += q.p[2]; });
-  c[0] /= pts.length; c[1] /= pts.length; c[2] /= pts.length;
-  const nn = nrm(n), u = nrm(sub(pts[0].p, c)), v = cross(nn, u);
-  return pts.slice().sort((a, b) => Math.atan2(dot(sub(a.p, c), v), dot(sub(a.p, c), u)) - Math.atan2(dot(sub(b.p, c), v), dot(sub(b.p, c), u)));
-}
-
-/* ===================== 切断の問題（自作・3点で平面が決まる） ===================== */
-const CUT = [
-  { pts: [['AB', 1 / 2], ['BC', 1 / 2], ['BF', 1 / 2]], name: '三角形' },
-  { pts: [['AB', 1 / 2], ['CD', 1 / 2], ['EF', 1 / 2]], name: '四角形' },
-  { pts: [['AB', 1 / 2], ['BC', 1 / 2], ['EF', 1 / 2]], name: '四角形' },
-  { pts: [['AB', 1 / 3], ['BC', 1 / 3], ['FG', 2 / 3]], name: '五角形' },
-  { pts: [['BC', 1 / 2], ['DH', 1 / 2], ['EF', 1 / 2]], name: '六角形' }
-];
-function cutInfo(i) {
-  const g = CUT[i].pts.map(([e, t]) => edgePt(e, t));
-  const n = cross(sub(g[1], g[0]), sub(g[2], g[0])), d = dot(n, g[0]);
-  const poly = orderPoly(cutAt(n, d), n);
-  return { n, d, poly, edges: poly.map(q => q.e), given: CUT[i].pts.map(p => p[0]) };
-}
-const FR = t => (Math.abs(t - .5) < 1e-9 ? '中点' : `${Math.round(t * 3)}:${3 - Math.round(t * 3)}`);
-function descPt(e, t) { return Math.abs(t - .5) < 1e-9 ? `辺${e}の中点` : `辺${e}を${e[0]}から ${Math.round(t * 3)}:${3 - Math.round(t * 3)} に分ける点`; }
-
-/* ===================== 展開図：折りたたみと「転がし」判定 ===================== */
-const NETS = [
-  { cells: [[0, 1], [1, 0], [1, 1], [1, 2], [1, 3], [2, 2]], star: [1, 1], ok: true, name: '1-4-1' },
-  { cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], star: [0, 0], ok: false, name: '2×3' },
-  { cells: [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 3]], star: [1, 1], ok: true, name: '階段' },
-  { cells: [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 0]], star: [0, 2], ok: false, name: '一列5＋1' },
-  { cells: [[0, 0], [0, 1], [0, 2], [1, 2], [1, 3], [1, 4]], star: [0, 1], ok: true, name: '3-3' }
-];
-const DIRS = [['E', 0, 1], ['W', 0, -1], ['N', -1, 0], ['S', 1, 0]];
-const OPP = { U: 'D', D: 'U', N: 'S', S: 'N', E: 'W', W: 'E' };
-function roll(st, d) {
-  const o = st, n = Object.assign({}, st);
-  if (d === 'E') { n.D = o.E; n.E = o.U; n.U = o.W; n.W = o.D; }
-  if (d === 'W') { n.D = o.W; n.W = o.U; n.U = o.E; n.E = o.D; }
-  if (d === 'N') { n.D = o.N; n.N = o.U; n.U = o.S; n.S = o.D; }
-  if (d === 'S') { n.D = o.S; n.S = o.U; n.U = o.N; n.N = o.D; }
-  return n;
-}
-// ★のマスを根にして、広がり順（木）を作る。各マスに、親・向き・転がした向きの面を付ける
-function netTree(net) {
-  const key = (r, c) => r + ',' + c, set = new Set(net.cells.map(([r, c]) => key(r, c)));
-  const root = net.star, nodes = [{ r: root[0], c: root[1], parent: -1, dir: null, st: { U: 'U', D: 'D', N: 'N', S: 'S', E: 'E', W: 'W' } }];
-  const seen = new Set([key(root[0], root[1])]);
-  for (let i = 0; i < nodes.length; i++) {
-    for (const [d, dr, dc] of DIRS) {
-      const r = nodes[i].r + dr, c = nodes[i].c + dc;
-      if (set.has(key(r, c)) && !seen.has(key(r, c))) {
-        seen.add(key(r, c));
-        nodes.push({ r, c, parent: i, dir: d, st: roll(nodes[i].st, d) });
-      }
-    }
-  }
-  nodes.forEach(n => { n.face = n.st.D; });
-  return nodes;
-}
-function netCheck(net) {
-  const t = netTree(net), faces = t.map(n => n.face);
-  const ok = new Set(faces).size === 6;
-  const same = [];
-  for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) if (t[i].face === t[j].face) same.push([i, j]);
-  return { ok, tree: t, same };
-}
-function oppositeOfStar(net) {
-  const t = netTree(net); // t[0] が ★
-  const want = OPP[t[0].face];
-  const k = t.findIndex(n => n.face === want);
-  return k < 0 ? null : [t[k].r, t[k].c];
-}
-// 4x4行列（行優先）
-const M0 = () => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-function mmul(a, b) { const r = new Array(16).fill(0); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[i * 4 + k] * b[k * 4 + j]; r[i * 4 + j] = s; } return r; }
-const MT = (x, y, z) => { const m = M0(); m[3] = x; m[7] = y; m[11] = z; return m; };
-const MRY = a => { const c = Math.cos(a), s = Math.sin(a); return [c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1]; };
-const MRX = a => { const c = Math.cos(a), s = Math.sin(a); return [1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1]; };
-const MA = (m, p) => [m[0] * p[0] + m[1] * p[1] + m[2] * p[2] + m[3], m[4] * p[0] + m[5] * p[1] + m[6] * p[2] + m[7], m[8] * p[0] + m[9] * p[1] + m[10] * p[2] + m[11]];
-// 折りたたみ度 t(0〜1) での、各マスの4頂点（3D）。x=列、y=-行、z=手前
-function foldCells(net, t) {
-  const tree = netTree(net), th = (Math.PI / 2) * t, T = [];
-  tree.forEach((n, i) => {
-    if (n.parent < 0) { T.push(M0()); return; }
-    const p = tree[n.parent]; let h;
-    if (n.dir === 'E') { const px = p.c + 1, py = -(p.r + .5); h = mmul(MT(px, py, 0), mmul(MRY(-th), MT(-px, -py, 0))); }
-    else if (n.dir === 'W') { const px = p.c, py = -(p.r + .5); h = mmul(MT(px, py, 0), mmul(MRY(th), MT(-px, -py, 0))); }
-    else if (n.dir === 'N') { const px = p.c + .5, py = -p.r; h = mmul(MT(px, py, 0), mmul(MRX(th), MT(-px, -py, 0))); }
-    else { const px = p.c + .5, py = -(p.r + 1); h = mmul(MT(px, py, 0), mmul(MRX(-th), MT(-px, -py, 0))); }
-    T.push(mmul(T[n.parent], h));
-  });
-  return tree.map((n, i) => ({ node: n, pts: [[n.c, -n.r, 0], [n.c + 1, -n.r, 0], [n.c + 1, -n.r - 1, 0], [n.c, -n.r - 1, 0]].map(q => MA(T[i], q)) }));
-}
-
-/* ===================== 画面の描画（SVG） ===================== */
-const view = { yaw: -0.6, pitch: 0.5 };
-function rotV(p, yaw, pitch) {
-  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
-  const x1 = cy * p[0] + sy * p[2], z1 = -sy * p[0] + cy * p[2];
-  return [x1, cp * p[1] - sp * z1, sp * p[1] + cp * z1];
-}
-const f2 = x => Math.round(x * 10) / 10;
-function projCube(p, W, H, s) { const q = rotV([p[0] - .5, p[1] - .5, p[2] - .5], view.yaw, view.pitch); return [W / 2 + s * q[0], H / 2 - s * q[1], q[2]]; }
-
-// 切断の場面：cutState = {sel:Set(edges), given:[[e,t]...], reveal, poly, segs:[[i,j]], pick, plane:{poly}}
-function sceneCut(W, H, c) {
-  const s = 150;
-  const P = {}; for (const k in V) P[k] = projCube(V[k], W, H, s);
-  const vis = {}; for (const f in FACES) { const q = rotV(FACE_N[f], view.yaw, view.pitch); vis[f] = q[2] > 0.001; }
-  let g = '';
-  const order = Object.keys(FACES).sort((a, b) => avgZ(a) - avgZ(b));
-  function avgZ(f) { return FACES[f].split('').reduce((m, k) => m + P[k][2], 0) / 4; }
-  for (const f of order) {
-    const pts = FACES[f].split('').map(k => f2(P[k][0]) + ',' + f2(P[k][1])).join(' ');
-    g += `<polygon points="${pts}" fill="${vis[f] ? '#EEF3F8' : '#DDE5EE'}" fill-opacity="${vis[f] ? .55 : .35}" stroke="none"/>`;
-  }
-  for (const e of EDGES) {
-    const a = P[e[0]], b = P[e[1]], fs = facesOf(e), v = fs.some(f => vis[f]);
-    const sel = c.sel && c.sel.has(e);
-    g += `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${sel ? '#C2410C' : '#1F2430'}" stroke-width="${sel ? 5 : 2.2}" ${v ? '' : 'stroke-dasharray="6 5" stroke-opacity=".6"'} stroke-linecap="round"/>`;
-  }
-  if (c.handles) for (const e of EDGES) {
-    if (c.locked && c.locked.includes(e)) continue;
-    const m = projCube(edgePt(e, .5), W, H, s), on = c.sel && c.sel.has(e), hid = !facesOf(e).some(f => vis[f]);
-    g += `<circle cx="${f2(m[0])}" cy="${f2(m[1])}" r="${on ? 13 : 11}" fill="${on ? '#C2410C' : '#fff'}" stroke="${on ? '#7A2A08' : '#1F4E79'}" stroke-width="3" ${hid && !on ? 'stroke-dasharray="3 3"' : ''} opacity="${hid && !on ? .75 : 1}"/>`;
-    g += on ? `<path d="M${f2(m[0] - 5)} ${f2(m[1])} l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : `<path d="M${f2(m[0] - 5)} ${f2(m[1])} h10 M${f2(m[0])} ${f2(m[1] - 5)} v10" stroke="#1F4E79" stroke-width="2.5" stroke-linecap="round"/>`;
-  }
-  // 切り口の面（確かめの段階）
-  const polyPts = c.plane && c.plane.length >= 3 ? c.plane.map(q => { const r = projCube(q.p, W, H, s); return f2(r[0]) + ',' + f2(r[1]); }).join(' ') : '';
-  if (polyPts) g += `<polygon points="${polyPts}" fill="#2563A8" fill-opacity=".28" stroke="#2563A8" stroke-width="3.5" stroke-linejoin="round"/>`;
-  // 引いた線
-  if (c.segs) for (const [i, j] of c.segs) {
-    const a = projCube(c.poly[i].p, W, H, s), b = projCube(c.poly[j].p, W, H, s);
-    g += `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="#2563A8" stroke-width="5" stroke-linecap="round"/>`;
-  }
-  // 頂点の名前
-  const cen = projCube([.5, .5, .5], W, H, s);
-  for (const k in V) {
-    const a = P[k], dx = a[0] - cen[0], dy = a[1] - cen[1], l = Math.hypot(dx, dy) || 1;
-    g += `<text x="${f2(a[0] + dx / l * 15)}" y="${f2(a[1] + dy / l * 15 + 5)}" font-size="15" font-weight="700" text-anchor="middle" fill="#1F2430" stroke="#fff" stroke-width="3" paint-order="stroke">${k}</text>`;
-  }
-  // 与えられた点・見つけた点
-  if (c.given) c.given.forEach(([e, t], i) => {
-    const a = projCube(edgePt(e, t), W, H, s);
-    g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="8" fill="#C2410C"/><text x="${f2(a[0] + 12)}" y="${f2(a[1] - 8)}" font-size="17" font-weight="700" fill="#C2410C" stroke="#fff" stroke-width="4" paint-order="stroke">${'PQR'[i]}</text>`;
-  });
-  if (c.points) c.points.forEach((q, i) => {
-    const a = projCube(q.p, W, H, s), on = c.pick === i, par = c.partners && c.partners.has(i), dim = c.partners && !par && !on;
-    if (par) g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="21" fill="none" stroke="#2F6B3A" stroke-width="4"/>`;
-    g += `<g opacity="${dim ? .35 : 1}"><circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="${on ? 14 : 11}" fill="${on ? '#F59E0B' : '#fff'}" stroke="#2563A8" stroke-width="3"/><text x="${f2(a[0])}" y="${f2(a[1] + 4.5)}" font-size="12" font-weight="700" text-anchor="middle" fill="#1F2430">${i + 1}</text></g>`;
-  });
-  return g;
-}
-// 画面上の点と辺（線分）の距離
-function distSeg(px, py, ax, ay, bx, by) {
-  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1;
-  let t = ((px - ax) * dx + (py - ay) * dy) / l2; t = Math.max(0, Math.min(1, t));
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-}
-
-/* ===================== 画面 ===================== */
-const app = document.getElementById('app');
-let route = { page: 'home' };
-let ui = {};   // 場面ごとの一時状態
+const ZK = 'zukei-mission-v1', JK = 'joken-hunter-v1', RK = 'jishu-reward-v1';
+const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-function head(title, back) {
-  const chips = `<div class="chips"><span class="chip pt">${S.pt} pt</span><span class="chip box">宝箱 ${S.chest} / 20</span></div>`;
-  if (back) return `<div class="top"><button class="back" data-act="home" aria-label="ホームにもどる">← もどる</button>${chips}</div><h1 style="margin:0 0 8px">${esc(title)}</h1>`;
-  return `<div class="top"><h1>${esc(title)}</h1>${chips}</div>`;
+// 進み具合
+function zInfo() {
+  const z = rd(ZK); let g = 0;
+  if (z && z.done) Object.values(z.done).forEach(a => { g += (a || []).reduce((x, y) => x + y, 0); });
+  return { pt: z && +z.pt || 0, got: g };
 }
-function stepBar(step, stat) {
-  const names = ['① 点を打つ', '② つなぐ', '③ 確かめる'];
-  return `<div class="steps">${names.map((n, i) => `<div class="st ${stat[i] ? 'ok' : (i === step ? 'now' : '')}">${n}</div>`).join('')}</div>`;
+function jInfo() {
+  const j = rd(JK);
+  return { pt: j && +j.pt || 0, got: j && Array.isArray(j.done) ? j.done.reduce((x, y) => x + y, 0) : 0 };
 }
-function render() {
-  if (route.page === 'home') return renderHome();
-  if (route.page === 'cut') return renderCut();
-  if (route.page === 'net') return renderNet();
-  if (route.page === 'ref') return renderRef();
-  if (route.page === 'aux') return renderAux();
+// ごほうび（2つのアプリで共通）。はじめて読むとき、図形ミッションの旧設定を引き継ぐ
+function reward() {
+  let r = rd(RK);
+  if (!r || typeof r !== 'object') {
+    const z = rd(ZK);
+    r = { text: (z && z.reward && z.reward.text) || '', need: (z && z.reward && +z.reward.need) || 300, spent: (z && +z.spent) || 0 };
+    saveReward(r);
+  }
+  return r;
 }
+function saveReward(r) { try { localStorage.setItem(RK, JSON.stringify(r)); } catch (e) {} }
+const total = () => zInfo().pt + jInfo().pt;
+const haveNow = r => Math.max(0, total() - (+r.spent || 0));
 
-/* ---------- ホーム ---------- */
-const MODS = [
-  ['cut', '立体の切断', '3つの点を通る平面で立方体を切る。切り口は何角形？'],
-  ['net', '展開図', '6つの正方形は、立方体になる？ 折って確かめよう。'],
-  ['ref', '平面：反射の作図', '壁に当たって進む線を、台を並べて、まっすぐに直して考えよう。'],
-  ['aux', '平面：補助線', '線を1本引くと、同じ大きさの部分が見えてくる。']
-];
-function renderHome() {
-  const r = S.reward, need = Math.max(1, +r.need || 1), have = S.pt - (S.spent || 0), pct = Math.min(100, Math.round(have / need * 100));
-  const mods = MODS.map(([k, name, note]) => `<div class="card"><h2>${name}</h2><div class="note" style="margin-bottom:8px">${note}</div><div class="grid5">${S.done[k].map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="${k}" data-i="${i}" aria-label="${name} ${i + 1}番${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>`).join('');
-  app.innerHTML = `${head('図形ミッション')}
-  ${mods}
-  <div class="card"><h2>ごほうび</h2>
-    ${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}
-  </div>
-  <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
+let gate = 0;
+function renderHub() {
+  const z = zInfo(), j = jInfo(), r = reward(), need = Math.max(1, +r.need || 1), have = haveNow(r), pct = Math.min(100, Math.round(have / need * 100));
+  const chips = i => `<span class="chip pt">${i.pt} pt</span><span class="chip box">宝箱 ${i.got} / ${i === z ? 20 : 10}</span>`;
+  app.innerHTML = `<h1>自習ミッション</h1>
+  <p class="sub">どちらから始める？　ポイントは、2つ合わせてたまります。</p>
+  <a class="door" href="zukei/"><h2>図形ミッション</h2><p>立体の切断・展開図・反射の作図・補助線。動かして確かめよう。</p><div class="prog">${chips(z)}</div><span class="go">はじめる →</span></a>
+  <a class="door" href="joken/"><h2>条件ハンター</h2><p>問題文にかくれた「答えをかえる条件」を見つけて、しるしをつけてから解こう。</p><div class="prog">${chips(j)}</div><span class="go">はじめる →</span></a>
+  <div class="card"><h2>ごほうび</h2>${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}</div>
+  <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button id="bparent">おうちの人向け</button></div></div>`;
+  document.getElementById('bparent').addEventListener('click', renderGate);
 }
-
-/* ---------- 切断 ---------- */
-function startCut(i) {
-  const info = cutInfo(i);
-  const needFind = info.edges.filter(e => !info.given.includes(e));
-  ui = { i, info, step: needFind.length === 0 ? 1 : 0, stat: [needFind.length === 0, false, false], sel: new Set(info.given), tries: [0, 0, 0], msg: null, segs: [], pick: -1, hints: 0, u: 0.5, ans: null, fin: false, bonus: 0 };
-  const ps = cutInfo(i);
-  const cs = Array.from({ length: 12 }, () => 0); // 保持用
-  ui.range = (() => { const nn = nrm(ps.n), vs = Object.values(V).map(v => dot(nn, v)); return { lo: Math.min(...vs), hi: Math.max(...vs), c0: ps.d / len(ps.n) }; })();
-  ui.u = (ui.range.c0 - ui.range.lo) / (ui.range.hi - ui.range.lo);
-  ui.u0 = ui.u;
-  if (needFind.length === 0) ui.msg = { k: 'ok', t: '切られる辺は、P・Q・Rの3本だけ。三角形になるのは、ひとつの頂点のまわりの3本の辺を切るとき。' };
-  route = { page: 'cut', i };
-  render();
-}
-function planeAt() {
-  const nn = nrm(ui.info.n), c = ui.range.lo + ui.u * (ui.range.hi - ui.range.lo);
-  return orderPoly(cutAt(nn, c), nn);
-}
-function cutCfg() {
-  const info = ui.info, p = CUT[route.i], c = { given: p.pts };
-  if (ui.step === 0 && !ui.fin) { c.sel = ui.sel; c.handles = true; c.locked = info.given; }
-  if (ui.step >= 1 && !ui.fin) { c.points = info.poly; c.poly = info.poly; c.segs = ui.segs; c.pick = ui.pick; }
-  if (ui.step === 1 && ui.pick >= 0) {
-    const fa = facesOf(info.poly[ui.pick].e);
-    c.partners = new Set(info.poly.map((q, k) => k).filter(k => k !== ui.pick && facesOf(info.poly[k].e).some(f => fa.includes(f))));
-  }
-  if (ui.step === 2 || ui.fin) { c.points = null; c.segs = null; c.plane = ui.fin ? info.poly : planeAt(); c.sel = null; }
-  return c;
-}
-const CUT_TASK = [
-  { ask: '切り口は何角形？ まず、<b>平面が通る辺</b>を全部見つけよう。', act: '立方体の辺の上の <b>丸（＋）</b> をタップ。オレンジになったら選択。もう一度タップで外せる。選び終わったら「チェック」。', hint: '平面が通る辺の数は、切り口の頂点の数と同じ。' },
-  { ask: '切り口の<b>形</b>をかこう。', act: '点を<b>1つタップ</b> → 緑の輪が付いた点を<b>タップ</b>。2点が線でつながる。', hint: '結べるのは、同じ面の上にある2点だけ。' },
-  { ask: '<b>もとの位置</b>の切り口は、何角形？', act: 'スライダーを動かして、形の変わり方を見る。▲（もとの位置）にもどして、下のボタンで答える。', hint: '' }
-];
-function renderCut() {
-  const i = route.i, p = CUT[i], info = ui.info, W = 340, H = 300, names = 'PQR';
-  const text = p.pts.map(([e, t], k) => `${names[k]}＝${descPt(e, t)}`).join('、');
-  const c = cutCfg();
-  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
-  let task = '', body = '';
-  if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
-      <div class="card"><div>切り口は<b>${esc(p.name)}</b>。切られる辺の数＝切り口の頂点の数＝切り口の辺の数（切られる面の数）。</div></div>
-      <div class="paper note">紙に戻る：問題の図に、①②③…と、線を引いた順に番号を書く。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="cut" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
-  } else {
-    const T = CUT_TASK[ui.step];
-    task = `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
-    if (ui.step === 0) {
-      body = `${fb}<div class="card"><div style="margin-bottom:8px">選んだ辺：<b>${ui.sel.size} 本</b>（P・Q・Rの辺を含む）</div><div class="row"><button class="main" data-act="check0">チェック</button>${ui.tries[0] >= 4 ? '<button data-act="show0">答えを見る</button>' : ''}</div></div>`;
-    } else if (ui.step === 1) {
-      body = `${fb}<div class="card"><div style="margin-bottom:8px">引いた線：<b>${ui.segs.length} 本</b> ／ 全部で ${info.poly.length} 本</div><div class="row"><button data-act="undo1">ひとつ戻す</button></div></div>`;
-    } else {
-      const n = planeAt().length;
-      const nm = ['', '', '', '三角形', '四角形', '五角形', '六角形'];
-      body = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px"><b>いまの切り口：<span id="nowshape">${n >= 3 ? nm[n] : '（なし）'}</span></b><span class="note" id="atorig">${Math.abs(ui.u - ui.u0) < .02 ? '＝もとの位置' : ''}</span></div>
-      <div style="position:relative"><input type="range" min="0" max="1000" value="${Math.round(ui.u * 1000)}" id="sl" aria-label="平面の位置"><div aria-hidden="true" style="position:absolute;left:calc(8px + (100% - 16px) * ${ui.u0});bottom:-6px;transform:translateX(-50%);color:#C2410C;font-size:14px;line-height:1">▲</div></div>
-      <div class="note" style="display:flex;justify-content:space-between"><span>◀ 下のはし</span><span>▲＝もとの位置</span><span>上のはし ▶</span></div>
-      <div class="row" style="margin:8px 0"><button data-act="reset3">もとの位置にもどす</button></div></div>
-      ${fb}<div class="card"><b>もとの位置の切り口は？</b><div class="row" style="margin-top:6px">${[3, 4, 5, 6].map(k => `<button data-act="ans3" data-k="${k}" ${ui.ans === k ? 'class="main"' : ''}>${nm[k]}</button>`).join('')}</div></div>`;
-    }
-  }
-  app.innerHTML = `${head(`立体の切断 ${i + 1} / 5`, true)}
-  <div class="card goal"><b>ゴール：切り口は何角形？</b><div class="note" style="margin-top:2px">立方体を、3点 ${esc(text)} を通る平面で切る。</div></div>
-  ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
-  <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="立方体。ドラッグで回せる">${sceneCut(W, H, c)}</svg></div>
-  <div class="note" style="margin:4px 2px 8px">図をドラッグすると、立方体を回せます。</div>
-  ${body}`;
-  bindCutScene();
-}
-function drawCutScene() { // 回転のときは、図だけ描き直す
-  const sc = document.getElementById('sc'); if (!sc) return;
-  sc.innerHTML = sceneCut(340, 300, cutCfg());
-}
-function bindCutScene() {
-  const sc = document.getElementById('sc'); if (!sc) return;
-  let down = null;
-  sc.addEventListener('pointerdown', ev => { down = { x: ev.clientX, y: ev.clientY, yaw: view.yaw, pitch: view.pitch, moved: false }; try { sc.setPointerCapture(ev.pointerId); } catch (e) {} });
-  sc.addEventListener('pointermove', ev => {
-    if (!down) return;
-    const dx = ev.clientX - down.x, dy = ev.clientY - down.y;
-    if (Math.abs(dx) + Math.abs(dy) > 8) down.moved = true;
-    if (down.moved) { view.yaw = down.yaw + dx * 0.012; view.pitch = Math.max(-1.4, Math.min(1.4, down.pitch + dy * 0.012)); drawCutScene(); }
-  });
-  sc.addEventListener('pointerup', ev => {
-    if (!down) return; const d = down; down = null;
-    if (!d.moved) { const r = sc.getBoundingClientRect(); onCutTap((ev.clientX - r.left) * 340 / r.width, (ev.clientY - r.top) * 300 / r.height); }
-  });
-  const sl = document.getElementById('sl');
-  if (sl) sl.addEventListener('input', () => { ui.u = sl.value / 1000; ui.msg = null; drawCutScene(); const n = planeAt().length, nm = ['', '', '', '三角形', '四角形', '五角形', '六角形']; const a = document.getElementById('nowshape'), o = document.getElementById('atorig'); if (a) a.textContent = n >= 3 ? nm[n] : '（なし）'; if (o) o.textContent = Math.abs(ui.u - ui.u0) < .02 ? '＝もとの位置' : ''; });
-}
-function onCutTap(x, y) {
-  if (ui.fin) return;
-  if (ui.step === 0) {
-    let best = null, bd = 22;
-    let hb = null, hd = 30;   // 丸（＋）の近くは、辺より優先
-    for (const e of EDGES) {
-      if (ui.info.given.includes(e)) continue;
-      const m = projCube(edgePt(e, .5), 340, 300, 150), dd = Math.hypot(x - m[0], y - m[1]);
-      if (dd < hd) { hd = dd; hb = e; }
-    }
-    if (hb) { if (ui.sel.has(hb)) ui.sel.delete(hb); else ui.sel.add(hb); ui.msg = null; renderCut(); return; }
-    for (const e of EDGES) {
-      const a = projCube(V[e[0]], 340, 300, 150), b = projCube(V[e[1]], 340, 300, 150), d = distSeg(x, y, a[0], a[1], b[0], b[1]);
-      if (d < bd) { bd = d; best = e; }
-    }
-    if (best && !ui.info.given.includes(best)) { if (ui.sel.has(best)) ui.sel.delete(best); else ui.sel.add(best); ui.msg = null; renderCut(); }
-  } else if (ui.step === 1) {
-    let best = -1, bd = 24;
-    ui.info.poly.forEach((q, k) => { const a = projCube(q.p, 340, 300, 150), d = Math.hypot(x - a[0], y - a[1]); if (d < bd) { bd = d; best = k; } });
-    if (best < 0) return;
-    if (ui.pick < 0) { ui.pick = best; ui.msg = { k: 'hint', t: '緑の輪が付いた点が、つなげる点（同じ面の上）。そのうち1つをタップ。' }; renderCut(); return; }
-    if (ui.pick === best) { ui.pick = -1; ui.msg = null; renderCut(); return; }
-    const a = ui.pick, b = best; ui.pick = -1;
-    const fa = facesOf(ui.info.poly[a].e), fb = facesOf(ui.info.poly[b].e), share = fa.filter(f => fb.includes(f));
-    if (!share.length) { ui.tries[1]++; ui.msg = { k: 'ng', t: '同じ面にない2点は、つなげません。つなぐのは、同じ面の上にある2点。' + (ui.tries[1] >= 2 ? '（点が通る辺は、それぞれ2つの面の間にあります。）' : '') }; }
-    else if (ui.segs.some(([p, q]) => (p === a && q === b) || (p === b && q === a))) { ui.msg = { k: 'hint', t: 'その線は、もう引いてあります。' }; }
-    else { ui.segs.push([a, b]); ui.msg = { k: 'ok', t: `${FACE_JP[share[0]]}の上で結びました。` }; if (ui.segs.length === ui.info.poly.length) { ui.stat[1] = true; const p = award(ui.tries[1]); ui.msg = { k: 'ok', t: `切り口ができた！ +${p} pt` }; setTimeout(() => { ui.step = 2; ui.msg = null; renderCut(); }, 700); } }
-    renderCut();
-  }
-}
-function cutAction(a, el) {
-  if (a === 'check0') {
-    const need = new Set(ui.info.edges), sel = ui.sel;
-    const miss = [...need].filter(e => !sel.has(e)).length, extra = [...sel].filter(e => !need.has(e)).length;
-    if (!miss && !extra) { ui.stat[0] = true; const p = award(ui.tries[0]); ui.msg = { k: 'ok', t: `そのとおり！ 平面が通る辺は ${need.size} 本。 +${p} pt` }; ui.step = 1; ui.sel = need; }
-    else {
-      ui.tries[0]++;
-      let t = [];
-      if (extra) t.push(`${extra} 本は、切られていない辺です。`); if (miss) t.push(`あと ${miss} 本あります。`);
-      ui.msg = { k: 'ng', t: t.join('') };
-      if (ui.tries[0] >= 2) ui.msg.t += ' ヒント：切り口の線は、面1つにつき1本。';
-      if (ui.tries[0] >= 3) ui.msg.t += ' 向かい合う面の切り口の線は、平行です。';
-    }
-    renderCut();
-  } else if (a === 'show0') { ui.sel = new Set(ui.info.edges); ui.stat[0] = true; ui.step = 1; ui.msg = { k: 'hint', t: '答えを見ました（この問題の①は0 pt）。②でつなごう。' }; renderCut(); }
-  else if (a === 'undo1') { ui.segs.pop(); ui.pick = -1; ui.msg = null; renderCut(); }
-  else if (a === 'reset3') { ui.u = ui.u0; ui.msg = null; renderCut(); }
-  else if (a === 'ans3') {
-    const k = +el.dataset.k, right = ui.info.poly.length; ui.ans = k;
-    if (k === right) {
-      ui.stat[2] = true; const p = award(ui.tries[2]); ui.tries[2] = 0;
-      const wasNew = !S.done.cut[ui.i]; if (wasNew) { S.done.cut[ui.i] = 1; S.chest = chestCount(); }
-      const totalWrong = ui.tries[0] + ui.tries[1]; ui.bonus = (wasNew && totalWrong === 0) ? 10 : 0; S.pt += ui.bonus; save();
-      ui.fin = true; ui.msg = { k: 'ok', t: `正解！ +${p} pt` };
-    } else { ui.tries[2]++; ui.msg = { k: 'ng', t: 'もう一度。スライダーを「もとの位置」にもどして、数えてみよう。' }; }
-    renderCut();
-  }
-}
-
-/* ---------- 展開図 ---------- */
-function startNet(i) {
-  ui = { i, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, t: 0, played: false, sel: [], fin: false, bonus: 0, user: false };
-  route = { page: 'net', i }; render();
-}
-function netBounds(net) { const rs = net.cells.map(c => c[0]), cs = net.cells.map(c => c[1]); return { r0: Math.min(...rs), r1: Math.max(...rs), c0: Math.min(...cs), c1: Math.max(...cs) }; }
-function flatNetSvg(net, hi) {
-  const b = netBounds(net), w = b.c1 - b.c0 + 1, h = b.r1 - b.r0 + 1, s = Math.min(54, 320 / w), W = w * s + 20, H = h * s + 20;
-  let g = '';
-  net.cells.forEach(([r, c], k) => {
-    const x = 10 + (c - b.c0) * s, y = 10 + (r - b.r0) * s, st = (r === net.star[0] && c === net.star[1]), sel = hi.some(([a, d]) => a === r && d === c);
-    g += `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${sel ? '#FDE68A' : (st ? '#E0EAF4' : '#fff')}" stroke="#1F2430" stroke-width="2" data-r="${r}" data-c="${c}" role="button" aria-label="${r + 1}行${c + 1}列のマス${st ? '（★）' : ''}"/>`;
-    if (st) g += `<text x="${x + s / 2}" y="${y + s / 2 + 8}" font-size="${s * .5}" text-anchor="middle" fill="#C2410C" pointer-events="none">★</text>`;
-  });
-  return { svg: `<svg id="flat" width="100%" viewBox="0 0 ${W} ${H}" style="max-height:200px">${g}</svg>` };
-}
-const PAL = ['#BFD7EA', '#F6D6AD', '#CDE8C5', '#F2C6C6', '#D9CCEE', '#F7EBA6'];
-function sceneNet(net, t, W, H) {
-  const cells = foldCells(net, t), b = netBounds(net), ext = Math.max(b.c1 - b.c0 + 1, b.r1 - b.r0 + 1, 3);
-  const s = Math.min(78, 300 / (ext + 1.2));
-  // 視点：折るほど、斜めから見る（自分でドラッグしたら、そのまま）
-  const yaw = ui.user ? view.yaw : -0.45 * t, pitch = ui.user ? view.pitch : 0.2 + 0.7 * t;
-  const all = cells.flatMap(c => c.pts), ctr = [all.reduce((m, p) => m + p[0], 0) / all.length, all.reduce((m, p) => m + p[1], 0) / all.length, all.reduce((m, p) => m + p[2], 0) / all.length];
-  const proj = p => { const q = rotV([p[0] - ctr[0], p[1] - ctr[1], p[2] - ctr[2]], yaw, pitch); return [W / 2 + s * q[0], H / 2 - s * q[1], q[2]]; };
-  const polys = cells.map((c, k) => { const pp = c.pts.map(proj); return { k, pp, z: pp.reduce((m, p) => m + p[2], 0) / 4, n: c.node }; }).sort((a, b) => a.z - b.z);
-  const chk = netCheck(net), dup = new Set(chk.same.flat());
-  let g = '';
-  for (const q of polys) {
-    const pts = q.pp.map(p => f2(p[0]) + ',' + f2(p[1])).join(' '), over = t > .97 && dup.has(q.k);
-    g += `<polygon points="${pts}" fill="${PAL[q.k % 6]}" fill-opacity="${over ? .55 : .92}" stroke="${over ? '#C2410C' : '#1F2430'}" stroke-width="${over ? 5 : 2}" stroke-linejoin="round"/>`;
-    if (q.n.parent < 0) { const cx = q.pp.reduce((m, p) => m + p[0], 0) / 4, cy = q.pp.reduce((m, p) => m + p[1], 0) / 4; g += `<text x="${f2(cx)}" y="${f2(cy + 7)}" font-size="22" text-anchor="middle" fill="#C2410C" pointer-events="none">★</text>`; }
-  }
-  return g;
-}
-function renderNet() {
-  const i = route.i, net = NETS[i], W = 340, H = 280;
-  const flat = flatNetSvg(net, ui.sel);
-  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
-  let task = '', body = '', tap = false;
-  const T = [
-    { ask: 'この6つの正方形は、折ると<b>立方体になる</b>？', act: '下の「なる」「ならない」のボタンで、予想を選ぶ。（まだ折らなくてよい）' },
-    { ask: 'ほんとうに立方体になるか、<b>折って確かめよう</b>。', act: 'スライダーを右へ動かす（または「折る」）。★の面を下にして、まわりが立ち上がる。重なる面は<b>赤い枠</b>になる。折り終えたら「③へ」。' },
-    net.ok ? { ask: '★の面の<b>向かい側</b>（折ると真上になる面）は、どのマス？', act: '<b>平らな図</b>（青い枠）のマスを<b>1つタップ</b>。分からなければ、②にもどって折ってみる。' }
-           : { ask: '折ると<b>重なってしまう2つのマス</b>は、どれ？', act: '<b>平らな図</b>（青い枠）のマスを<b>2つタップ</b> → 「チェック」。' }
-  ];
-  if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
-      <div class="card">${net.ok ? '折ると、★の面の向かい側は、辺でつながっていない面になる。折って確かめるのが一番。' : '同じ場所に重なる面ができるので、立方体にはならない。'}</div>
-      <div class="paper note">紙に戻る：★の面を「下」と決めて、ほかの面に ①②③… と折る順番を書く。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="net" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
-  } else {
-    task = `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T[ui.step].ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T[ui.step].act}</span></div></div>`;
-    if (ui.step === 0) {
-      body = `${fb}<div class="card"><div class="row"><button class="main" data-act="pred" data-k="1">なる</button><button class="main" data-act="pred" data-k="0">ならない</button></div></div>`;
-    } else if (ui.step === 1) {
-      body = `<div class="card"><input type="range" min="0" max="1000" value="${Math.round(ui.t * 1000)}" id="fold" aria-label="折りたたみの進み具合"><div class="note" style="display:flex;justify-content:space-between"><span>◀ ひらく</span><span>折る ▶</span></div>
-        <div class="row" style="margin-top:6px"><button data-act="play">折る ▶</button><button data-act="unfold">ひらく</button><button class="main" data-act="to3" ${ui.played ? '' : 'disabled'}>③へ</button></div></div>${fb}`;
-    } else {
-      tap = true;
-      body = `${fb}<div class="card"><div style="margin-bottom:8px">${net.ok ? '' : `選んだマス：<b>${ui.sel.length} / 2</b>`}</div>${net.ok ? '<div class="note">平らな図のマスを1つタップすると、答えがきまります。</div>' : `<div class="row"><button class="main" data-act="chk3" ${ui.sel.length === 2 ? '' : 'disabled'}>チェック</button></div>`}</div>`;
-    }
-  }
-  app.innerHTML = `${head(`展開図 ${i + 1} / 5`, true)}
-  <div class="card goal"><b>ゴール：6つの正方形を、折って立方体にできるか見きわめる。</b></div>
-  ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
-  <div class="card flatbox ${tap ? 'tapme' : ''}" style="padding:6px"><div class="${tap ? 'tapnote' : 'note'}" style="margin:2px 6px">${tap ? '↓ ここのマスをタップ（★が下になる面）' : '平らな図（★が下になる面）'}</div><div id="flatbox">${flat.svg}</div></div>
-  <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="折りたたみの3D図。ドラッグで回せる">${sceneNet(net, ui.t, W, H)}</svg></div>
-  <div class="note" style="margin:4px 2px 8px">図をドラッグすると、回せます。</div>
-  ${body}`;
-  bindNetScene();
-}
-function drawNetScene() { const sc = document.getElementById('sc'); if (sc) sc.innerHTML = sceneNet(NETS[route.i], ui.t, 340, 280); }
-function bindNetScene() {
-  const sc = document.getElementById('sc'); if (!sc) return;
-  let down = null;
-  sc.addEventListener('pointerdown', ev => { down = { x: ev.clientX, y: ev.clientY, yaw: ui.user ? view.yaw : -0.45 * ui.t, pitch: ui.user ? view.pitch : 0.2 + 0.7 * ui.t, moved: false }; try { sc.setPointerCapture(ev.pointerId); } catch (e) {} });
-  sc.addEventListener('pointermove', ev => { if (!down) return; const dx = ev.clientX - down.x, dy = ev.clientY - down.y; if (Math.abs(dx) + Math.abs(dy) > 8) { down.moved = true; ui.user = true; view.yaw = down.yaw + dx * 0.012; view.pitch = Math.max(-1.4, Math.min(1.4, down.pitch + dy * 0.012)); drawNetScene(); } });
-  sc.addEventListener('pointerup', () => { down = null; });
-  const fold = document.getElementById('fold');
-  if (fold) fold.addEventListener('input', () => { ui.t = fold.value / 1000; if (ui.t > .98) ui.played = true; drawNetScene(); const b = document.querySelector('[data-act=to3]'); if (b) b.disabled = !ui.played; });
-  const flat = document.getElementById('flat');
-  if (flat) flat.addEventListener('click', ev => {
-    const t = ev.target; if (!t.dataset || t.dataset.r === undefined || ui.step !== 2 || ui.fin) return;
-    const r = +t.dataset.r, c = +t.dataset.c, net = NETS[route.i];
-    if (net.ok) { checkOpp(r, c); return; }
-    const k = ui.sel.findIndex(([a, d]) => a === r && d === c);
-    if (k >= 0) ui.sel.splice(k, 1); else if (ui.sel.length < 2) ui.sel.push([r, c]);
-    ui.msg = null; renderNet();
-  });
-}
-function finishNet() {
-  const wasNew = !S.done.net[route.i]; if (wasNew) { S.done.net[route.i] = 1; S.chest = chestCount(); }
-  ui.bonus = (wasNew && ui.tries[0] + ui.tries[2] === 0) ? 10 : 0; S.pt += ui.bonus; save(); ui.fin = true;
-}
-function checkOpp(r, c) {
-  const net = NETS[route.i], opp = oppositeOfStar(net);
-  if (opp && opp[0] === r && opp[1] === c) { ui.stat[2] = true; const p = award(ui.tries[2]); ui.msg = { k: 'ok', t: `正解！ +${p} pt` }; finishNet(); }
-  else { ui.tries[2]++; ui.sel = [[r, c]]; ui.msg = { k: 'ng', t: 'もう一度。折ったとき、★の面の真上に来るのは？ ②にもどって折って見てもよい。' + (ui.tries[2] >= 2 ? '（★の面と、辺でつながっていない面が候補。）' : '') }; }
-  renderNet();
-}
-function netAction(a, el) {
-  const net = NETS[route.i];
-  if (a === 'pred') {
-    const guess = el.dataset.k === '1', right = net.ok;
-    if (guess === right) { ui.stat[0] = true; const p = award(ui.tries[0]); ui.msg = null; ui.step = 1; ui.msg = { k: 'ok', t: `よく見た！ +${p} pt。折って確かめよう。` }; }
-    else { ui.tries[0]++; ui.msg = { k: 'ng', t: 'もう一度。重なる面ができないか、考えてみよう。（②で折って見てもよい）' }; if (ui.tries[0] >= 2) { ui.step = 1; ui.msg = { k: 'hint', t: '②で折って確かめよう（この問題の①は0 pt）。' }; } }
-    renderNet();
-  } else if (a === 'play') {
-    const t0 = performance.now(), from = ui.t, dur = 1800 * (1 - from + .1);
-    (function tick(now) { const k = Math.min(1, (now - t0) / dur); ui.t = from + (1 - from) * k; if (ui.t > .98) ui.played = true; drawNetScene(); const f = document.getElementById('fold'); if (f) f.value = Math.round(ui.t * 1000); if (k < 1) requestAnimationFrame(tick); else { const b = document.querySelector('[data-act=to3]'); if (b) b.disabled = false; } })(t0);
-  } else if (a === 'unfold') { ui.t = 0; drawNetScene(); const f = document.getElementById('fold'); if (f) f.value = 0; }
-  else if (a === 'to3') { ui.stat[1] = true; ui.step = 2; ui.msg = null; ui.sel = []; renderNet(); }
-  else if (a === 'chk3') {
-    const chk = netCheck(net), [a1, b1] = ui.sel.map(([r, c]) => chk.tree.findIndex(n => n.r === r && n.c === c));
-    if (chk.tree[a1].face === chk.tree[b1].face) { ui.stat[2] = true; const p = award(ui.tries[2]); ui.msg = { k: 'ok', t: `そのとおり！ +${p} pt` }; finishNet(); }
-    else { ui.tries[2]++; ui.msg = { k: 'ng', t: 'その2つは重なりません。②で折って、赤い枠の面を探そう。' }; ui.sel = []; }
-    renderNet();
-  }
-}
-
-/* ---------- おうちの人向け ---------- */
-function renderParent() {
+function renderGate() {
   const a = 3 + Math.floor(Math.random() * 6), b = 4 + Math.floor(Math.random() * 6);
-  ui = { gate: a * b, a, b };
-  app.innerHTML = `${head('おうちの人向け', true)}
+  gate = a * b;
+  app.innerHTML = `<div class="row" style="margin-bottom:8px"><button id="bback">← もどる</button></div><h1>おうちの人向け</h1>
   <div class="card"><div class="note">子どもが設定を変えないための確認です。答えを入れてください。</div><div style="margin:8px 0;font-size:18px">${a} × ${b} ＝</div>
-  <input id="gate" inputmode="numeric" style="width:100%;min-height:46px;font-size:18px;padding:0 10px;border:1px solid var(--line);border-radius:10px" aria-label="確認の答え"><div class="row" style="margin-top:8px"><button class="main" data-act="gate">開く</button></div><div id="gm"></div></div>`;
+  <input id="gate" inputmode="numeric" aria-label="確認の答え"><div class="row" style="margin-top:8px"><button class="main" id="bgo">開く</button></div><div id="gm"></div></div>`;
+  document.getElementById('bback').addEventListener('click', renderHub);
+  document.getElementById('bgo').addEventListener('click', () => {
+    if (+document.getElementById('gate').value === gate) renderParent(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>';
+  });
 }
-function renderParentOpen() {
-  const r = S.reward;
-  app.innerHTML = `${head('おうちの人向け', true)}
-  <div class="card"><h2>ごほうび</h2><label for="rt" class="note">ごほうびの中身</label><input id="rt" value="${esc(r.text)}" maxlength="40" style="width:100%;min-height:46px;font-size:16px;padding:0 10px;border:1px solid var(--line);border-radius:10px">
-  <label for="rn" class="note" style="display:block;margin-top:8px">必要なポイント</label><input id="rn" type="number" inputmode="numeric" min="10" step="10" value="${esc(r.need)}" style="width:100%;min-height:46px;font-size:16px;padding:0 10px;border:1px solid var(--line);border-radius:10px">
-  <div class="row" style="margin-top:10px"><button class="main" data-act="psave">保存</button></div></div>
-  <div class="card"><div class="note">ポイント：${S.pt}（使った分 ${S.spent || 0}）。ごほうびを渡したら、使います。</div><div class="row" style="margin-top:8px"><button data-act="pspend">ごほうびを渡した（${esc(r.need)} pt使う）</button></div></div>
-  <div class="card"><div class="note">記録を消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
+function renderParent(msg) {
+  const r = reward(), z = zInfo(), j = jInfo(), need = Math.max(1, +r.need || 1), have = haveNow(r);
+  app.innerHTML = `<div class="row" style="margin-bottom:8px"><button id="bback">← もどる</button></div><h1>おうちの人向け</h1>
+  ${msg ? `<div class="fb ok" role="status">${esc(msg)}</div>` : ''}
+  <div class="card"><h2>ごほうび（2つのアプリで共通）</h2><label for="rt" class="note">ごほうびの中身</label><input id="rt" value="${esc(r.text)}" maxlength="40">
+  <label for="rn" class="note" style="display:block;margin-top:8px">必要なポイント</label><input id="rn" type="number" inputmode="numeric" min="10" step="10" value="${esc(r.need)}">
+  <div class="row" style="margin-top:10px"><button class="main" id="bsave">保存</button></div></div>
+  <div class="card"><div class="note">ポイント：図形ミッション ${z.pt} ＋ 条件ハンター ${j.pt} ＝ ${z.pt + j.pt}（使った分 ${+r.spent || 0}、いま使えるのは ${have}）。ごほうびを渡したら、使います。</div>
+  <div class="row" style="margin-top:8px"><button id="bspend" ${have >= need ? '' : 'disabled'}>ごほうびを渡した（${need} pt使う）</button></div></div>
+  <div class="card"><div class="note">各アプリの記録のリセットは、それぞれのアプリの「おうちの人向け」にあります。</div></div>`;
+  document.getElementById('bback').addEventListener('click', renderHub);
+  document.getElementById('bsave').addEventListener('click', () => {
+    const r2 = reward();
+    r2.text = document.getElementById('rt').value.trim().slice(0, 40);
+    r2.need = Math.max(10, +document.getElementById('rn').value || 300);
+    saveReward(r2); renderParent('保存しました。');
+  });
+  document.getElementById('bspend').addEventListener('click', () => {
+    const r2 = reward(), n = Math.max(1, +r2.need || 1);
+    if (haveNow(r2) >= n) { r2.spent = (+r2.spent || 0) + n; saveReward(r2); renderParent(`${n} pt 使いました。`); }
+  });
 }
-
-/* ===================== 第2弾（平面図形）：共通 ===================== */
-const chestCount = () => Object.values(S.done).reduce((a, v) => a + v.reduce((x, y) => x + y, 0), 0);
-(function ensureDone() { ['ref', 'aux'].forEach(k => { if (!S.done[k]) S.done[k] = [0, 0, 0, 0, 0]; }); })();
-function planeFinish(kind, bonusOk) {
-  const wasNew = !S.done[kind][route.i];
-  if (wasNew) S.done[kind][route.i] = 1;
-  S.chest = chestCount();
-  ui.bonus = (wasNew && bonusOk) ? 10 : 0; S.pt += ui.bonus; save(); ui.fin = true;
-}
-function taskCard(T) {
-  return `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
-}
-function svgPoint(ev, sc, W, H) { const r = sc.getBoundingClientRect(); return [(ev.clientX - r.left) * W / r.width, (ev.clientY - r.top) * H / r.height]; }
-
-/* ===================== 反射の作図 ===================== */
-// 台は横6×縦4。穴：A(0,0) B(3,0) C(6,0) D(0,4) E(3,4) F(6,4)
-const HOLE_NAME = { '0,0': 'A', '3,0': 'B', '6,0': 'C', '0,4': 'D', '3,4': 'E', '6,4': 'F' };
-const fv = (v, L) => { const m = ((v % (2 * L)) + 2 * L) % (2 * L); return m <= L ? m : 2 * L - m; };
-function holeAt(x, y) {
-  const rx = Math.round(x), ry = Math.round(y);
-  if (Math.abs(x - rx) > 1e-7 || Math.abs(y - ry) > 1e-7) return null;
-  if (((ry % 4) + 4) % 4 !== 0) return null;
-  const mx = ((rx % 6) + 6) % 6; if (mx !== 0 && mx !== 3) return null;
-  return HOLE_NAME[fv(rx, 6) + ',' + fv(ry, 4)] || null;
-}
-const WALLPT = { 'ア': [1, 0], 'イ': [2, 0], 'ウ': [4, 0], 'エ': [5, 0], 'オ': [1, 4], 'カ': [2, 4], 'キ': [4, 4], 'ク': [5, 4], 'ケ': [0, 1], 'コ': [0, 2], 'サ': [0, 3], 'シ': [6, 1], 'ス': [6, 2], 'セ': [6, 3] };
-function wallLabelAt(x, y) { for (const k in WALLPT) if (Math.abs(WALLPT[k][0] - x) < 1e-6 && Math.abs(WALLPT[k][1] - y) < 1e-6) return k; return null; }
-const foldPt = p => [fv(p[0], 6), fv(p[1], 4)];
-// ★から方向Dへ。穴に入るまでの、壁に当たる回数・入る穴・展開図での終点
-function traceDir(S, D) {
-  const [sx, sy] = S, [dx, dy] = D, ev = [];
-  for (let m = -40; m <= 40; m++) {
-    if (dx) { const t = (6 * m - sx) / dx; if (t > 1e-9) ev.push(t); }
-    if (dy) { const t = (4 * m - sy) / dy; if (t > 1e-9) ev.push(t); }
-  }
-  ev.sort((a, b) => a - b);
-  const cross = []; let last = -1;
-  for (const t of ev) {
-    if (Math.abs(t - last) < 1e-9) continue; last = t;
-    const x = sx + dx * t, y = sy + dy * t, h = holeAt(x, y);
-    if (h) return { n: cross.length, hole: h, end: [Math.round(x), Math.round(y)], cross };
-    cross.push({ t, p: [x, y] });
-  }
-  return null;
-}
-const REF = [
-  { type: 'a', S: [3, 2], target: 'B', k: 1 },
-  { type: 'b', S: [2, 1], aim: 'ア' },
-  { type: 'b', S: [1, 3], aim: 'イ' },
-  { type: 'b', S: [1, 2], aim: 'ケ' },
-  { type: 'b', S: [1, 2], aim: 'サ' }
-];
-function refInfo(i) {
-  const p = REF[i], S0 = p.S;
-  if (p.type === 'a') {
-    const sols = [];
-    for (let x = -12; x <= 18; x++) for (let y = -12; y <= 16; y++) {
-      if (holeAt(x, y) !== p.target || (x === S0[0] && y === S0[1])) continue;
-      const r = traceDir(S0, [x - S0[0], y - S0[1]]);
-      if (r && r.n === p.k && r.end[0] === x && r.end[1] === y) sols.push({ end: [x, y], cross: r.cross, hole: r.hole, n: r.n });
-    }
-    return { sols, reg: { x0: -6, x1: 12, y0: -4, y1: 8 } };
-  }
-  const aim = WALLPT[p.aim], r = traceDir(S0, [aim[0] - S0[0], aim[1] - S0[1]]);
-  const xs = [0, 6, S0[0], r.end[0]], ys = [0, 4, S0[1], r.end[1]];
-  return { aim, r, sols: [{ end: r.end, cross: r.cross, hole: r.hole, n: r.n }],
-    reg: { x0: Math.floor(Math.min(...xs) / 6) * 6, x1: Math.ceil(Math.max(...xs) / 6) * 6, y0: Math.floor(Math.min(...ys) / 4) * 4, y1: Math.ceil(Math.max(...ys) / 4) * 4 } };
-}
-function refGeom(reg, t, W, H) {
-  const L = (a, b) => a + (b - a) * t, vx0 = L(reg.x0, 0), vx1 = L(reg.x1, 6), vy0 = L(reg.y0, 0), vy1 = L(reg.y1, 4);
-  const cols = vx1 - vx0, rows = vy1 - vy0, m = 16, cell = Math.min((W - 2 * m) / cols, (H - 2 * m) / rows);
-  const ox = (W - cols * cell) / 2, oy = (H - rows * cell) / 2;
-  return { cell, P: (x, y) => [ox + (x - vx0) * cell, oy + (y - vy0) * cell] };
-}
-function sceneRef(W, H, c) {
-  const G = refGeom(c.reg, c.t, W, H), P = G.P, cell = G.cell, S0 = c.p.S;
-  const tx0 = Math.floor(c.reg.x0 / 6), tx1 = Math.ceil(c.reg.x1 / 6) - 1, ty0 = Math.floor(c.reg.y0 / 4), ty1 = Math.ceil(c.reg.y1 / 4) - 1;
-  let g = '';
-  for (let i = tx0; i <= tx1; i++) for (let j = ty0; j <= ty1; j++) {
-    const a = P(6 * i, 4 * j), b = P(6 * i + 6, 4 * j + 4), orig = i === 0 && j === 0;
-    g += `<rect x="${f2(a[0])}" y="${f2(a[1])}" width="${f2(b[0] - a[0])}" height="${f2(b[1] - a[1])}" fill="${orig ? '#EEF3F8' : '#FFFFFF'}" stroke="#1F2430" stroke-width="2.5"/>`;
-    for (let x = 1; x < 6; x++) { const u = P(6 * i + x, 4 * j), v = P(6 * i + x, 4 * j + 4); g += `<line x1="${f2(u[0])}" y1="${f2(u[1])}" x2="${f2(v[0])}" y2="${f2(v[1])}" stroke="#C9CED6" stroke-width="1"/>`; }
-    for (let y = 1; y < 4; y++) { const u = P(6 * i, 4 * j + y), v = P(6 * i + 6, 4 * j + y); g += `<line x1="${f2(u[0])}" y1="${f2(u[1])}" x2="${f2(v[0])}" y2="${f2(v[1])}" stroke="#C9CED6" stroke-width="1"/>`; }
-  }
-  // 穴
-  const hr = Math.max(5, cell * .3), hf = Math.max(8, cell * .42);
-  for (let x = Math.ceil(c.reg.x0); x <= c.reg.x1; x++) for (let n = Math.ceil(c.reg.y0 / 4); n <= Math.floor(c.reg.y1 / 4); n++) {
-    const y = 4 * n, h = holeAt(x, y); if (!h) continue;
-    if (c.t > .5 && !(x >= 0 && x <= 6 && y >= 0 && y <= 4)) continue;
-    const a = P(x, y), tg = c.hi === 'all' || (c.hi === 'target' && h === c.p.target);
-    g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="${f2(hr)}" fill="#fff" stroke="${tg ? '#1F4E79' : '#1F2430'}" stroke-width="${tg ? 3 : 1.5}"/><text x="${f2(a[0])}" y="${f2(a[1] + hf * .36)}" font-size="${f2(hf)}" font-weight="700" text-anchor="middle" fill="#1F2430" pointer-events="none">${h}</text>`;
-  }
-  // ねらう点（型b）
-  if (c.p.type === 'b') {
-    const a = P(c.info.aim[0], c.info.aim[1]);
-    g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="${f2(Math.max(6, cell * .3))}" fill="none" stroke="#C2410C" stroke-width="3"/><circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="2.5" fill="#C2410C"/>`;
-    if (c.stage === 0 && c.t === 0) {
-      const D = [c.info.aim[0] - S0[0], c.info.aim[1] - S0[1]];
-      let tm = 1e9; const rg = c.reg;
-      if (D[0] > 0) tm = Math.min(tm, (rg.x1 - S0[0]) / D[0]); if (D[0] < 0) tm = Math.min(tm, (rg.x0 - S0[0]) / D[0]);
-      if (D[1] > 0) tm = Math.min(tm, (rg.y1 - S0[1]) / D[1]); if (D[1] < 0) tm = Math.min(tm, (rg.y0 - S0[1]) / D[1]);
-      const e = P(S0[0] + D[0] * tm, S0[1] + D[1] * tm), s = P(S0[0], S0[1]);
-      g += `<line x1="${f2(s[0])}" y1="${f2(s[1])}" x2="${f2(e[0])}" y2="${f2(e[1])}" stroke="#C2410C" stroke-width="2.5" stroke-dasharray="6 5"/>`;
-    }
-  }
-  // 壁の点の名前
-  if (c.wall) for (const k in WALLPT) {
-    const w = WALLPT[k], a = P(w[0], w[1]);
-    const off = w[1] === 0 ? [0, -13] : w[1] === 4 ? [0, 17] : w[0] === 0 ? [-13, 5] : [13, 5];
-    g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="6" fill="#fff" stroke="#1F4E79" stroke-width="2.5"/><text x="${f2(a[0] + off[0])}" y="${f2(a[1] + off[1])}" font-size="13" font-weight="700" text-anchor="middle" fill="#1F4E79" pointer-events="none">${k}</text>`;
-  }
-  // 線（展開図の上の直線 → 折りもどすと、折れ線）
-  if (c.path) {
-    const pts = c.path.unf.map((p, k) => [p[0] + (c.path.fold[k][0] - p[0]) * c.t, p[1] + (c.path.fold[k][1] - p[1]) * c.t]).map(p => P(p[0], p[1]));
-    g += `<polyline points="${pts.map(p => f2(p[0]) + ',' + f2(p[1])).join(' ')}" fill="none" stroke="#2563A8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
-    const nc = c.path.unf.length - 2;
-    for (let k = 1; k <= nc; k++) {
-      const a = pts[k], done = k <= c.tapped || c.stage === 2;
-      g += `<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="${f2(Math.max(8, cell * .42))}" fill="${done ? '#fff' : '#FDE68A'}" stroke="#2563A8" stroke-width="3"/><text x="${f2(a[0])}" y="${f2(a[1] + 4.5)}" font-size="12" font-weight="700" text-anchor="middle" fill="#1F2430" pointer-events="none">${done ? k : '＋'}</text>`;
-    }
-    const e = pts[pts.length - 1];
-    g += `<circle cx="${f2(e[0])}" cy="${f2(e[1])}" r="${f2(hr + 5)}" fill="none" stroke="#C2410C" stroke-width="3.5"/>`;
-  }
-  const s = P(S0[0], S0[1]);
-  g += `<text x="${f2(s[0])}" y="${f2(s[1] + 8)}" font-size="${f2(Math.max(16, Math.min(28, cell * .9)))}" text-anchor="middle" fill="#1F2430" stroke="#fff" stroke-width="3" paint-order="stroke" pointer-events="none">★</text>`;
-  return g;
-}
-function refPath() {
-  const ch = ui.chosen, p = REF[route.i];
-  const unf = [p.S, ...ch.cross.map(q => q.p), ch.end];
-  return { unf, fold: unf.map(foldPt) };
-}
-function startRef(i) {
-  const info = refInfo(i);
-  ui = { i, info, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, chosen: null, tapped: 0, t: 0, played: false, fin: false, bonus: 0, ansN: null, ansH: null };
-  route = { page: 'ref', i }; render();
-}
-function refCfg() {
-  const p = REF[route.i];
-  const c = { p, info: ui.info, reg: ui.info.reg, t: ui.t, stage: ui.fin ? 3 : ui.step, tapped: ui.tapped, hi: null, wall: false, path: null };
-  if (ui.step === 0 && !ui.fin) c.hi = p.type === 'a' ? 'target' : 'all';
-  if (ui.chosen) c.path = refPath();
-  if (ui.step === 2 || ui.fin) { c.wall = ui.t > .97; }
-  return c;
-}
-const REF_TASK = {
-  a: [{ ask: '壁を<b>1回</b>こえて、<b>Bの穴</b>に着く線は、どの穴の像に向かう？', act: '台を鏡のように並べた図。★から、<b>Bの像（青い輪）</b>を1つタップ。途中で別の穴を通る線はだめ。', hint: 'こえる壁の数は、台のコピーを何枚とびこえたか。' },
-      { ask: 'その線は、壁を何回こえる？', act: '線と<b>太い線（壁）</b>の交点の＋を、<b>★に近いほうから順に</b>タップ。①②…の番号がつく。', hint: '' },
-      { ask: '実際の台では、どの点をねらえばいい？', act: 'スライダーで台を<b>折りもどす</b>。①の点の名前（ア〜セ）を、折りもどした図でタップ。', hint: '' }],
-  b: [{ ask: '◎をねらって打つと、<b>どの穴</b>に入る？', act: '点線は、★から◎を通る線。<b>はじめに出会う穴の像</b>をタップ。途中の穴で止まる。', hint: '線が1本の直線になるのが、台を並べて考えるよさ。' },
-      { ask: '壁に何回当たる？', act: '線と<b>太い線（壁）</b>の交点の＋を、<b>★に近いほうから順に</b>タップ。①②…の番号がつく。', hint: '' },
-      { ask: '折りもどして、答えよう。', act: 'スライダーで折りもどし、「何回」と「どの穴」を選んで「こたえる」。', hint: '' }]
-};
-function renderRef() {
-  const i = route.i, p = REF[i], info = ui.info, W = 340, H = 300;
-  const goal = p.type === 'a' ? `ゴール：★から、壁に<b>${p.k}回</b>当てて<b>${p.target}の穴</b>に入れる。ねらう点は？` : `ゴール：★から<b>◎（${p.aim}）</b>をねらって打つ。<b>何回</b>当たって、<b>どの穴</b>に入る？`;
-  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
-  let task = '', body = '';
-  if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
-      <div class="card">${p.type === 'a' ? `ねらう点は ${info.sols.map(s => wallLabelAt(...foldPt(s.cross[0].p))).join('と')} の2通り。` : `壁に${info.r.n}回当たって、${info.r.hole}の穴に入る。`}台を並べて、直線にすると、回数と穴がわかる。</div>
-      <div class="paper note">紙に戻る：壁に当たった点に①②…と番号を打つ。穴に入ったら×をつけて止める。番号の数が、回数と同じかを数える。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="ref" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
-  } else {
-    task = taskCard(REF_TASK[p.type][ui.step]);
-    if (ui.step === 0) body = fb;
-    else if (ui.step === 1) body = `${fb}<div class="card">番号を打った点：<b>${ui.tapped} / ${ui.chosen.cross.length}</b></div>`;
-    else {
-      const slider = `<div class="card"><b>折りもどす</b><input type="range" min="0" max="1000" value="${Math.round(ui.t * 1000)}" id="rfold" aria-label="折りもどしの進み具合"><div class="note" style="display:flex;justify-content:space-between"><span>◀ 展開した図</span><span>実際の台 ▶</span></div></div>`;
-      if (p.type === 'a') body = slider + fb + `<div class="card note">${ui.t > .97 ? '折りもどせました。①の点の名前を、図でタップ。' : 'スライダーを右いっぱいまで動かすと、点の名前が出ます。'}</div>`;
-      else {
-        const nb = [1, 2, 3, 4, 5, 6].map(k => `<button data-act="ansN" data-k="${k}" ${ui.ansN === k ? 'class="main"' : ''}>${k}回</button>`).join('');
-        const hb = 'ABCDEF'.split('').map(k => `<button data-act="ansH" data-k="${k}" ${ui.ansH === k ? 'class="main"' : ''}>${k}</button>`).join('');
-        body = slider + fb + `<div class="card"><b>壁に当たった回数</b><div class="row" style="margin:6px 0 10px">${nb}</div><b>入る穴</b><div class="row" style="margin:6px 0 10px">${hb}</div><div class="row"><button class="main" data-act="ansRef" ${ui.ansN && ui.ansH ? '' : 'disabled'}>こたえる</button></div></div>`;
-      }
-    }
-  }
-  app.innerHTML = `${head(`反射の作図 ${i + 1} / 5`, true)}
-  <div class="card goal">${goal}</div>
-  ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
-  <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="台を並べた図。★から線をのばす">${sceneRef(W, H, refCfg())}</svg></div>
-  ${body}`;
-  bindRefScene();
-}
-function drawRefScene() { const sc = document.getElementById('sc'); if (sc) sc.innerHTML = sceneRef(340, 300, refCfg()); }
-function bindRefScene() {
-  const sc = document.getElementById('sc'); if (!sc) return;
-  sc.addEventListener('click', ev => { const [x, y] = svgPoint(ev, sc, 340, 300); onRefTap(x, y); });
-  const f = document.getElementById('rfold');
-  if (f) f.addEventListener('input', () => { ui.t = f.value / 1000; if (ui.t > .97) ui.played = true; drawRefScene(); const n = document.querySelector('.card.note'); if (n && REF[route.i].type === 'a') n.textContent = ui.t > .97 ? '折りもどせました。①の点の名前を、図でタップ。' : 'スライダーを右いっぱいまで動かすと、点の名前が出ます。'; });
-}
-function refNear(list, x, y, rad) { let best = -1, bd = rad; list.forEach((a, k) => { const d = Math.hypot(a[0] - x, a[1] - y); if (d < bd) { bd = d; best = k; } }); return best; }
-function onRefTap(x, y) {
-  if (ui.fin) return;
-  const p = REF[route.i], info = ui.info, G = refGeom(info.reg, ui.t, 340, 300);
-  if (ui.step === 0) {
-    const cand = [];
-    for (let X = Math.ceil(info.reg.x0); X <= info.reg.x1; X++) for (let n = Math.ceil(info.reg.y0 / 4); n <= Math.floor(info.reg.y1 / 4); n++) { const Y = 4 * n; if (holeAt(X, Y)) cand.push([X, Y]); }
-    const k = refNear(cand.map(c => G.P(c[0], c[1])), x, y, Math.max(14, G.cell * .5)); if (k < 0) return;
-    const T = cand[k], hit = info.sols.find(s => s.end[0] === T[0] && s.end[1] === T[1]);
-    if (hit) { ui.chosen = hit; ui.stat[0] = true; const pts = award(ui.tries[0]); ui.step = 1; ui.msg = { k: 'ok', t: `そのとおり！ +${pts} pt。この線が、1本の直線になる。` }; }
-    else {
-      ui.tries[0]++;
-      const h = holeAt(T[0], T[1]); let t;
-      if (p.type === 'a') {
-        if (h !== p.target) t = `それは${h}の穴の像。ねらうのは ${p.target} の穴。`;
-        else { const r = traceDir(p.S, [T[0] - p.S[0], T[1] - p.S[1]]); t = r && r.end[0] === T[0] && r.end[1] === T[1] ? `その線は壁を${r.n}回こえる。必要なのは${p.k}回。` : 'その線は、先に別の穴に入ってしまう。'; }
-      } else {
-        const D = [info.aim[0] - p.S[0], info.aim[1] - p.S[1]], cr = D[0] * (T[1] - p.S[1]) - D[1] * (T[0] - p.S[0]);
-        t = Math.abs(cr) > 1e-9 ? 'その穴の像は、点線の上にありません。点線をたどってみよう。' : 'その手前に、別の穴の像がある。線は、はじめの穴で止まる。';
-      }
-      ui.msg = { k: 'ng', t }; if (ui.tries[0] >= 3) ui.msg.t += '（ヒント：点線を★から順に目でたどる）';
-    }
-    renderRef();
-  } else if (ui.step === 1) {
-    const pts = ui.chosen.cross.map(q => G.P(q.p[0], q.p[1])), k = refNear(pts, x, y, 22); if (k < 0) return;
-    if (k === ui.tapped) {
-      ui.tapped++; ui.msg = null;
-      if (ui.tapped === ui.chosen.cross.length) {
-        ui.stat[1] = true; const pt = award(ui.tries[1]);
-        ui.msg = { k: 'ok', t: `壁に当たる回数は ${ui.tapped} 回。${p.type === 'a' ? `問題の${p.k}回と同じ。` : ''} +${pt} pt` };
-        setTimeout(() => { ui.step = 2; ui.msg = null; renderRef(); }, 700);
-      }
-    } else if (k > ui.tapped) { ui.tries[1]++; ui.msg = { k: 'ng', t: '★に近いほうから、順にタップ。' }; }
-    renderRef();
-  } else if (ui.step === 2 && p.type === 'a' && ui.t > .97) {
-    const labs = Object.keys(WALLPT), pts = labs.map(l => G.P(WALLPT[l][0], WALLPT[l][1])), k = refNear(pts, x, y, 20); if (k < 0) return;
-    const ok = info.sols.map(s => wallLabelAt(...foldPt(s.cross[0].p))), mine = ok[info.sols.indexOf(ui.chosen)];
-    if (ok.includes(labs[k])) { ui.stat[2] = true; const pt = award(ui.tries[2]); ui.msg = { k: 'ok', t: `${labs[k]}をねらう！ +${pt} pt${labs[k] !== mine ? '（もう1つの点もある）' : ''}` }; planeFinish('ref', ui.tries[0] + ui.tries[1] + ui.tries[2] === 0); }
-    else { ui.tries[2]++; ui.msg = { k: 'ng', t: `${labs[k]}ではありません。折りもどした図で、①の点がある場所を見よう。` }; }
-    renderRef();
-  }
-}
-function refAction(a, el) {
-  const p = REF[route.i];
-  if (a === 'ansN') { ui.ansN = +el.dataset.k; ui.msg = null; renderRef(); }
-  else if (a === 'ansH') { ui.ansH = el.dataset.k; ui.msg = null; renderRef(); }
-  else if (a === 'ansRef') {
-    const r = ui.info.r;
-    if (ui.ansN === r.n && ui.ansH === r.hole) { ui.stat[2] = true; const pt = award(ui.tries[2]); ui.msg = { k: 'ok', t: `正解！ +${pt} pt` }; planeFinish('ref', ui.tries[0] + ui.tries[1] + ui.tries[2] === 0); }
-    else { ui.tries[2]++; ui.msg = { k: 'ng', t: ui.ansN !== r.n ? '回数がちがいます。②で番号を打った数を見よう。' : '入る穴がちがいます。折りもどした図で、線の終わりを見よう。' }; }
-    renderRef();
-  }
-}
-
-/* ===================== 補助線 ===================== */
-// 点は、画面（340×300）の座標。need＝引くべき補助線、pieces＝補助線を引いたあとの部分（同じ大きさは同じgroup）
-const AUX = [
-  { name: '三角形の中点', text: '正三角形ABC（面積36cm²）。D・E・Fは、辺BC・CA・ABの中点。斜線（△DEF）の面積は？', total: 36, frac: [1, 4], ans: 9, opts: [9, 12, 18, 6], hint: '中点どうしを結ぶ',
-    pts: { A: [170, 40], B: [50, 250], C: [290, 250], D: [170, 250], E: [230, 145], F: [110, 145] }, outline: 'ABC', need: ['DE', 'EF', 'FD'], shade: 'DEF',
-    pieces: [['AFE', 0], ['FBD', 0], ['EDC', 0], ['DEF', 0]], done: '中点どうしを結ぶと、同じ大きさの三角形が4つにわかれる。' },
-  { name: '正方形の中点', text: '正方形ABCD（面積144cm²）。P・Q・R・Sは、辺AB・BC・CD・DAの中点。斜線（四角形PQRS）の面積は？', total: 144, frac: [1, 2], ans: 72, opts: [48, 72, 96, 108], hint: '向かい合う中点どうしを結ぶ',
-    pts: { A: [70, 50], B: [270, 50], C: [270, 250], D: [70, 250], P: [170, 50], Q: [270, 150], R: [170, 250], S: [70, 150], O: [170, 150] }, outline: 'ABCD', need: ['PR', 'QS'], shade: 'PQRS',
-    pieces: [['APOS', 0], ['PBQO', 0], ['OQCR', 0], ['SORD', 0]], done: '向かい合う中点を結ぶと、同じ大きさの正方形が4つ。PQRSは、その半分ずつ。' },
-  { name: '正六角形', text: '正六角形ABCDEF（面積24cm²）、中心O。斜線（四角形OABC）の面積は？', total: 24, frac: [1, 3], ans: 8, opts: [6, 8, 12, 4], hint: '中心Oと、6つの頂点を結ぶ',
-    pts: { A: [115, 55], B: [225, 55], C: [280, 150], D: [225, 245], E: [115, 245], F: [60, 150], O: [170, 150] }, outline: 'ABCDEF', need: ['OA', 'OB', 'OC', 'OD', 'OE', 'OF'], shade: 'OABC',
-    pieces: [['OAB', 0], ['OBC', 0], ['OCD', 0], ['ODE', 0], ['OEF', 0], ['OFA', 0]], done: '中心と頂点を結ぶと、同じ大きさの三角形が6つにわかれる。OABCは、そのうちの2つ。' },
-  { name: '平行四辺形', text: '平行四辺形ABCD（面積60cm²）。Eは辺BCの中点。斜線（△ABE）の面積は？', total: 60, frac: [1, 4], ans: 15, opts: [10, 15, 20, 30], hint: '対角線ACを引く',
-    pts: { A: [100, 60], B: [40, 230], C: [240, 230], D: [300, 60], E: [140, 230] }, outline: 'ABCD', need: ['AC'], shade: 'ABE',
-    pieces: [['ABE', 0], ['AEC', 0], ['ACD', 1]], done: '対角線で、全体が半分ずつ。さらに、Eが中点なので、△ABCが△ABEと△AECの2つに。' },
-  { name: '正三角形の中心', text: '正三角形ABC（面積36cm²）。Oは正三角形の中心、Dは辺BCの中点。斜線（△OBD）の面積は？', total: 36, frac: [1, 6], ans: 6, opts: [4, 6, 9, 12], hint: '中心Oと、3つの頂点と、Dを結ぶ',
-    pts: { A: [170, 40], B: [50, 250], C: [290, 250], O: [170, 180], D: [170, 250] }, outline: 'ABC', need: ['OA', 'OB', 'OC', 'OD'], shade: 'OBD',
-    pieces: [['OAB', 0], ['OCA', 0], ['OBD', 1], ['ODC', 1]], done: '中心から頂点へ結ぶと、同じ大きさの三角形が3つ。Dが中点なので、△OBCがさらに半分に。' }
-];
-const GROUP_COL = ['#BFD7EA', '#F6D6AD', '#CDE8C5'];
-const pairKey = (a, b) => [a, b].sort().join('');
-function startAux(i) {
-  ui = { i, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, lines: [], pick: null, fracAns: null, ansV: null, fin: false, bonus: 0 };
-  route = { page: 'aux', i }; render();
-}
-function auxDone(p) { const need = p.need.map(s => pairKey(s[0], s[1])); return need.every(k => ui.lines.some(l => l.k === k)); }
-function sceneAux(W, H, p, stepNow, pick) {
-  const P = p.pts, poly = ks => ks.split('').map(k => P[k].join(',')).join(' ');
-  let g = '';
-  if (stepNow >= 1) p.pieces.forEach(([ks, grp]) => { g += `<polygon points="${poly(ks)}" fill="${GROUP_COL[grp]}" fill-opacity=".75" stroke="none"/>`; });
-  g += `<polygon points="${poly(p.shade)}" fill="#C2410C" fill-opacity="${stepNow >= 1 ? .35 : .3}" stroke="#C2410C" stroke-width="2" stroke-dasharray="5 4"/>`;
-  g += `<polygon points="${poly(p.outline)}" fill="none" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/>`;
-  for (const l of ui.lines) { const a = P[l.k[0]], b = P[l.k[1]]; g += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${l.need ? '#2563A8' : '#8A8F98'}" stroke-width="${l.need ? 4 : 3}" ${l.need ? '' : 'stroke-dasharray="6 5"'} stroke-linecap="round"/>`; }
-  const cen = [W / 2, H / 2];
-  for (const k in P) {
-    const a = P[k], on = pick === k, dx = a[0] - cen[0], dy = a[1] - cen[1], l = Math.hypot(dx, dy) || 1;
-    g += `<circle cx="${a[0]}" cy="${a[1]}" r="${on ? 12 : 9}" fill="${on ? '#F59E0B' : '#fff'}" stroke="#1F4E79" stroke-width="3"/>`;
-    const lx = a[0] + (k === 'O' ? 14 : dx / l * 22), ly = a[1] + (k === 'O' ? -12 : dy / l * 22) + 5;
-    g += `<text x="${f2(lx)}" y="${f2(ly)}" font-size="16" font-weight="700" text-anchor="middle" fill="#1F2430" stroke="#fff" stroke-width="3" paint-order="stroke" pointer-events="none">${k}</text>`;
-  }
-  return g;
-}
-const AUX_FR = [[1, 2], [1, 3], [1, 4], [1, 6], [1, 8]];
-function renderAux() {
-  const i = route.i, p = AUX[i], W = 340, H = 300;
-  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
-  const T = [
-    { ask: '斜線の面積を求めたい。そのために、<b>補助線</b>を引いて、同じ大きさの部分に分けよう。', act: '点を<b>1つタップ</b> → もう1つの点を<b>タップ</b>。2点が線で結ばれる。', hint: p.hint },
-    { ask: '斜線の部分は、<b>全体の何分の1</b>？', act: '色分けされた、<b>同じ大きさの部分</b>を数えて、下のボタンで答える。', hint: '' },
-    { ask: '斜線の部分の<b>面積</b>は？', act: `全体の面積（${p.total}cm²）の ${p.frac[0]}/${p.frac[1]} を計算して、下のボタンで答える。`, hint: '' }
-  ];
-  let body = '';
-  if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div><div class="card">${esc(p.done)}斜線は全体の ${p.frac[0]}/${p.frac[1]} で、${p.ans}cm²。</div>
-      <div class="paper note">紙に戻る：問題の図に、補助線を引く。同じ大きさの部分に、同じ印をつける。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="aux" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
-  } else if (ui.step === 0) {
-    const nd = p.need.filter(s => ui.lines.some(l => l.k === pairKey(s[0], s[1]))).length;
-    body = `${fb}<div class="card">必要な線：<b>${nd} / ${p.need.length}</b> 本 <span class="note">（線は、ひとつ戻せます）</span><div class="row" style="margin-top:8px"><button data-act="undoA">ひとつ戻す</button></div></div>`;
-  } else if (ui.step === 1) {
-    body = `${fb}<div class="card"><div class="row">${AUX_FR.map(([a, b]) => `<button data-act="fracA" data-k="${a}/${b}" ${ui.fracAns === a + '/' + b ? 'class="main"' : ''}>${a}/${b}</button>`).join('')}</div></div>`;
-  } else {
-    body = `${fb}<div class="card"><div class="row">${p.opts.map(v => `<button data-act="valA" data-k="${v}" ${ui.ansV === v ? 'class="main"' : ''}>${v} cm²</button>`).join('')}</div></div>`;
-  }
-  app.innerHTML = `${head(`補助線 ${i + 1} / 5`, true)}
-  <div class="card goal"><b>ゴール：斜線の面積を求める。</b><div class="note" style="margin-top:2px">${esc(p.text)}</div></div>
-  ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
-  <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="図形。点をタップして線を引く">${sceneAux(W, H, p, ui.fin ? 2 : ui.step, ui.pick)}</svg></div>
-  ${body}`;
-  const sc = document.getElementById('sc');
-  if (sc) sc.addEventListener('click', ev => { const [x, y] = svgPoint(ev, sc, W, H); onAuxTap(x, y); });
-}
-function onAuxTap(x, y) {
-  if (ui.fin || ui.step !== 0) return;
-  const p = AUX[route.i], ks = Object.keys(p.pts), k = refNear(ks.map(q => p.pts[q]), x, y, 22); if (k < 0) return;
-  const name = ks[k];
-  if (!ui.pick) { ui.pick = name; ui.msg = { k: 'hint', t: `${name}から、結びたい点をタップ。` }; renderAux(); return; }
-  if (ui.pick === name) { ui.pick = null; ui.msg = null; renderAux(); return; }
-  const key = pairKey(ui.pick, name), a = ui.pick; ui.pick = null;
-  const edge = p.outline.split('').some((c, n, arr) => pairKey(c, arr[(n + 1) % arr.length]) === key);
-  if (edge) ui.msg = { k: 'hint', t: 'その線は、もう図にあります。' };
-  else if (ui.lines.some(l => l.k === key)) ui.msg = { k: 'hint', t: 'その線は、もう引いてあります。' };
-  else {
-    const need = p.need.some(s => pairKey(s[0], s[1]) === key);
-    ui.lines.push({ k: key, need });
-    ui.msg = need ? { k: 'ok', t: `${a}と${name}を結んだ。` } : { k: 'hint', t: `${a}と${name}の線は、この問題では使いません（灰色の点線）。ひとつ戻せます。` };
-    if (need && auxDone(p)) { ui.stat[0] = true; const pt = award(ui.tries[0]); ui.msg = { k: 'ok', t: `補助線ができた！ ${p.done} +${pt} pt` }; setTimeout(() => { ui.step = 1; ui.msg = null; renderAux(); }, 900); }
-    if (!need) ui.tries[0]++;
-  }
-  renderAux();
-}
-function auxAction(a, el) {
-  const p = AUX[route.i];
-  if (a === 'undoA') { ui.lines.pop(); ui.pick = null; ui.msg = null; renderAux(); }
-  else if (a === 'fracA') {
-    const k = el.dataset.k; ui.fracAns = k;
-    if (k === p.frac[0] + '/' + p.frac[1]) { ui.stat[1] = true; const pt = award(ui.tries[1]); ui.step = 2; ui.msg = { k: 'ok', t: `そのとおり！ 同じ大きさの部分を数えて、全体の ${k}。 +${pt} pt` }; }
-    else { ui.tries[1]++; ui.msg = { k: 'ng', t: '色分けされた、同じ大きさの部分を数えなおそう。斜線が、そのうちいくつ分か。' }; }
-    renderAux();
-  } else if (a === 'valA') {
-    const v = +el.dataset.k; ui.ansV = v;
-    if (v === p.ans) { ui.stat[2] = true; const pt = award(ui.tries[2]); ui.msg = { k: 'ok', t: `正解！ ${p.total} × ${p.frac[0]}/${p.frac[1]} = ${p.ans}cm²。 +${pt} pt` }; planeFinish('aux', ui.tries[0] + ui.tries[1] + ui.tries[2] === 0); }
-    else { ui.tries[2]++; ui.msg = { k: 'ng', t: `もう一度。${p.total}cm² の ${p.frac[0]}/${p.frac[1]} を計算してみよう。` }; }
-    renderAux();
-  }
-}
-
-/* ---------- 入力 ---------- */
-document.addEventListener('click', ev => {
-  const el = ev.target.closest('[data-act]'); if (!el) return;
-  const a = el.dataset.act;
-  if (a === 'home') { route = { page: 'home' }; ui = {}; return render(); }
-  if (a === 'cut') return startCut(+el.dataset.i);
-  if (a === 'net') return startNet(+el.dataset.i);
-  if (a === 'ref') return startRef(+el.dataset.i);
-  if (a === 'aux') return startAux(+el.dataset.i);
-  if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
-  if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
-  if (a === 'psave') { S.reward.text = document.getElementById('rt').value.trim().slice(0, 40); S.reward.need = Math.max(10, +document.getElementById('rn').value || 300); save(); return renderParentOpen(); }
-  if (a === 'pspend') { const need = +S.reward.need || 300; if (S.pt - (S.spent || 0) >= need) { S.spent = (S.spent || 0) + need; save(); } return renderParentOpen(); }
-  if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = { pt: 0, chest: 0, done: { cut: [0, 0, 0, 0, 0], net: [0, 0, 0, 0, 0], ref: [0, 0, 0, 0, 0], aux: [0, 0, 0, 0, 0] }, reward: { text: '', need: 300 }, spent: 0 }; save(); route = { page: 'home' }; ui = {}; render(); return; }
-  if (route.page === 'cut') return cutAction(a, el);
-  if (route.page === 'net') return netAction(a, el);
-  if (route.page === 'ref') return refAction(a, el);
-  if (route.page === 'aux') return auxAction(a, el);
-});
-window.ZK2 = { REF, AUX, refInfo, traceDir, holeAt, refGeom, startRef, startAux, onRefTap, onAuxTap, refAction, auxAction, wallLabelAt, foldPt, WALLPT, pairKey };
-window.ZK = { CUT, NETS, cutInfo, netCheck, oppositeOfStar, foldCells, netTree, cutAt, orderPoly, V, EDGES, get S() { return S; }, startCut, startNet, get ui() { return ui; }, render, onCutTap, cutAction, netAction, checkOpp, planeAt };
-render();
+window.HUB = { zInfo, jInfo, reward, total, haveNow, renderHub };
+renderHub();
 </script>
 </body>
 </html>
