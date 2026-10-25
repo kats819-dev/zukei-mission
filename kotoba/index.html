@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>ことば道場</title>
+<style>
+:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+a{color:var(--blue)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.chip{padding:5px 10px;border-radius:99px}
+.chip.pt{background:var(--gold-soft);color:var(--gold)}
+.chip.box{background:var(--blue-soft);color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note{font-size:13px;color:var(--sub)}
+button,.btnlink{font-family:inherit;font-size:15px;font-weight:700;min-height:46px;border-radius:10px;border:1px solid var(--blue);background:#fff;color:var(--blue);padding:0 14px;cursor:pointer}
+.btnlink{display:inline-flex;align-items:center;text-decoration:none}
+button.main{background:var(--blue);color:#fff;border-color:var(--blue)}
+button.org{background:var(--org);color:#fff;border-color:var(--org)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,.seg:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mis{min-height:54px;font-size:18px}
+.mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.stg{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.stg h2{margin:0}
+.stg .lv{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--blue);color:#fff}
+.stg.lock .lv{background:#8A8F9A}
+.steps{display:flex;gap:4px;margin:8px 0}
+.st{flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.2;color:var(--sub);padding:0 2px}
+.st.now{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
+.st.ok{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:700}
+.fb{border-radius:10px;padding:10px 12px;font-size:14px;margin:8px 0}
+.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
+.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
+.fb.hint{background:var(--gold-soft);border:1px solid #C9A24A;color:var(--gold)}
+.paper{border-top:1px dashed #B8B4A8;margin-top:10px;padding-top:8px}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.back{min-height:44px;padding:0 10px}
+.task{background:#FFF8E5;border:1px solid #C9A24A;border-radius:12px;padding:10px 12px;margin:8px 0;display:flex;flex-direction:column;gap:6px}
+.tk{display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.5}
+.tag{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px;margin-top:2px;background:#6B4A06;color:#fff}
+.tag.act{background:#1F4E79}
+.prob{font-size:17px;line-height:2.3;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:8px 0}
+.seg{border-radius:6px;padding:2px 0;touch-action:manipulation}
+.seg[role=button]{cursor:pointer}
+.seg[role=button]:active{background:var(--blue-soft)}
+.seg.circ{border:2.5px solid var(--org);border-radius:99px;padding:1px 6px;margin:0 1px}
+.seg.und{text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:var(--blue);text-underline-offset:5px;background:var(--blue-soft)}
+.seg.hint{box-shadow:0 0 0 3px #F59E0B;background:#FFF8E5}
+.qline{font-size:16px;font-weight:700;border:2px solid var(--ink);border-radius:6px;padding:6px 10px;margin:8px 0;background:#fff}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;padding:10px 14px;line-height:1.45}
+.opts button.ok{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.cq{font-size:15px;margin-bottom:8px}
+.chk{width:100%;text-align:left;padding:10px 14px;line-height:1.45;margin-bottom:8px}
+.chk.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.ans{font-size:18px}
+.calc{margin:6px 0 0;padding-left:0;list-style:none;font-size:15px;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ===================== 問題 =====================
+   [i:…]＝意味を決めることば（○）  [h:…]＝意味の手がかり（下線）
+   kind：use＝正しい使い方 / misuse＝取り違えている人 / same＝ほぼ同じ意味 / opp＝反対に近い / blank＝共通する□
+   mean＝③の言いかえ（opts, ans, hint）　ans/right/why＝④の本問 */
+const STAGES = [
+  { name: '体のことばと、基本のことわざ', sub: '意味をつかむ' },
+  { name: '意味を取り違えやすいことば', sub: 'まちがえやすい' },
+  { name: 'ことばをくらべて、使いこなす', sub: 'くらべる' }
+];
+const UNLOCK = 4;      // 前のステージを、この数だけクリアすると次が開く
+const STAGE_BONUS = 20; // ステージを全部クリアしたときのボーナス
+const P = [
+  /* ---------- ステージ1 ---------- */
+  {
+    stage: 0, kind: 'use', title: '顔が広い', target: '顔が広い',
+    text: 'お父さんは町内会の世話役を長くしているので、[i:顔が広い]。[h:どこへ行っても知り合いに会う。]',
+    mean: { opts: ['顔が大きい', '知り合いが多い', 'よく笑う'], ans: 1, hint: '文の後ろに手がかりがあるよ。「どこへ行っても知り合いに会う」。' },
+    ans: ['妹は顔が広くて、帽子がなかなか合わない。', '兄は顔が広く、どの学年にも友だちがいる。', 'この道は顔が広いので、車が2台通れる。', '姉は顔が広いから、すぐ泣いてしまう。'], right: 1,
+    why: { 0: '顔の大きさのことではないよ。「知り合いが多い」の意味で使おう。', 2: '道の広さには使えないよ。人について使うことばだよ。', 3: '泣きやすいこととは、関係がないよ。' }
+  },
+  {
+    stage: 0, kind: 'use', title: '耳が痛い', target: '耳が痛い',
+    text: '先生に[h:自分の悪いところをはっきり言われて、][i:耳が痛い。]',
+    mean: { opts: ['音がうるさくて、耳がいたい', '悪いところを言われて、聞くのがつらい', 'よく聞こえなくて、こまる'], ans: 1, hint: '「自分の悪いところ」を言われる話だよ。' },
+    ans: ['友だちに遊びにさそわれて、耳が痛かった。', '宿題をしなかったことを注意されて、耳が痛かった。', '先生の話がおもしろくて、耳が痛かった。', 'テストでほめられて、耳が痛かった。'], right: 1,
+    why: { 0: 'さそわれてうれしい話では、「耳が痛い」は使わないよ。', 2: 'おもしろい話は、聞くのがつらくないよ。', 3: 'ほめられて、つらくなることはないよ。' }
+  },
+  {
+    stage: 0, kind: 'use', title: '猫の手も借りたい', target: '猫の手も借りたい',
+    text: '大そうじの日で、家じゅうが[h:いそがしくて、人手が足りない。][i:猫の手も借りたい]ほどだ。',
+    mean: { opts: ['猫と遊びたい', 'とてもいそがしくて、だれでもいいから手伝ってほしい', '猫を飼いたい'], ans: 1, hint: '「いそがしくて、人手が足りない」がヒント。' },
+    ans: ['運動会の準備で人が足りず、猫の手も借りたいほどだった。', 'ひまだったので、猫の手も借りたいほどのんびり過ごした。', '猫が好きなので、猫の手も借りたい気持ちで遊んだ。', 'テストに自信があったので、猫の手も借りたいと思った。'], right: 0,
+    why: { 1: '「いそがしい」ときのことば。ひまなときには使わないよ。', 2: '猫が好きな気持ちのことではないよ。', 3: '自信があるときには、手伝いはいらないよ。' }
+  },
+  {
+    stage: 0, kind: 'use', title: '花より団子', target: '花より団子',
+    text: '花見に来たのに、弟は[h:桜を見ずに、お菓子ばかり食べている。][i:花より団子]だね。',
+    mean: { opts: ['お花が大好き', '見た目より、実際に得になるほうを選ぶ', '団子は花の形をしている'], ans: 1, hint: '「桜を見ずに、お菓子ばかり」がヒント。' },
+    ans: ['花より団子で、花も団子も大好きだ。', '花より団子だから、花だんの手入れをていねいにした。', '動物園で、動物よりお弁当を楽しみにしている弟は、花より団子だ。', 'きれいな花をたくさん買ったので、花より団子だ。'], right: 2,
+    why: { 0: 'どちらも好き、ではないよ。「団子のほうを選ぶ」ことだよ。', 1: '花を大切にしているので、反対の意味になってしまうよ。', 3: '花を選んでいるので、反対の意味になってしまうよ。' }
+  },
+  {
+    stage: 0, kind: 'use', title: '石の上にも三年', target: '石の上にも三年',
+    text: '[h:つらくても、がまんしてつづければ、][i:石の上にも三年]。いつか成果が出るよ。',
+    mean: { opts: ['石の上に3年すわる', 'がまんしてつづければ、いつかうまくいく', '3年たつと石がかたくなる'], ans: 1, hint: '「つらくても、がまんしてつづければ」がヒント。' },
+    ans: ['ピアノが上達しなくても、石の上にも三年と思ってつづけた。', '石の上にも三年なので、すぐにやめることにした。', 'めずらしい石を、3年かけて見つけた。', '石の上にすわって、3年間ねていた。'], right: 0,
+    why: { 1: '「すぐやめる」では反対だよ。「つづける」ことのたとえだよ。', 2: 'ほんとうの石の話ではないよ。', 3: 'ほんとうに石の上にすわる話ではないよ。' }
+  },
+  {
+    stage: 0, kind: 'use', title: '七転び八起き', target: '七転び八起き',
+    text: '[h:何度失敗してもあきらめず、][i:七転び八起き]の気持ちで挑戦した。',
+    mean: { opts: ['7回ころんだら、8回目はお休み', '何度失敗しても、立ち上がってやりなおす', '運動が得意なこと'], ans: 1, hint: '「何度失敗してもあきらめず」がヒント。' },
+    ans: ['この作品は、何度やぶれても、七転び八起きで作り直した。', '七転び八起きなので、1回の失敗でやめてしまった。', '七転び八起きで、運動会ではいつも1位だった。', '七転び八起きは、7回ねてから8回目に起きることだ。'], right: 0,
+    why: { 1: '「1回でやめる」では反対だよ。何度もやり直すことだよ。', 2: '運動の得意・不得意とは関係がないよ。', 3: 'ねたり起きたりの回数の話ではないよ。' }
+  },
+  /* ---------- ステージ2 ---------- */
+  {
+    stage: 1, kind: 'use', title: '名は体を表す', target: '名は体を表す',
+    text: '[h:「ふわふわ堂」のパンは、名前のとおり、ふわふわだ。][i:名は体を表す]ものだ。',
+    mean: { opts: ['名前をつけると、体が大きくなる', '名前は、そのものの中身や性質をよく表している', '名前を体に書く'], ans: 1, hint: '「名前のとおり、ふわふわ」がヒント。' },
+    ans: ['この店は「甘味堂」の名のとおり、甘いお菓子ばかりだ。名は体を表すだね。', '「大」という名前をつけたので、犬の体が大きくなった。名は体を表す。', '名前を体に書いておけば、まいごにならない。名は体を表す。', '名前が長いので、体も長いはずだ。名は体を表す。'], right: 0,
+    why: { 1: '名前が体を大きくするのではないよ。名前が中身をうまく言い当てている、という意味だよ。', 2: 'ほんとうの体に名前を書く話ではないよ。', 3: '名前の長さと体の長さは、関係がないよ。' }
+  },
+  {
+    stage: 1, kind: 'use', title: '骨がある', target: '骨がある',
+    text: '新しく入った人は、上の人にも意見を言い、[h:正しいと思うことは曲げない。][i:骨がある]人だ。',
+    mean: { opts: ['体の骨がじょうぶ', 'しっかりした考えがあって、かんたんに負けない', 'きびしくて、こわい'], ans: 1, hint: '「正しいと思うことは曲げない」がヒント。' },
+    ans: ['妹は、先生にも自分の意見をはっきり言う、骨のある子だ。', '重い荷物を運んで、骨のある一日だった。', 'すぐに弱音をはいてやめるので、骨のある人だ。', '話がうまいので、骨のある人だ。'], right: 0,
+    why: { 1: '「つかれて苦労する」は「骨が折れる」。「骨がある」とはちがうよ。', 2: '弱音をはくのは、反対の意味になってしまうよ。', 3: '話のうまさのことではないよ。「しっかりした考え」のことだよ。' }
+  },
+  {
+    stage: 1, kind: 'use', title: '一年の計は元旦にあり', target: '一年の計は元旦にあり',
+    text: '[h:何をするにも、はじめが大切。][i:一年の計は元旦にあり]だから、今日から計画を立てよう。',
+    mean: { opts: ['元旦は一年でいちばん長い日', '物事は、はじめに計画を立てることが大切', '元旦に計算をする習慣'], ans: 1, hint: '「何をするにも、はじめが大切」がヒント。' },
+    ans: ['新学期のはじめに、目標をしっかり立てた。一年の計は元旦にあり、だ。', '元旦にだけ勉強して、あとはやすんだ。一年の計は元旦にあり、だ。', '元旦に計算ドリルを一年分、終わらせた。一年の計は元旦にあり、だ。', '元旦に旅行に行ったので、一年の計は元旦にあり、だ。'], right: 0,
+    why: { 1: '元旦だけがんばる話ではないよ。「はじめに計画を立てる」ことだよ。', 2: 'ドリルを一度にやる話ではないよ。', 3: '旅行の話ではないよ。' }
+  },
+  {
+    stage: 1, kind: 'same', title: '果報は寝て待て', target: '果報は寝て待て',
+    text: '勉強したあとは、[h:あとは結果を信じて、あせらず待とう。][i:果報は寝て待て]だよ。',
+    mean: { opts: ['寝てばかりいると、幸運がにげる', 'あせらずに、よい知らせを待つ', '夜ふかしをしてはいけない'], ans: 1, hint: '「あせらず待とう」がヒント。' },
+    ans: ['待てば海路の日和あり', '善は急げ', '急がば回れ', '石橋をたたいて渡る'], right: 0,
+    why: { 1: '「善は急げ」は、すぐ行動すること。反対に近いよ。', 2: '「急がば回れ」は、急ぐときほど安全な方法を、という意味だよ。', 3: '「石橋をたたいて渡る」は、とても用心深いことだよ。' }
+  },
+  {
+    stage: 1, kind: 'misuse', title: '対岸の火事', target: '対岸の火事',
+    text: '遠くの国の災害のニュースを見て、[i:対岸の火事]だと思ってはいけない。[h:いつか自分の町にも起こる]かもしれない。',
+    mean: { opts: ['川の向こう側の火事の消し方', '自分には関係のない、他人ごと', 'たいへん急いでいること'], ans: 1, hint: '「対岸」は川のむこう岸。むこう岸の火事は、こちらに関係あるかな？' },
+    ans: ['「あの町の火事は対岸の火事で、うちには関係ないから安心だ」と言った人', '「自分の家が燃えているのに、対岸の火事のようにあわてた」と言った人', '「ほかの学校の出来事だから、うちは対岸の火事だ」と言った人', '「対岸の火事だと思わず、自分のこととして備えよう」と言った人'], right: 1,
+    why: { 0: 'この人は、正しく使っているよ。「自分には関係ない」の意味だよ。', 2: 'この人は、正しく使っているよ。', 3: 'この人は、正しく使っているよ。「他人ごとと思わない」と言っているよ。' }
+  },
+  {
+    stage: 1, kind: 'misuse', title: '情けは人のためならず', target: '情けは人のためならず',
+    text: '「[i:情けは人のためならず]」と言うから、[h:こまっている人には、親切にしておこう。]',
+    mean: { opts: ['親切にすると、その人のためにならない', '親切は、めぐりめぐって、自分にも返ってくる', '冷たくするのが、自分のためになる'], ans: 1, hint: '「ためならず」は「ためにならない」ではなく、「その人のためだけではない」という意味だよ。' },
+    ans: ['「親切にしておけば、いつか自分にも返ってくるよ」と言った人', '「情けをかけると、その人のためにならないから、手伝わない」と言った人', '「席をゆずったら、あとで自分も助けてもらえた。このことわざのとおりだ」と言った人', '「ふだんから、人にやさしくしておこう」と言った人'], right: 1,
+    why: { 0: 'この人は、正しく使っているよ。', 2: 'この人は、正しく使っているよ。', 3: 'この人は、正しく使っているよ。' }
+  },
+  /* ---------- ステージ3 ---------- */
+  {
+    stage: 2, kind: 'same', title: '猫に小判', target: '猫に小判',
+    text: '宝石のよさがわからない人に高い宝石を見せても、[i:猫に小判]だ。[h:ねうちがわからない人には、むだになる。]',
+    mean: { opts: ['価値がわからない人に与えても、むだになる', '猫は小判を食べる', '小判が好きな猫'], ans: 0, hint: '「ねうちがわからない人」がヒント。' },
+    ans: ['急がば回れ', '豚に真珠', '花より団子', '石の上にも三年'], right: 1,
+    why: { 0: '「急がば回れ」は、急ぐときほど安全な方法を、という意味だよ。', 2: '「花より団子」は、見た目より実際に得なほうを選ぶことだよ。', 3: '「石の上にも三年」は、がまんしてつづけることだよ。' }
+  },
+  {
+    stage: 2, kind: 'opp', title: '急がば回れ', target: '急がば回れ',
+    text: '[h:近道は危ないから、][i:急がば回れ]と言うよ。',
+    mean: { opts: ['急ぐときは、走ったほうがいい', '急ぐときこそ、安全で確実な方法を選ぶ', '回るとおそくなるのでやめる'], ans: 1, hint: '「近道は危ないから」がヒント。' },
+    ans: ['石橋をたたいて渡る', '善は急げ', '果報は寝て待て', '七転び八起き'], right: 1,
+    why: { 0: '「石橋をたたいて渡る」は用心深いこと。「急がば回れ」に近い意味だよ。', 2: '「果報は寝て待て」は、あせらず待つこと。近い意味だよ。', 3: '「七転び八起き」は、何度失敗してもやり直すことだよ。' }
+  },
+  {
+    stage: 2, kind: 'opp', title: '二兎を追う者は一兎をも得ず', target: '二兎を追う者は一兎をも得ず',
+    text: '[h:2つのことを同時にやろうとして、どちらも中途半端になった。][i:二兎を追う者は一兎をも得ず]だ。',
+    mean: { opts: ['うさぎを2ひき飼う', '欲ばって2つを同時にねらうと、どちらもうまくいかない', 'うさぎをつかまえるコツ'], ans: 1, hint: '「どちらも中途半端になった」がヒント。' },
+    ans: ['一朝一夕', '七転八倒', '一石二鳥', '四苦八苦'], right: 2,
+    why: { 0: '「一朝一夕」は、ごく短い期間のことだよ。', 1: '「七転八倒」は、苦しくてのたうちまわることだよ。', 3: '「四苦八苦」は、とても苦しむことだよ。' }
+  },
+  {
+    stage: 2, kind: 'blank', title: '口のことば', target: '□が軽い',
+    text: '[i:□が軽い]人は、[h:ひみつをすぐ話してしまう。][i:□がかたい]人は、[h:ひみつを守る。]人の話に[i:□をはさむ]のは、失礼だ。',
+    mean: { opts: ['ひみつを、すぐ話してしまう', '体重が軽い', '話すのがおそい'], ans: 0, hint: '「ひみつをすぐ話してしまう」がヒント。' },
+    ans: ['手', '足', '口', '目'], right: 2,
+    why: { 0: '「手がかたい」「手をはさむ」では、意味が合わないよ。', 1: '「足がかたい」「足をはさむ」では、意味が合わないよ。', 3: '「目がかたい」「目をはさむ」では、意味が合わないよ。' }
+  },
+  {
+    stage: 2, kind: 'blank', title: '鼻のことば', target: '□が高い',
+    text: '[i:□が高い]は、[h:じまんに思って誇らしい]気持ち。[i:□にかける]は[h:じまんする]こと、[i:□につく]は[h:いやになる]こと。',
+    mean: { opts: ['じまんに思って、ほこらしい', '背がとても高い', 'ねだんが高い'], ans: 0, hint: '「じまんに思って誇らしい」がヒント。' },
+    ans: ['鼻', '足', '肩', 'ひざ'], right: 0,
+    why: { 1: '「足が高い」とは言わないよ。', 2: '「肩が高い」とは言わないよ。', 3: '「ひざが高い」とは言わないよ。' }
+  },
+  {
+    stage: 2, kind: 'misuse', title: '気が置けない', target: '気が置けない',
+    text: 'ひさしぶりに、[h:何でも話せて、リラックスできる][i:気が置けない]友人と会った。',
+    mean: { opts: ['気をつかう必要がない', '気をつかわなければならない', '気が短い'], ans: 0, hint: '「何でも話せて、リラックスできる」がヒント。「気が置けない」は、遠慮がいらないということ。' },
+    ans: ['「気が置けない仲間だから、リラックスして話せる」と言った人', '「気が置けない人だから、失礼のないようにしなくては」と言った人', '「気が置けない友だちと、旅行に行ってきた」と言った人', '「気が置けない親友なので、なんでも相談できる」と言った人'], right: 1,
+    why: { 0: 'この人は、正しく使っているよ。', 2: 'この人は、正しく使っているよ。', 3: 'この人は、正しく使っているよ。' }
+  }
+];
+const CIRC = ['①', '②', '③', '④'];
+const KIND = {
+  use: { form: '正しい使い方の文を、1つ選ぶ', ask: '「{t}」の使い方として、正しいものを選びなさい。', hint: '手がかりのことばと、合っているかな。' },
+  misuse: { form: '意味を取り違えている人を、1人選ぶ', ask: '次の4人のうち、「{t}」の意味を取り違えている人を選びなさい。', hint: '③で言いかえた意味と、くらべてみよう。' },
+  same: { form: 'ほぼ同じ意味のことばを、1つ選ぶ', ask: '「{t}」と、ほぼ同じ意味のことばを選びなさい。', hint: '③の言いかえと、同じ意味のものはどれ？' },
+  opp: { form: '反対の考え方に近いことばを、1つ選ぶ', ask: '「{t}」と、反対の考え方に近いことばを選びなさい。', hint: '③の言いかえと、逆のことを言っているのはどれ？' },
+  blank: { form: '3つの□に共通することばを、1つ選ぶ', ask: '3つの□に共通して入ることばを選びなさい。', hint: '3つとも、□に入れて読んで、意味が通るかな。' }
+};
+const FORM_OTHER = ['ことばを漢字で書く', '意味を30字で書く'];
+// 選択肢を、かたよらない順番にまわす（正答・理由の番号もいっしょに動かす）
+function rot(arr, c, why, r) {
+  const n = arr.length, out = new Array(n), w = {};
+  arr.forEach((v, i) => { out[(i + r) % n] = v; });
+  if (why) Object.keys(why).forEach(k => { w[(+k + r) % n] = why[k]; });
+  return { arr: out, c: (c + r) % n, why: why ? w : null };
+}
+function parse(text) {
+  const out = [], re = /\[(i|h):([^\]]*)\]/g;
+  const plain = s => { (s.match(/[^、。]+[、。]?|[、。]/g) || []).forEach(t => out.push({ t, k: 'p' })); };
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) plain(text.slice(last, m.index));
+    out.push({ t: m[2], k: m[1] });
+    last = re.lastIndex;
+  }
+  if (last < text.length) plain(text.slice(last));
+  out.forEach((s, i) => { s.i = i; });
+  return out;
+}
+P.forEach((p, idx) => {
+  const a = rot(p.ans, p.right, p.why, (idx * 3 + 1) % 4); p.ans = a.arr; p.right = a.c; p.why = a.why;
+  const m = rot(p.mean.opts, p.mean.ans, null, (idx * 2 + 1) % 3); p.mean.opts = m.arr; p.mean.ans = m.c;
+  const f = [KIND[p.kind].form].concat(FORM_OTHER), fr = rot(f, 0, null, idx % 3);
+  p.forms = fr.arr; p.form = fr.c;
+  p.q = KIND[p.kind].ask.replace('{t}', p.target);
+  p.segs = parse(p.text);
+  p.hints = p.segs.filter(s => s.k === 'h').map(s => s.t).join('／');
+  p.chk = ['意味：' + p.mean.opts[p.mean.ans], '手がかり：' + p.hints, '答え：' + p.ans[p.right]];
+});
+
+/* ===================== 状態の保存（端末内のみ） ===================== */
+const KEY = 'kotoba-dojo-v1';
+const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), sb: STAGES.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat && Array.isArray(s.sb)) return s; } catch (e) {} return null; }
+let S = load() || blank();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
+const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
+const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
+const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) >= UNLOCK;
+// ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
+const SH = (function () {
+  const RK = 'jishu-reward-v1';
+  const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  function pts() { return ['zukei-mission-v1', 'joken-hunter-v1', 'shiryo-tsunagi-v1', 'tsumiki-dansu-v1', 'kotoba-dojo-v1'].reduce((a, k) => { const o = rd(k); return a + (o && +o.pt || 0); }, 0); }
+  function reward() {
+    let r = rd(RK);
+    if (!r || typeof r !== 'object') {
+      const z = rd('zukei-mission-v1');
+      r = { text: (z && z.reward && z.reward.text) || '', need: (z && z.reward && +z.reward.need) || 300, spent: (z && +z.spent) || 0 };
+      try { localStorage.setItem(RK, JSON.stringify(r)); } catch (e) {}
+    }
+    return r;
+  }
+  return { pts, reward };
+})();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function rewardCard() {
+  const r = SH.reward(), need = Math.max(1, +r.need || 1), have = Math.max(0, SH.pts() - (+r.spent || 0)), pct = Math.min(100, Math.round(have / need * 100));
+  return `<div class="card"><h2>ごほうび</h2>${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="display:block;height:100%;background:var(--blue);width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（すべてのアプリの合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}</div>`;
+}
+
+/* ===================== 画面 ===================== */
+const app = document.getElementById('app');
+let route = { page: 'home' };
+let ui = {};
+function head(title, back) {
+  const chips = `<div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div>`;
+  if (back) return `<div class="top"><button class="back" data-act="home" aria-label="ホームにもどる">← もどる</button>${chips}</div><h1 style="margin:0 0 8px">${esc(title)}</h1>`;
+  return `<div class="top"><h1>${esc(title)}</h1>${chips}</div>`;
+}
+function stepBar(step, stat) {
+  const names = ['① 答えの形', '② しるし', '③ 言いかえ', '④ 答え', '⑤ 見直し'];
+  return `<div class="steps">${names.map((n, i) => `<div class="st ${stat[i] ? 'ok' : (i === step ? 'now' : '')}">${n}</div>`).join('')}</div>`;
+}
+function taskCard(T) {
+  return `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
+}
+function render() {
+  if (route.page === 'home') return renderHome();
+  if (route.page === 'parent') return renderParent();
+  if (route.page === 'm') return renderM();
+}
+
+/* ---------- ホーム ---------- */
+function renderHome() {
+  const st = S.stat;
+  const stages = STAGES.map((g, gi) => {
+    const open = stageOpen(gi), ids = stageIds(gi), dn = stageDone(gi);
+    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を あと${Math.max(0, UNLOCK - stageDone(gi - 1))}問クリアすると、開きます。</div>`;
+    return `<div class="card"><div class="stg ${open ? '' : 'lock'}"><h2>${esc(g.name)}</h2><span class="lv">ステージ${gi + 1}</span></div>
+      <div class="note" style="margin-bottom:6px">${esc(g.sub)}　クリア ${dn} / ${ids.length}${S.sb[gi] ? '　★ステージクリア' : ''}</div>${lockNote}
+      <div class="grid3">${ids.map((i, k) => `<button class="mis ${S.done[i] ? 'done' : ''}" data-act="start" data-i="${i}" ${open ? '' : 'disabled'} aria-label="ステージ${gi + 1}のミッション${k + 1}${S.done[i] ? '（クリア）' : ''}">${k + 1}${S.done[i] ? '✓' : ''}<span style="display:block;font-size:11px;font-weight:400;line-height:1.2">${esc(P[i].title)}</span></button>`).join('')}</div></div>`;
+  }).join('');
+  app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
+  <h1 style="margin:0 0 8px">ことば道場</h1>
+  <div class="note" style="margin-bottom:8px">慣用句・ことわざを、文の中で「この文では、どういう意味？」と言いかえてから解こう。前のステージを${UNLOCK}問クリアすると、次のステージが開くよ。</div>
+  ${stages}
+  ${rewardCard()}
+  <div class="card"><h2>きろく</h2><div class="note">意味のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
+  <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
+}
+
+/* ---------- ミッション ---------- */
+function startM(i) {
+  if (!stageOpen(P[i].stage)) return;
+  route = { page: 'm', i };
+  ui = { step: 0, tries: [0, 0, 0, 0], stat: [false, false, false, false, false], mk: {}, mode: 'o', msg: null, formPick: null, meanPick: null, ansPick: null, chk: {}, hintSeg: null, fin: false, stageClear: false };
+  render();
+}
+function textHtml(p, interactive) {
+  return p.segs.map(s => {
+    const m = ui.mk[s.i] || {}, cls = ['seg'];
+    if (m.o) cls.push('circ');
+    if (m.u) cls.push('und');
+    if (ui.hintSeg === s.i) cls.push('hint');
+    return interactive
+      ? `<span class="${cls.join(' ')}" data-act="seg" data-i="${s.i}" role="button" tabindex="0">${esc(s.t)}</span>`
+      : `<span class="${cls.join(' ')}">${esc(s.t)}</span>`;
+  }).join('');
+}
+function markCheck(p) {
+  let missI = 0, missH = 0, first = null;
+  p.segs.forEach(s => {
+    const m = ui.mk[s.i] || {};
+    if (s.k === 'i' && !m.o) { missI++; if (first === null) first = s.i; }
+    if (s.k === 'h' && !m.u) { missH++; if (first === null) first = s.i; }
+  });
+  return { missI, missH, first };
+}
+const showBtn = pts => `<div class="row" style="margin-top:8px"><button data-act="show">答えを見る（${pts}）</button></div>`;
+function renderM() {
+  const i = route.i, p = P[i], K = KIND[p.kind];
+  const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
+  const T = [
+    { ask: 'この問題は、<b>何を、どんな形で</b>答える？', act: '問いの文を読んで、答えの形をえらぶ。（紙では、問いの文の「何を」に線を引いて、選ぶ数を確かめる）' },
+    { ask: '文の中の、<b>意味を決めることば</b>と、<b>その手がかり</b>はどれ？', act: '<b>ことばに○</b>、<b>意味の手がかりに下線</b>。ボタンでペンをえらんで、タップ。もう一度タップすると消える。', hint: '手がかりは、「どんな場面か」が書いてあるところ。' },
+    { ask: `「${esc(p.target)}」は、この文では、<b>どういう意味？</b>`, act: '文字どおりの意味ではなく、この文での意味を、えらぶ。（紙では、ことばの横に「＝○○」と言いかえを書く）', hint: p.mean.hint },
+    { ask: '言いかえた意味を使って、<b>本問</b>に答えよう。', act: '下から1つえらぶ。', hint: K.hint },
+    { ask: '<b>最後の見直し。</b>文字どおりの意味と、まぜていない？', act: '3つを、1つずつ、指でなぞって、✓をつける。' }
+  ];
+  let body = '';
+  if (ui.fin) {
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
+      <div class="card"><div class="note">書きとめ（意味・手がかり・答え）</div><ul class="calc">${p.chk.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>
+      <div class="paper note">紙に戻る：ことばに○、手がかりに下線、横に「＝言いかえ」を書く。</div>
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 && stageOpen(P[i + 1].stage) ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+  } else if (ui.step === 0) {
+    body = `${fb}<div class="card"><div class="opts">${p.forms.map((f, k) => `<button data-act="form" data-k="${k}" ${ui.formPick === k ? 'class="main"' : ''}>${esc(f)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
+  } else if (ui.step === 1) {
+    body = `${fb}<div class="card"><div class="row"><button data-act="mode" data-k="o" ${ui.mode === 'o' ? 'class="main"' : ''}>○ ことばにまる</button><button data-act="mode" data-k="u" ${ui.mode === 'u' ? 'class="main"' : ''}>＿ 手がかりに下線</button></div>
+      <div class="note" style="margin-top:6px">いまのペン：<b>${ui.mode === 'o' ? '○（ことば）' : '下線（手がかり）'}</b></div>
+      <div class="row" style="margin-top:8px"><button class="org" data-act="markdone">しるしができた</button></div>${showBtn('0 pt')}</div>`;
+  } else if (ui.step === 2) {
+    body = `${fb}<div class="card"><div class="cq">「${esc(p.target)}」は、この文では？</div><div class="opts">${p.mean.opts.map((o, k) => `<button data-act="mean" data-k="${k}" ${ui.meanPick !== null && k === p.mean.ans ? 'class="ok" disabled' : ''}>${esc(o)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
+  } else if (ui.step === 3) {
+    body = `${fb}<div class="card"><div class="opts">${p.ans.map((a, k) => `<button data-act="ans" data-k="${k}" ${ui.ansPick === k ? 'class="main"' : ''}>${esc(a)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
+  } else {
+    body = `${fb}${p.chk.map((c, k) => `<button class="chk ${ui.chk[k] ? 'done' : ''}" data-act="chk" data-k="${k}">${ui.chk[k] ? '✓' : '□'} ${esc(c)}</button>`).join('')}`;
+  }
+  app.innerHTML = `${head(`ステージ${p.stage + 1}　${p.title}`, true)}
+  ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
+  <div class="prob">${textHtml(p, ui.step === 1 && !ui.fin)}</div>
+  ${ui.step >= 1 || ui.fin ? `<div class="qline">${esc(p.q)}</div>` : ''}
+  ${body}`;
+}
+
+/* ---------- 進行 ---------- */
+function passForm() { ui.stat[0] = true; ui.step = 1; ui.msg = { k: 'ok', t: `答えの形は「${P[route.i].forms[P[route.i].form]}」。` }; }
+function passMarks() { const pt = award(ui.tries[1]); ui.stat[1] = true; ui.step = 2; ui.hintSeg = null; ui.msg = { k: 'ok', t: `ことばと手がかりが見つかった！ +${pt} pt` }; }
+function passMean() { const pt = award(ui.tries[2]); ui.stat[2] = true; ui.step = 3; ui.msg = { k: 'ok', t: `言いかえができた！ +${pt} pt` }; }
+function passAns() { const p = P[route.i], pt = award(ui.tries[3]); ui.stat[3] = true; ui.step = 4; ui.msg = { k: 'ok', t: `正解！ +${pt} pt。最後に、意味・手がかり・答えを確かめよう。` }; }
+function finish() {
+  const p = P[route.i], wasNew = !S.done[route.i];
+  if (wasNew) S.done[route.i] = 1;
+  S.chest = S.done.reduce((a, b) => a + b, 0);
+  const clean = ui.tries.every(t => t === 0);
+  ui.bonus = (wasNew && clean) ? 10 : 0; S.pt += ui.bonus;
+  if (!S.sb[p.stage] && stageDone(p.stage) === stageIds(p.stage).length) { S.sb[p.stage] = 1; S.pt += STAGE_BONUS; ui.stageClear = true; }
+  S.stat.mT++; if (ui.tries[1] === 0) S.stat.mF++;
+  S.stat.aT++; if (ui.tries[3] === 0) S.stat.aF++;
+  save(); ui.stat[4] = true; ui.fin = true;
+}
+function segTap(idx) {
+  const m = ui.mk[idx] = ui.mk[idx] || {};
+  if (ui.mode === 'o') m.o = !m.o; else m.u = !m.u;
+  ui.hintSeg = null; ui.msg = null;
+  render();
+}
+function markDone() {
+  const p = P[route.i], r = markCheck(p);
+  if (r.missI === 0 && r.missH === 0) return passMarks(), render();
+  ui.tries[1]++;
+  const parts = [];
+  if (r.missI) parts.push(`意味を決めることばに、○がまだ${r.missI}つ`);
+  if (r.missH) parts.push(`手がかりの下線が、あと${r.missH}つ`);
+  ui.msg = { k: 'ng', t: parts.join('。') + '。' };
+  if (ui.tries[1] >= 2) { ui.hintSeg = r.first; ui.msg.t += '（光っているところを見てみよう）'; }
+  render();
+}
+function showAnswer() {
+  const p = P[route.i];
+  if (ui.step === 0) { ui.formPick = p.form; return passForm(), render(); }
+  if (ui.step === 1) { p.segs.forEach(s => { if (s.k === 'i') (ui.mk[s.i] = ui.mk[s.i] || {}).o = true; if (s.k === 'h') (ui.mk[s.i] = ui.mk[s.i] || {}).u = true; }); ui.tries[1] = Math.max(ui.tries[1], 3); return passMarks(), render(); }
+  if (ui.step === 2) { ui.meanPick = p.mean.ans; ui.tries[2] = Math.max(ui.tries[2], 3); return passMean(), render(); }
+  if (ui.step === 3) { ui.ansPick = p.right; ui.tries[3] = Math.max(ui.tries[3], 3); return passAns(), render(); }
+}
+function mAction(a, el) {
+  const p = P[route.i];
+  if (a === 'seg') return ui.step === 1 ? segTap(+el.dataset.i) : undefined;
+  if (a === 'mode') { ui.mode = el.dataset.k; ui.msg = null; return render(); }
+  if (a === 'markdone') return markDone();
+  if (a === 'show') return showAnswer();
+  if (a === 'form') {
+    const k = +el.dataset.k; ui.formPick = k;
+    if (k === p.form) { passForm(); } else { ui.tries[0]++; ui.msg = { k: 'ng', t: '問いの文を、もう一度読もう。「何を」「どんな形で」答える？' }; }
+    return render();
+  }
+  if (a === 'mean') {
+    const k = +el.dataset.k;
+    if (k === p.mean.ans) { ui.meanPick = k; passMean(); } else { ui.tries[2]++; ui.msg = { k: 'ng', t: `もう一度。${p.mean.hint}` }; }
+    return render();
+  }
+  if (a === 'ans') {
+    const k = +el.dataset.k; ui.ansPick = k;
+    if (k === p.right) { passAns(); } else { ui.tries[3]++; ui.msg = { k: 'ng', t: p.why[k] || 'もう一度。③の言いかえと、くらべてみよう。' }; }
+    return render();
+  }
+  if (a === 'chk') {
+    const k = +el.dataset.k; ui.chk[k] = !ui.chk[k]; ui.msg = null;
+    if (p.chk.every((_, x) => ui.chk[x])) finish();
+    return render();
+  }
+}
+
+/* ---------- おうちの人向け ---------- */
+function renderParent() {
+  const a = 3 + Math.floor(Math.random() * 6), b = 4 + Math.floor(Math.random() * 6);
+  ui = { gate: a * b };
+  app.innerHTML = `${head('おうちの人向け', true)}
+  <div class="card"><div class="note">子どもが設定を変えないための確認です。答えを入れてください。</div><div style="margin:8px 0;font-size:18px">${a} × ${b} ＝</div>
+  <input id="gate" inputmode="numeric" style="width:100%;min-height:46px;font-size:18px;padding:0 10px;border:1px solid var(--line);border-radius:10px" aria-label="確認の答え"><div class="row" style="margin-top:8px"><button class="main" data-act="gate">開く</button></div><div id="gm"></div></div>`;
+}
+function renderParentOpen() {
+  const st = S.stat;
+  app.innerHTML = `${head('おうちの人向け', true)}
+  <div class="card"><h2>きろく</h2><div class="note">ポイント：${S.pt}　クリア：${S.chest} / ${P.length}　（ステージ ${STAGES.map((_, g) => stageDone(g) + '/' + stageIds(g).length).join('、')}）<br>意味のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div>
+  <div class="note" style="margin-top:6px">紙の答案でも、「慣用句・ことわざの意味を、言いかえて書いた設問の割合」を数えると、変化が見えます。</div></div>
+  <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
+  <div class="card"><div class="note">ステージを、すぐ開けたいときは、下のボタンを押します（前のステージのクリア数は変わりません）。</div><div class="row" style="margin-top:8px"><button data-act="openall">ぜんぶのステージを開く</button></div></div>
+  <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
+}
+
+/* ---------- 入力 ---------- */
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'home') { route = { page: 'home' }; ui = {}; return render(); }
+  if (a === 'start') return startM(+el.dataset.i);
+  if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
+  if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
+  if (a === 'openall') { S.open = true; save(); el.textContent = '開きました'; el.disabled = true; return; }
+  if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = blank(); save(); route = { page: 'home' }; ui = {}; return render(); }
+  if (route.page === 'm') return mAction(a, el);
+});
+document.addEventListener('keydown', ev => {
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.seg[role=button]')) { ev.preventDefault(); ev.target.click(); }
+});
+window.KD = { P, STAGES, UNLOCK, STAGE_BONUS, get S() { return S; }, get ui() { return ui; }, startM, stageOpen, stageDone, render };
+render();
+</script>
+</body>
+</html>

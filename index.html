@@ -44,7 +44,7 @@ input{width:100%;min-height:46px;font-size:16px;padding:0 10px;border:1px solid 
 <div id="app"></div>
 <script>
 'use strict';
-const ZK = 'zukei-mission-v1', JK = 'joken-hunter-v1', SK = 'shiryo-tsunagi-v1', TK = 'tsumiki-dansu-v1', RK = 'jishu-reward-v1';
+const ZK = 'zukei-mission-v1', JK = 'joken-hunter-v1', SK = 'shiryo-tsunagi-v1', TK = 'tsumiki-dansu-v1', KK = 'kotoba-dojo-v1', RK = 'jishu-reward-v1';
 const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // 進み具合
@@ -57,7 +57,7 @@ function listInfo(k, n) {
   const j = rd(k);
   return { pt: j && +j.pt || 0, got: j && Array.isArray(j.done) ? j.done.reduce((x, y) => x + y, 0) : 0, n };
 }
-const jInfo = () => listInfo(JK, 10), sInfo = () => listInfo(SK, 8), tInfo = () => listInfo(TK, 9);
+const jInfo = () => listInfo(JK, 10), sInfo = () => listInfo(SK, 8), tInfo = () => listInfo(TK, 9), kInfo = () => listInfo(KK, 18);
 // ごほうび（すべてのアプリで共通）。はじめて読むとき、図形ミッションの旧設定を引き継ぐ
 function reward() {
   let r = rd(RK);
@@ -69,12 +69,12 @@ function reward() {
   return r;
 }
 function saveReward(r) { try { localStorage.setItem(RK, JSON.stringify(r)); } catch (e) {} }
-const total = () => zInfo().pt + jInfo().pt + sInfo().pt + tInfo().pt;
+const total = () => zInfo().pt + jInfo().pt + sInfo().pt + tInfo().pt + kInfo().pt;
 const haveNow = r => Math.max(0, total() - (+r.spent || 0));
 
 let gate = 0;
 function renderHub() {
-  const z = zInfo(), j = jInfo(), s = sInfo(), t = tInfo(), r = reward(), need = Math.max(1, +r.need || 1), have = haveNow(r), pct = Math.min(100, Math.round(have / need * 100));
+  const z = zInfo(), j = jInfo(), s = sInfo(), t = tInfo(), k = kInfo(), r = reward(), need = Math.max(1, +r.need || 1), have = haveNow(r), pct = Math.min(100, Math.round(have / need * 100));
   const chips = i => `<span class="chip pt">${i.pt} pt</span><span class="chip box">宝箱 ${i.got} / ${i.n}</span>`;
   app.innerHTML = `<h1>自習ミッション</h1>
   <p class="sub">どれから始める？　ポイントは、ぜんぶ合わせてたまります。</p>
@@ -82,6 +82,7 @@ function renderHub() {
   <a class="door" href="joken/"><h2>条件ハンター</h2><p>問題文にかくれた「答えをかえる条件」を見つけて、しるしをつけてから解こう。</p><div class="prog">${chips(j)}</div><span class="go">はじめる →</span></a>
   <a class="door" href="shiryo/"><h2>資料つなぎ</h2><p>2つの資料の「同じものについて書いてある項目」を、自分でつないでから解こう。</p><div class="prog">${chips(s)}</div><span class="go">はじめる →</span></a>
   <a class="door" href="tsumiki/"><h2>積み木の段数</h2><p>見える数・いちばん多い数と少ない数・ふえるきまり。書きこんで、きまりに切りかえよう。</p><div class="prog">${chips(t)}</div><span class="go">はじめる →</span></a>
+  <a class="door" href="kotoba/"><h2>ことば道場</h2><p>慣用句・ことわざを、「この文では、どういう意味？」と言いかえて解こう。3つのステージ。</p><div class="prog">${chips(k)}</div><span class="go">はじめる →</span></a>
   <div class="card"><h2>ごほうび</h2>${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}</div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button id="bparent">おうちの人向け</button></div></div>`;
   document.getElementById('bparent').addEventListener('click', renderGate);
@@ -104,7 +105,7 @@ function renderParent(msg) {
   <div class="card"><h2>ごほうび（すべてのアプリで共通）</h2><label for="rt" class="note">ごほうびの中身</label><input id="rt" value="${esc(r.text)}" maxlength="40">
   <label for="rn" class="note" style="display:block;margin-top:8px">必要なポイント</label><input id="rn" type="number" inputmode="numeric" min="10" step="10" value="${esc(r.need)}">
   <div class="row" style="margin-top:10px"><button class="main" id="bsave">保存</button></div></div>
-  <div class="card"><div class="note">ポイント：図形ミッション ${z.pt} ＋ 条件ハンター ${j.pt} ＋ 資料つなぎ ${sInfo().pt} ＋ 積み木の段数 ${tInfo().pt} ＝ ${total()}（使った分 ${+r.spent || 0}、いま使えるのは ${have}）。ごほうびを渡したら、使います。</div>
+  <div class="card"><div class="note">ポイント：図形ミッション ${z.pt} ＋ 条件ハンター ${j.pt} ＋ 資料つなぎ ${sInfo().pt} ＋ 積み木の段数 ${tInfo().pt} ＋ ことば道場 ${kInfo().pt} ＝ ${total()}（使った分 ${+r.spent || 0}、いま使えるのは ${have}）。ごほうびを渡したら、使います。</div>
   <div class="row" style="margin-top:8px"><button id="bspend" ${have >= need ? '' : 'disabled'}>ごほうびを渡した（${need} pt使う）</button></div></div>
   <div class="card"><div class="note">各アプリの記録のリセットは、それぞれのアプリの「おうちの人向け」にあります。</div></div>`;
   document.getElementById('bback').addEventListener('click', renderHub);
@@ -119,7 +120,7 @@ function renderParent(msg) {
     if (haveNow(r2) >= n) { r2.spent = (+r2.spent || 0) + n; saveReward(r2); renderParent(`${n} pt 使いました。`); }
   });
 }
-window.HUB = { zInfo, jInfo, sInfo, tInfo, reward, total, haveNow, renderHub };
+window.HUB = { zInfo, jInfo, sInfo, tInfo, kInfo, reward, total, haveNow, renderHub };
 renderHub();
 </script>
 </body>
