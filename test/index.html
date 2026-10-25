@@ -61,7 +61,8 @@ const AREAS = [
   { id: 'joken', app: 'joken', k: '', name: '条件ハンター', path: 'joken/', key: 'joken-hunter-v1', sizes: [10, 6, 6] },
   { id: 'shiryo', app: 'shiryo', k: '', name: '資料つなぎ', path: 'shiryo/', key: 'shiryo-tsunagi-v1', sizes: [8, 6, 6] },
   { id: 'tsumiki', app: 'tsumiki', k: '', name: '積み木の段数', path: 'tsumiki/', key: 'tsumiki-dansu-v1', sizes: [9, 6, 6] },
-  { id: 'kotoba', app: 'kotoba', k: '', name: 'ことば道場', path: 'kotoba/', key: 'kotoba-dojo-v1', sizes: [6, 6, 6] }
+  { id: 'kotoba', app: 'kotoba', k: '', name: 'ことば道場', path: 'kotoba/', key: 'kotoba-dojo-v1', sizes: [6, 6, 6] },
+  { id: 'tempo', app: 'tempo', k: '', name: 'ことばテンポ（練習ずみの語）', path: 'tempo/', key: 'kotoba-tempo-v1', tempo: true }
 ];
 const KEY = 'jishu-test-v1';
 const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
@@ -86,19 +87,24 @@ function stageNo(a, i) {   // ステージ内の番号（1から）
 // 各アプリの、クリア済みの問題
 function clearedOf(a) {
   const s = rd(a.key), out = [];
+  if (a.tempo) {   // ことばテンポ：1回でも出た語（1語＝1問）
+    if (!s || !s.box) return out;
+    return Object.keys(s.box).map(Number).sort((x, y) => x - y).map(i => ({ id: a.id, app: a.app, k: '', i, path: a.path, name: 'ことばテンポ', stage: -1, no: i, tempo: true }));
+  }
   if (!s || !s.done) return out;
   const arr = a.app === 'zukei' ? s.done[a.k] : s.done;
   if (!Array.isArray(arr)) return out;
   arr.forEach((v, i) => { if (v) out.push({ id: a.id, app: a.app, k: a.k, i, path: a.path, name: a.name, stage: stageOf(a, i), no: stageNo(a, i) }); });
   return out;
 }
-const labelOf = it => `${it.name}　ステージ${it.stage + 1}・${it.no}番`;
+const labelOf = it => (it.tempo ? `ことばテンポ　${it.label || '（1問）'}` : `${it.name}　ステージ${it.stage + 1}・${it.no}番`);
+const limText = sec => (sec >= 60 ? (sec / 60) + '分' : sec + '秒');
 const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const mmss = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
 
 /* ===================== 画面 ===================== */
 const app = document.getElementById('app');
-let st = { mode: 'area', areas: AREAS.map(a => a.id), stages: [0, 1, 2], n: 10, lim: 300 };
+let st = { mode: 'area', areas: AREAS.map(a => a.id), stages: [0, 1, 2], n: 10, lim: 300, tlim: 20 };
 try { const o = rd(KEY + '-set'); if (o) st = Object.assign(st, o); } catch (e) {}
 let view = 'setup', armed = false;
 
@@ -106,12 +112,12 @@ function pool() {
   let all = [];
   AREAS.forEach(a => { all = all.concat(clearedOf(a)); });
   if (st.mode === 'random') return all;
-  return all.filter(it => st.areas.includes(it.id) && st.stages.includes(it.stage));
+  return all.filter(it => st.areas.includes(it.id) && (it.stage < 0 || st.stages.includes(it.stage)));
 }
 function nextPos(cur) { return cur.items.findIndex(x => x.status === 'todo'); }
 function urlOf(cur, pos) {
   const it = cur.items[pos];
-  return `../${it.path}?test=1&k=${encodeURIComponent(it.k)}&i=${it.i}&lim=${cur.lim}&rid=${cur.id}&pos=${pos}&n=${cur.items.length}`;
+  return `../${it.path}?test=1&k=${encodeURIComponent(it.k)}&i=${it.i}&lim=${it.lim || cur.lim}&rid=${cur.id}&pos=${pos}&n=${cur.items.length}`;
 }
 function finalize(cur) {
   if (cur.fin) return;
@@ -133,7 +139,7 @@ function renderSetup() {
   AREAS.forEach(a => { all[a.id] = clearedOf(a); });
   const p = pool();
   const areaRows = AREAS.map(a => {
-    const total = all[a.id].length, use = all[a.id].filter(it => st.stages.includes(it.stage)).length;
+    const total = all[a.id].length, use = all[a.id].filter(it => it.stage < 0 || st.stages.includes(it.stage)).length;
     return `<label class="chk ${total ? '' : 'off'}"><input type="checkbox" data-area="${a.id}" ${st.areas.includes(a.id) ? 'checked' : ''} ${total ? '' : 'disabled'}><span>${esc(a.name)}</span><span class="n">${use} / ${total}問</span></label>`;
   }).join('');
   app.innerHTML = `<div class="top"><a class="btnlink" href="../" aria-label="入口にもどる">← 入口</a><button id="bhist">きろく</button></div>
@@ -145,7 +151,8 @@ function renderSetup() {
   ${st.mode === 'area' ? `<div class="card"><h2>2. 領域とステージ</h2>${areaRows}
     <div class="note" style="margin:8px 0 4px">ステージ</div><div class="seg">${[0, 1, 2].map(g => `<label><input type="checkbox" data-stage="${g}" ${st.stages.includes(g) ? 'checked' : ''}><span>ステージ${g + 1}</span></label>`).join('')}</div></div>` : ''}
   <div class="card"><h2>${st.mode === 'area' ? '3' : '2'}. 問題の数</h2><div class="seg">${[5, 10, 15, 0].map(n => `<label><input type="radio" name="n" value="${n}" ${st.n === n ? 'checked' : ''}><span>${n ? n + '問' : 'ぜんぶ'}</span></label>`).join('')}</div></div>
-  <div class="card"><h2>${st.mode === 'area' ? '4' : '3'}. 1問の時間</h2><div class="seg">${[180, 300, 480].map(s => `<label><input type="radio" name="lim" value="${s}" ${st.lim === s ? 'checked' : ''}><span>${s / 60}分</span></label>`).join('')}</div></div>
+  <div class="card"><h2>${st.mode === 'area' ? '4' : '3'}. 1問の時間</h2><div class="note" style="margin-bottom:4px">図形・条件・資料・積み木・ことば道場</div><div class="seg">${[180, 300, 480].map(s => `<label><input type="radio" name="lim" value="${s}" ${st.lim === s ? 'checked' : ''}><span>${s / 60}分</span></label>`).join('')}</div>
+  <div class="note" style="margin:8px 0 4px">ことばテンポ（1語）</div><div class="seg">${[10, 20, 30].map(s => `<label><input type="radio" name="tlim" value="${s}" ${st.tlim === s ? 'checked' : ''}><span>${s}秒</span></label>`).join('')}</div></div>
   <div class="card"><div style="margin-bottom:8px">いま出せる問題：<b>${p.length}</b>問${p.length < (st.n || 1) && p.length ? `（${st.n}問より少ないので、${p.length}問になります）` : ''}</div>
   ${p.length ? '' : '<div class="fb hint">クリアした問題が、まだ（この条件には）ありません。各アプリで問題をクリアすると、ここに出ます。</div>'}
   <button class="main" id="bstart" style="width:100%" ${p.length ? '' : 'disabled'}>テストをはじめる</button></div>`;
@@ -154,14 +161,29 @@ function renderSetup() {
   app.querySelectorAll('input[data-stage]').forEach(e => e.addEventListener('change', () => { st.stages = Array.from(app.querySelectorAll('input[data-stage]:checked')).map(x => +x.dataset.stage); keep(); renderSetup(); }));
   app.querySelectorAll('input[name=n]').forEach(e => e.addEventListener('change', () => { st.n = +e.value; keep(); renderSetup(); }));
   app.querySelectorAll('input[name=lim]').forEach(e => e.addEventListener('change', () => { st.lim = +e.value; keep(); renderSetup(); }));
+  app.querySelectorAll('input[name=tlim]').forEach(e => e.addEventListener('change', () => { st.tlim = +e.value; keep(); renderSetup(); }));
   document.getElementById('bhist').addEventListener('click', () => { view = 'hist'; render(); });
   document.getElementById('bstart').addEventListener('click', startRun);
 }
 function keep() { try { localStorage.setItem(KEY + '-set', JSON.stringify(st)); } catch (e) {} }
 function newId() { return 't' + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36); }
+// 領域ごとに、まんべんなく引く（ことばテンポの語が多くても、かたよらない）
+function draw(list, n) {
+  const g = {};
+  list.forEach(it => { (g[it.id] = g[it.id] || []).push(it); });
+  const keys = shuffle(Object.keys(g));
+  keys.forEach(k => { g[k] = shuffle(g[k]); });
+  const want = n ? Math.min(n, list.length) : list.length, out = [];
+  while (out.length < want) {
+    let moved = false;
+    for (const k of keys) { if (g[k].length && out.length < want) { out.push(g[k].pop()); moved = true; } }
+    if (!moved) break;
+  }
+  return shuffle(out);
+}
 function startRun() {
-  const p = shuffle(pool());
-  const items = (st.n ? p.slice(0, st.n) : p).map(it => Object.assign({}, it, { status: 'todo', secs: 0, mist: 0 }));
+  const p = draw(pool(), st.n);
+  const items = p.map(it => Object.assign({}, it, { status: 'todo', secs: 0, mist: 0 }, it.tempo ? { lim: st.tlim } : {}));
   if (!items.length) return;
   D.cur = { id: newId(), mode: st.mode, lim: st.lim, items, fin: false, ts: Date.now() };
   save(); view = 'ready'; render();
@@ -183,7 +205,7 @@ function renderReady() {
   ${last ? `<div class="fb ${last.status === 'solved' ? 'ok' : 'ng'}" role="status" style="margin-top:10px">前の問題：<b>${last.status === 'solved' ? '解けた' : '解けなかった'}</b>（${mmss(last.secs)}）</div>` : ''}
   <div style="margin:12px 0 4px">つぎは <b>${pos + 1} 問め</b> ／ ぜんぶで ${n} 問</div>
   <div class="note">${esc(labelOf(cur.items[pos]))}</div>
-  <div class="note">制限時間：${cur.lim / 60}分。時間がすぎると、「解けなかった」になります。</div>
+  <div class="note">制限時間：${limText(cur.items[pos].lim || cur.lim)}。時間がすぎると、「解けなかった」になります。</div>
   <div class="row" style="margin-top:10px"><button class="main" id="bgo">${done ? 'つぎの問題へ' : 'はじめる'}</button></div></div>
   <div class="card"><button id="bquit" class="${armed ? 'org' : ''}">${armed ? 'もう一度押すと、ここで終わります' : 'ここで、おわる'}</button></div>`;
   document.getElementById('bgo').addEventListener('click', () => { location.href = urlOf(cur, pos); });
@@ -234,7 +256,7 @@ function renderHist() {
   }
   render();
 })();
-window.TST = { AREAS, clearedOf, stageOf, stageNo, pool, get D() { return D; }, get st() { return st; }, startRun, retryRun, render, urlOf };
+window.TST = { AREAS, draw, clearedOf, stageOf, stageNo, pool, get D() { return D; }, get st() { return st; }, startRun, retryRun, render, urlOf };
 </script>
 </body>
 </html>
