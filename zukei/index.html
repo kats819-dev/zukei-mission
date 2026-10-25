@@ -27,6 +27,10 @@ button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible{outline:3px solid #F59E0B;outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>button{flex:1}
+.stg{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+.stg.lock b{color:#8A8F9A}
+.stg b{white-space:nowrap}
+.stg .note{text-align:right}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .mis{min-height:54px;font-size:18px}
 .mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
@@ -67,7 +71,24 @@ input[type=range]{width:100%;height:44px}
 /* ===================== 状態の保存（端末内のみ） ===================== */
 const KEY = 'zukei-mission-v1';
 function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {} return null; }
-let S = load() || { pt: 0, chest: 0, done: { cut: [0, 0, 0, 0, 0], net: [0, 0, 0, 0, 0] }, reward: { text: '', need: 300 }, spent: 0 };
+let S = load() || { pt: 0, chest: 0, done: { cut: [], net: [], ref: [], aux: [] }, reward: { text: '', need: 300 }, spent: 0 };
+// ステージ：各ミッション（切断・展開図・反射・補助線）は、5問ずつ×3ステージ。前のステージをぜんぶクリアすると、次が開く
+const PER = 5, NSTAGE = 3, STAGE_BONUS = 20;
+(function ensureStages() {
+  ['cut', 'net', 'ref', 'aux'].forEach(k => { if (!Array.isArray(S.done[k])) S.done[k] = []; while (S.done[k].length < PER * NSTAGE) S.done[k].push(0); });
+  if (!S.sb || typeof S.sb !== 'object') S.sb = {};
+  ['cut', 'net', 'ref', 'aux'].forEach(k => { if (!Array.isArray(S.sb[k])) S.sb[k] = [0, 0, 0]; });
+})();
+const stageOf = i => Math.floor(i / PER);
+const stageDoneN = (k, g) => S.done[k].slice(g * PER, g * PER + PER).filter(Boolean).length;
+const modOpen = (k, i) => stageOf(i) === 0 || S.open === true || stageDoneN(k, stageOf(i) - 1) === PER;
+// ミッションをクリアしたとき：ステージをぜんぶクリアしたら +20pt
+function stageBonus(k, i) {
+  const g = stageOf(i);
+  if (!S.sb[k][g] && stageDoneN(k, g) === PER) { S.sb[k][g] = 1; S.pt += STAGE_BONUS; ui.stageClear = true; }
+}
+const nextBtn = (k, i) => (i < PER * NSTAGE - 1 && modOpen(k, i + 1) ? `<button class="main" data-act="${k}" data-i="${i + 1}">次のミッション</button>` : '');
+const stTitle = (name, i) => `${name}　ステージ${stageOf(i) + 1}　${i % PER + 1} / ${PER}`;
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 // ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
@@ -127,7 +148,19 @@ const CUT = [
   { pts: [['AB', 1 / 2], ['CD', 1 / 2], ['EF', 1 / 2]], name: '四角形' },
   { pts: [['AB', 1 / 2], ['BC', 1 / 2], ['EF', 1 / 2]], name: '四角形' },
   { pts: [['AB', 1 / 3], ['BC', 1 / 3], ['FG', 2 / 3]], name: '五角形' },
-  { pts: [['BC', 1 / 2], ['DH', 1 / 2], ['EF', 1 / 2]], name: '六角形' }
+  { pts: [['BC', 1 / 2], ['DH', 1 / 2], ['EF', 1 / 2]], name: '六角形' },
+  /* ステージ2 */
+  { pts: [['EF', 2 / 3], ['GH', 1 / 3], ['BF', 1 / 2]], name: '四角形' },
+  { pts: [['BC', 2 / 3], ['FG', 1 / 2], ['DH', 1 / 2]], name: '五角形' },
+  { pts: [['BC', 2 / 3], ['EF', 1 / 3], ['AE', 1 / 2]], name: '五角形' },
+  { pts: [['BC', 1 / 2], ['CD', 2 / 3], ['EF', 1 / 2]], name: '六角形' },
+  { pts: [['FG', 2 / 3], ['CG', 1 / 3], ['DH', 2 / 3]], name: '四角形' },
+  /* ステージ3 */
+  { pts: [['EF', 2 / 3], ['FG', 1 / 3], ['CG', 2 / 3]], name: '五角形' },
+  { pts: [['CD', 2 / 3], ['FG', 1 / 3], ['CG', 1 / 3]], name: '六角形' },
+  { pts: [['CD', 1 / 2], ['BF', 2 / 3], ['DH', 1 / 3]], name: '六角形' },
+  { pts: [['AB', 1 / 2], ['EF', 2 / 3], ['CG', 1 / 3]], name: '五角形' },
+  { pts: [['FG', 2 / 3], ['GH', 1 / 3], ['BF', 1 / 3]], name: '六角形' }
 ];
 function cutInfo(i) {
   const g = CUT[i].pts.map(([e, t]) => edgePt(e, t));
@@ -144,7 +177,19 @@ const NETS = [
   { cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]], star: [0, 0], ok: false, name: '2×3' },
   { cells: [[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 3]], star: [1, 1], ok: true, name: '階段' },
   { cells: [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 0]], star: [0, 2], ok: false, name: '一列5＋1' },
-  { cells: [[0, 0], [0, 1], [0, 2], [1, 2], [1, 3], [1, 4]], star: [0, 1], ok: true, name: '3-3' }
+  { cells: [[0, 0], [0, 1], [0, 2], [1, 2], [1, 3], [1, 4]], star: [0, 1], ok: true, name: '3-3' },
+  /* ステージ2 */
+  { cells: [[0, 1], [0, 2], [1, 1], [2, 1], [3, 0], [3, 1]], star: [3, 0], ok: true, name: '2-2-1-1' },
+  { cells: [[0, 0], [0, 1], [1, 1], [1, 2], [2, 0], [2, 1]], star: [0, 0], ok: false, name: '2-2-2' },
+  { cells: [[0, 1], [1, 1], [2, 0], [2, 1], [2, 2], [3, 1]], star: [2, 0], ok: true, name: '3-1-1-1' },
+  { cells: [[0, 0], [0, 1], [0, 2], [0, 3], [1, 0], [1, 3]], star: [1, 0], ok: false, name: '4-2' },
+  { cells: [[0, 1], [1, 0], [1, 1], [1, 2], [2, 2], [2, 3]], star: [2, 3], ok: true, name: '3-2-1' },
+  /* ステージ3 */
+  { cells: [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [2, 2]], star: [0, 2], ok: false, name: '3-2-1' },
+  { cells: [[0, 1], [1, 1], [2, 1], [2, 2], [3, 0], [3, 1]], star: [3, 0], ok: true, name: '2-2-1-1' },
+  { cells: [[0, 2], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]], star: [2, 0], ok: false, name: '3-2-1' },
+  { cells: [[0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 1]], star: [1, 1], ok: false, name: '2-2-1-1' },
+  { cells: [[0, 0], [0, 1], [0, 2], [1, 1], [2, 1], [3, 1]], star: [0, 2], ok: true, name: '3-1-1-1' }
 ];
 const DIRS = [['E', 0, 1], ['W', 0, -1], ['N', -1, 0], ['S', 1, 0]];
 const OPP = { U: 'D', D: 'U', N: 'S', S: 'N', E: 'W', W: 'E' };
@@ -280,7 +325,7 @@ let route = { page: 'home' };
 let ui = {};   // 場面ごとの一時状態
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function head(title, back) {
-  const chips = `<div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / 20</span></div>`;
+  const chips = `<div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / 60</span></div>`;
   if (back) return `<div class="top"><button class="back" data-act="home" aria-label="ホームにもどる">← もどる</button>${chips}</div><h1 style="margin:0 0 8px">${esc(title)}</h1>`;
   return `<div class="top"><h1>${esc(title)}</h1>${chips}</div>`;
 }
@@ -305,7 +350,10 @@ const MODS = [
 ];
 function renderHome() {
   const r = SH.reward(), need = Math.max(1, +r.need || 1), have = Math.max(0, SH.pts() - (+r.spent || 0)), pct = Math.min(100, Math.round(have / need * 100));
-  const mods = MODS.map(([k, name, note]) => `<div class="card"><h2>${name}</h2><div class="note" style="margin-bottom:8px">${note}</div><div class="grid5">${S.done[k].map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="${k}" data-i="${i}" aria-label="${name} ${i + 1}番${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>`).join('');
+  const mods = MODS.map(([k, name, note]) => `<div class="card"><h2>${name}</h2><div class="note" style="margin-bottom:8px">${note}</div>${[0, 1, 2].map(g => {
+    const open = modOpen(k, g * PER), dn = stageDoneN(k, g);
+    return `<div class="stg ${open ? '' : 'lock'}"><b>ステージ${g + 1}</b><span class="note">クリア ${dn} / ${PER}${S.sb[k][g] ? '　★' : ''}${open ? '' : '　（前をぜんぶクリアで開く）'}</span></div><div class="grid5" style="margin-bottom:8px">${S.done[k].slice(g * PER, g * PER + PER).map((d, j) => `<button class="mis ${d ? 'done' : ''}" data-act="${k}" data-i="${g * PER + j}" ${open ? '' : 'disabled'} aria-label="${name} ステージ${g + 1} ${j + 1}番${d ? '（クリア）' : ''}">${j + 1}${d ? '✓' : ''}</button>`).join('')}</div>`;
+  }).join('')}</div>`).join('');
   app.innerHTML = `<a class="entry" href="../" aria-label="入口にもどる">← 入口</a>${head('図形ミッション')}
   ${mods}
   <div class="card"><h2>ごほうび</h2>
@@ -316,6 +364,7 @@ function renderHome() {
 
 /* ---------- 切断 ---------- */
 function startCut(i) {
+  if (!modOpen('cut', i)) return;
   const info = cutInfo(i);
   const needFind = info.edges.filter(e => !info.given.includes(e));
   ui = { i, info, step: needFind.length === 0 ? 1 : 0, stat: [needFind.length === 0, false, false], sel: new Set(info.given), tries: [0, 0, 0], msg: null, segs: [], pick: -1, hints: 0, u: 0.5, ans: null, fin: false, bonus: 0 };
@@ -355,10 +404,10 @@ function renderCut() {
   const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
   let task = '', body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card"><div>切り口は<b>${esc(p.name)}</b>。切られる辺の数＝切り口の頂点の数＝切り口の辺の数（切られる面の数）。</div></div>
       <div class="paper note">紙に戻る：問題の図に、①②③…と、線を引いた順に番号を書く。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="cut" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${nextBtn('cut', i)}</div>`;
   } else {
     const T = CUT_TASK[ui.step];
     task = `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
@@ -376,7 +425,7 @@ function renderCut() {
       ${fb}<div class="card"><b>もとの位置の切り口は？</b><div class="row" style="margin-top:6px">${[3, 4, 5, 6].map(k => `<button data-act="ans3" data-k="${k}" ${ui.ans === k ? 'class="main"' : ''}>${nm[k]}</button>`).join('')}</div></div>`;
     }
   }
-  app.innerHTML = `${head(`立体の切断 ${i + 1} / 5`, true)}
+  app.innerHTML = `${head(stTitle('立体の切断', i), true)}
   <div class="card goal"><b>ゴール：切り口は何角形？</b><div class="note" style="margin-top:2px">立方体を、3点 ${esc(text)} を通る平面で切る。</div></div>
   ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
   <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="立方体。ドラッグで回せる">${sceneCut(W, H, c)}</svg></div>
@@ -457,7 +506,7 @@ function cutAction(a, el) {
     if (k === right) {
       ui.stat[2] = true; const p = award(ui.tries[2]); ui.tries[2] = 0;
       const wasNew = !S.done.cut[ui.i]; if (wasNew) { S.done.cut[ui.i] = 1; S.chest = chestCount(); }
-      const totalWrong = ui.tries[0] + ui.tries[1]; ui.bonus = (wasNew && totalWrong === 0) ? 10 : 0; S.pt += ui.bonus; save();
+      const totalWrong = ui.tries[0] + ui.tries[1]; ui.bonus = (wasNew && totalWrong === 0) ? 10 : 0; S.pt += ui.bonus; stageBonus('cut', ui.i); save();
       ui.fin = true; ui.msg = { k: 'ok', t: `正解！ +${p} pt` };
     } else { ui.tries[2]++; ui.msg = { k: 'ng', t: 'もう一度。スライダーを「もとの位置」にもどして、数えてみよう。' }; }
     renderCut();
@@ -466,6 +515,7 @@ function cutAction(a, el) {
 
 /* ---------- 展開図 ---------- */
 function startNet(i) {
+  if (!modOpen('net', i)) return;
   ui = { i, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, t: 0, played: false, sel: [], fin: false, bonus: 0, user: false };
   route = { page: 'net', i }; render();
 }
@@ -510,10 +560,10 @@ function renderNet() {
            : { ask: '折ると<b>重なってしまう2つのマス</b>は、どれ？', act: '<b>平らな図</b>（青い枠）のマスを<b>2つタップ</b> → 「チェック」。' }
   ];
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card">${net.ok ? '折ると、★の面の向かい側は、辺でつながっていない面になる。折って確かめるのが一番。' : '同じ場所に重なる面ができるので、立方体にはならない。'}</div>
       <div class="paper note">紙に戻る：★の面を「下」と決めて、ほかの面に ①②③… と折る順番を書く。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="net" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${nextBtn('net', i)}</div>`;
   } else {
     task = `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T[ui.step].ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T[ui.step].act}</span></div></div>`;
     if (ui.step === 0) {
@@ -526,7 +576,7 @@ function renderNet() {
       body = `${fb}<div class="card"><div style="margin-bottom:8px">${net.ok ? '' : `選んだマス：<b>${ui.sel.length} / 2</b>`}</div>${net.ok ? '<div class="note">平らな図のマスを1つタップすると、答えがきまります。</div>' : `<div class="row"><button class="main" data-act="chk3" ${ui.sel.length === 2 ? '' : 'disabled'}>チェック</button></div>`}</div>`;
     }
   }
-  app.innerHTML = `${head(`展開図 ${i + 1} / 5`, true)}
+  app.innerHTML = `${head(stTitle('展開図', i), true)}
   <div class="card goal"><b>ゴール：6つの正方形を、折って立方体にできるか見きわめる。</b></div>
   ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
   <div class="card flatbox ${tap ? 'tapme' : ''}" style="padding:6px"><div class="${tap ? 'tapnote' : 'note'}" style="margin:2px 6px">${tap ? '↓ ここのマスをタップ（★が下になる面）' : '平らな図（★が下になる面）'}</div><div id="flatbox">${flat.svg}</div></div>
@@ -556,7 +606,7 @@ function bindNetScene() {
 }
 function finishNet() {
   const wasNew = !S.done.net[route.i]; if (wasNew) { S.done.net[route.i] = 1; S.chest = chestCount(); }
-  ui.bonus = (wasNew && ui.tries[0] + ui.tries[2] === 0) ? 10 : 0; S.pt += ui.bonus; save(); ui.fin = true;
+  ui.bonus = (wasNew && ui.tries[0] + ui.tries[2] === 0) ? 10 : 0; S.pt += ui.bonus; stageBonus('net', route.i); save(); ui.fin = true;
 }
 function checkOpp(r, c) {
   const net = NETS[route.i], opp = oppositeOfStar(net);
@@ -595,17 +645,17 @@ function renderParent() {
 function renderParentOpen() {
   app.innerHTML = `${head('おうちの人向け', true)}
   <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
+  <div class="card"><div class="note">ステージを、すぐ開けたいときは、下のボタンを押します（クリアの記録は変わりません）。</div><div class="row" style="margin-top:8px"><button data-act="openall">ぜんぶのステージを開く</button></div></div>
   <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
 }
 
 /* ===================== 第2弾（平面図形）：共通 ===================== */
 const chestCount = () => Object.values(S.done).reduce((a, v) => a + v.reduce((x, y) => x + y, 0), 0);
-(function ensureDone() { ['ref', 'aux'].forEach(k => { if (!S.done[k]) S.done[k] = [0, 0, 0, 0, 0]; }); })();
 function planeFinish(kind, bonusOk) {
   const wasNew = !S.done[kind][route.i];
   if (wasNew) S.done[kind][route.i] = 1;
   S.chest = chestCount();
-  ui.bonus = (wasNew && bonusOk) ? 10 : 0; S.pt += ui.bonus; save(); ui.fin = true;
+  ui.bonus = (wasNew && bonusOk) ? 10 : 0; S.pt += ui.bonus; stageBonus(kind, route.i); save(); ui.fin = true;
 }
 function taskCard(T) {
   return `<div class="task"><div class="tk"><span class="tag">問われていること</span><span>${T.ask}</span></div><div class="tk"><span class="tag act">やること</span><span>${T.act}</span></div>${T.hint ? `<div class="note">ヒント：${T.hint}</div>` : ''}</div>`;
@@ -648,7 +698,19 @@ const REF = [
   { type: 'b', S: [2, 1], aim: 'ア' },
   { type: 'b', S: [1, 3], aim: 'イ' },
   { type: 'b', S: [1, 2], aim: 'ケ' },
-  { type: 'b', S: [1, 2], aim: 'サ' }
+  { type: 'b', S: [1, 2], aim: 'サ' },
+  /* ステージ2 */
+  { type: 'a', S: [5, 2], target: 'D', k: 2, reg: { x0: 0, x1: 6, y0: 0, y1: 12 } },
+  { type: 'b', S: [4, 1], aim: 'セ' },
+  { type: 'a', S: [5, 3], target: 'D', k: 2, reg: { x0: 0, x1: 12, y0: -4, y1: 4 } },
+  { type: 'b', S: [4, 3], aim: 'シ' },
+  { type: 'a', S: [5, 2], target: 'A', k: 2, reg: { x0: 0, x1: 6, y0: -8, y1: 4 } },
+  /* ステージ3 */
+  { type: 'a', S: [5, 1], target: 'A', k: 3, reg: { x0: 0, x1: 6, y0: 0, y1: 16 } },
+  { type: 'b', S: [2, 1], aim: 'セ' },
+  { type: 'a', S: [4, 2], target: 'C', k: 3, reg: { x0: -6, x1: 6, y0: -8, y1: 4 } },
+  { type: 'b', S: [2, 3], aim: 'シ' },
+  { type: 'a', S: [1, 1], target: 'C', k: 3, reg: { x0: 0, x1: 6, y0: 0, y1: 16 } }
 ];
 function refInfo(i) {
   const p = REF[i], S0 = p.S;
@@ -659,7 +721,7 @@ function refInfo(i) {
       const r = traceDir(S0, [x - S0[0], y - S0[1]]);
       if (r && r.n === p.k && r.end[0] === x && r.end[1] === y) sols.push({ end: [x, y], cross: r.cross, hole: r.hole, n: r.n });
     }
-    return { sols, reg: { x0: -6, x1: 12, y0: -4, y1: 8 } };
+    return { sols, reg: p.reg || { x0: -6, x1: 12, y0: -4, y1: 8 } };
   }
   const aim = WALLPT[p.aim], r = traceDir(S0, [aim[0] - S0[0], aim[1] - S0[1]]);
   const xs = [0, 6, S0[0], r.end[0]], ys = [0, 4, S0[1], r.end[1]];
@@ -731,6 +793,7 @@ function refPath() {
   return { unf, fold: unf.map(foldPt) };
 }
 function startRef(i) {
+  if (!modOpen('ref', i)) return;
   const info = refInfo(i);
   ui = { i, info, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, chosen: null, tapped: 0, t: 0, played: false, fin: false, bonus: 0, ansN: null, ansH: null };
   route = { page: 'ref', i }; render();
@@ -757,10 +820,10 @@ function renderRef() {
   const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
   let task = '', body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card">${p.type === 'a' ? `ねらう点は ${info.sols.map(s => wallLabelAt(...foldPt(s.cross[0].p))).join('と')} の2通り。` : `壁に${info.r.n}回当たって、${info.r.hole}の穴に入る。`}台を並べて、直線にすると、回数と穴がわかる。</div>
       <div class="paper note">紙に戻る：壁に当たった点に①②…と番号を打つ。穴に入ったら×をつけて止める。番号の数が、回数と同じかを数える。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="ref" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${nextBtn('ref', i)}</div>`;
   } else {
     task = taskCard(REF_TASK[p.type][ui.step]);
     if (ui.step === 0) body = fb;
@@ -775,7 +838,7 @@ function renderRef() {
       }
     }
   }
-  app.innerHTML = `${head(`反射の作図 ${i + 1} / 5`, true)}
+  app.innerHTML = `${head(stTitle('反射の作図', i), true)}
   <div class="card goal">${goal}</div>
   ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${task}
   <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="台を並べた図。★から線をのばす">${sceneRef(W, H, refCfg())}</svg></div>
@@ -860,11 +923,42 @@ const AUX = [
     pieces: [['ABE', 0], ['AEC', 0], ['ACD', 1]], done: '対角線で、全体が半分ずつ。さらに、Eが中点なので、△ABCが△ABEと△AECの2つに。' },
   { name: '正三角形の中心', text: '正三角形ABC（面積36cm²）。Oは正三角形の中心、Dは辺BCの中点。斜線（△OBD）の面積は？', total: 36, frac: [1, 6], ans: 6, opts: [4, 6, 9, 12], hint: '中心Oと、3つの頂点と、Dを結ぶ',
     pts: { A: [170, 40], B: [50, 250], C: [290, 250], O: [170, 180], D: [170, 250] }, outline: 'ABC', need: ['OA', 'OB', 'OC', 'OD'], shade: 'OBD',
-    pieces: [['OAB', 0], ['OCA', 0], ['OBD', 1], ['ODC', 1]], done: '中心から頂点へ結ぶと、同じ大きさの三角形が3つ。Dが中点なので、△OBCがさらに半分に。' }
+    pieces: [['OAB', 0], ['OCA', 0], ['OBD', 1], ['ODC', 1]], done: '中心から頂点へ結ぶと、同じ大きさの三角形が3つ。Dが中点なので、△OBCがさらに半分に。' },
+  { name: '長方形の対角線', text: '長方形ABCD（面積48cm²）。対角線ACとBDが交わる点をOとする。斜線（△OAB）の面積は？', total: 48, frac: [1, 4], ans: 12, opts: [8, 12, 16, 24], hint: '対角線を2本引く',
+    pts: { A: [60, 70], B: [280, 70], C: [280, 230], D: [60, 230], O: [170, 150] }, outline: 'ABCD', need: ['AC', 'BD'], shade: 'OAB',
+    pieces: [['OAB', 0], ['OBC', 0], ['OCD', 0], ['ODA', 0]], done: '対角線を引くと、同じ大きさの三角形が4つにわかれる。' },
+  { name: '平行四辺形の対角線', text: '平行四辺形ABCD（面積72cm²）。対角線ACとBDが交わる点をOとする。斜線（△OBC）の面積は？', total: 72, frac: [1, 4], ans: 18, opts: [12, 18, 24, 36], hint: '対角線を2本引く',
+    pts: { A: [110, 60], B: [50, 240], C: [250, 240], D: [310, 60], O: [180, 150] }, outline: 'ABCD', need: ['AC', 'BD'], shade: 'OBC',
+    pieces: [['OAB', 0], ['OBC', 0], ['OCD', 0], ['ODA', 0]], done: '平行四辺形の対角線は、おたがいの中点で交わる。同じ大きさの三角形が4つにわかれる。' },
+  { name: '長方形の中点', text: '長方形ABCD（面積96cm²）。P・Q・R・Sは、辺AB・BC・CD・DAの中点。斜線（四角形PQRS）の面積は？', total: 96, frac: [1, 2], ans: 48, opts: [32, 48, 64, 72], hint: '向かい合う中点どうしを結ぶ',
+    pts: { A: [60, 60], B: [280, 60], C: [280, 240], D: [60, 240], P: [170, 60], Q: [280, 150], R: [170, 240], S: [60, 150], O: [170, 150] }, outline: 'ABCD', need: ['PR', 'QS'], shade: 'PQRS',
+    pieces: [['APOS', 0], ['PBQO', 0], ['OQCR', 0], ['SORD', 0]], done: '向かい合う中点を結ぶと、同じ大きさの長方形が4つ。PQRSは、その半分ずつ。' },
+  { name: '正方形と中点', text: '正方形ABCD（面積48cm²）。Eは辺ABの中点。斜線（△AEC）の面積は？', total: 48, frac: [1, 4], ans: 12, opts: [6, 12, 16, 24], hint: '対角線ACを引く',
+    pts: { A: [70, 50], B: [270, 50], C: [270, 250], D: [70, 250], E: [170, 50] }, outline: 'ABCD', need: ['AC'], shade: 'AEC',
+    pieces: [['AEC', 0], ['EBC', 0], ['ACD', 1]], done: '対角線ACを引くと、△ABCは全体の半分。Eが中点なので、△ABCが△AECと△EBCの2つにわかれる。' },
+  { name: '正六角形（半分）', text: '正六角形ABCDEF（面積24cm²）、中心O。斜線（四角形ABCD）の面積は？', total: 24, frac: [1, 2], ans: 12, opts: [6, 8, 12, 16], hint: '中心Oと、6つの頂点を結ぶ',
+    pts: { A: [115, 55], B: [225, 55], C: [280, 150], D: [225, 245], E: [115, 245], F: [60, 150], O: [170, 150] }, outline: 'ABCDEF', need: ['OA', 'OB', 'OC', 'OD', 'OE', 'OF'], shade: 'ABCD',
+    pieces: [['OAB', 0], ['OBC', 0], ['OCD', 0], ['ODE', 0], ['OEF', 0], ['OFA', 0]], done: '中心と頂点を結ぶと、同じ大きさの三角形が6つ。ABCDは、そのうちの3つ。' },
+  { name: '長方形の3等分', text: '長方形ABCD（面積72cm²）。辺ABを3等分する点をE・F、辺DCを3等分する点をG・Hとする（E−G、F−Hを結ぶ）。斜線（四角形AEGD）の面積は？', total: 72, frac: [1, 3], ans: 24, opts: [12, 18, 24, 36], hint: 'E−G、F−H を結ぶ',
+    pts: { A: [50, 70], B: [290, 70], C: [290, 230], D: [50, 230], E: [130, 70], F: [210, 70], G: [130, 230], H: [210, 230] }, outline: 'ABCD', need: ['EG', 'FH'], shade: 'AEGD',
+    pieces: [['AEGD', 0], ['EFHG', 0], ['FBCH', 0]], done: '3等分する点どうしを結ぶと、同じ大きさの長方形が3つ。AEGDは、そのうちの1つ。' },
+  { name: '正六角形（3分の1）', text: '正六角形ABCDEF（面積36cm²）、中心O。斜線（四角形OEFA）の面積は？', total: 36, frac: [1, 3], ans: 12, opts: [6, 9, 12, 18], hint: '中心Oと、6つの頂点を結ぶ',
+    pts: { A: [115, 55], B: [225, 55], C: [280, 150], D: [225, 245], E: [115, 245], F: [60, 150], O: [170, 150] }, outline: 'ABCDEF', need: ['OA', 'OB', 'OC', 'OD', 'OE', 'OF'], shade: 'OEFA',
+    pieces: [['OAB', 0], ['OBC', 0], ['OCD', 0], ['ODE', 0], ['OEF', 0], ['OFA', 0]], done: '中心と頂点を結ぶと、同じ大きさの三角形が6つ。OEFAは、そのうちの2つ。' },
+  { name: '正方形の8つの三角形', text: '正方形ABCD（面積64cm²）。E・F・G・Hは、辺AB・BC・CD・DAの中点。Oは対角線の交点。斜線（四角形AEOH）の面積は？', total: 64, frac: [1, 4], ans: 16, opts: [8, 16, 24, 32], hint: '対角線と、向かい合う中点を結ぶ線を引く',
+    pts: { A: [70, 50], B: [270, 50], C: [270, 250], D: [70, 250], E: [170, 50], F: [270, 150], G: [170, 250], H: [70, 150], O: [170, 150] }, outline: 'ABCD', need: ['AC', 'BD', 'EG', 'FH'], shade: 'AEOH',
+    pieces: [['AEO', 0], ['EBO', 0], ['BFO', 0], ['FCO', 0], ['CGO', 0], ['GDO', 0], ['DHO', 0], ['HAO', 0]], done: '4本の線で、同じ大きさの三角形が8つ。AEOHは、そのうちの2つ。' },
+  { name: '三角形の3本の中線', text: '三角形ABC（面積36cm²）。D・E・Fは、辺BC・CA・ABの中点。Gは、線AD・BE・CFが交わる点。斜線（四角形AFGE）の面積は？', total: 36, frac: [1, 3], ans: 12, opts: [6, 9, 12, 18], hint: '頂点と、向かい合う辺の中点を結ぶ線を3本引く',
+    pts: { A: [170, 40], B: [50, 250], C: [290, 250], D: [170, 250], E: [230, 145], F: [110, 145], G: [170, 180] }, outline: 'ABC', need: ['AD', 'BE', 'CF'], shade: 'AFGE',
+    pieces: [['GAF', 0], ['GFB', 0], ['GBD', 0], ['GDC', 0], ['GCE', 0], ['GEA', 0]], done: '3本の中線で、同じ大きさの三角形が6つ。AFGEは、そのうちの2つ。' },
+  { name: '正三角形の9分割', text: '正三角形ABC（面積54cm²）。各辺を3等分する点を結んで、同じ大きさの小さな三角形に分ける。斜線（台形DEGF）の面積は？', total: 54, frac: [1, 3], ans: 18, opts: [9, 18, 27, 36], hint: '3等分する点を、辺に平行に結ぶ（6本）',
+    pts: { A: [170, 40], B: [50, 250], C: [290, 250], D: [130, 110], E: [90, 180], F: [210, 110], G: [250, 180], H: [130, 250], I: [210, 250], M: [170, 180] }, outline: 'ABC', need: ['DF', 'EG', 'FH', 'GI', 'DI', 'EH'], shade: 'DEGF',
+    pieces: [['ADF', 0], ['DEM', 0], ['DMF', 0], ['FMG', 0], ['EBH', 0], ['EHM', 0], ['MHI', 0], ['MIG', 0], ['GIC', 0]], done: '3等分する点を結ぶと、同じ大きさの小さな三角形が9つ。DEGFは、そのうちの3つ。' }
 ];
 const GROUP_COL = ['#BFD7EA', '#F6D6AD', '#CDE8C5'];
 const pairKey = (a, b) => [a, b].sort().join('');
 function startAux(i) {
+  if (!modOpen('aux', i)) return;
   ui = { i, step: 0, stat: [false, false, false], tries: [0, 0, 0], msg: null, lines: [], pick: null, fracAns: null, ansV: null, fin: false, bonus: 0 };
   route = { page: 'aux', i }; render();
 }
@@ -896,9 +990,9 @@ function renderAux() {
   ];
   let body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div><div class="card">${esc(p.done)}斜線は全体の ${p.frac[0]}/${p.frac[1]} で、${p.ans}cm²。</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div><div class="card">${esc(p.done)}斜線は全体の ${p.frac[0]}/${p.frac[1]} で、${p.ans}cm²。</div>
       <div class="paper note">紙に戻る：問題の図に、補助線を引く。同じ大きさの部分に、同じ印をつける。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < 4 ? `<button class="main" data-act="aux" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${nextBtn('aux', i)}</div>`;
   } else if (ui.step === 0) {
     const nd = p.need.filter(s => ui.lines.some(l => l.k === pairKey(s[0], s[1]))).length;
     body = `${fb}<div class="card">必要な線：<b>${nd} / ${p.need.length}</b> 本 <span class="note">（線は、ひとつ戻せます）</span><div class="row" style="margin-top:8px"><button data-act="undoA">ひとつ戻す</button></div></div>`;
@@ -907,7 +1001,7 @@ function renderAux() {
   } else {
     body = `${fb}<div class="card"><div class="row">${p.opts.map(v => `<button data-act="valA" data-k="${v}" ${ui.ansV === v ? 'class="main"' : ''}>${v} cm²</button>`).join('')}</div></div>`;
   }
-  app.innerHTML = `${head(`補助線 ${i + 1} / 5`, true)}
+  app.innerHTML = `${head(stTitle('補助線', i), true)}
   <div class="card goal"><b>ゴール：斜線の面積を求める。</b><div class="note" style="margin-top:2px">${esc(p.text)}</div></div>
   ${stepBar(ui.fin ? 3 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
   <div class="scene"><svg id="sc" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="図形。点をタップして線を引く">${sceneAux(W, H, p, ui.fin ? 2 : ui.step, ui.pick)}</svg></div>
@@ -955,6 +1049,7 @@ document.addEventListener('click', ev => {
   const el = ev.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
   if (a === 'home') { route = { page: 'home' }; ui = {}; return render(); }
+  if (a === 'openall') { S.open = true; save(); el.textContent = '開きました'; el.disabled = true; return; }
   if (a === 'cut') return startCut(+el.dataset.i);
   if (a === 'net') return startNet(+el.dataset.i);
   if (a === 'ref') return startRef(+el.dataset.i);

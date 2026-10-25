@@ -82,7 +82,6 @@ const STAGES = [
   { name: '意味を取り違えやすいことば', sub: 'まちがえやすい' },
   { name: 'ことばをくらべて、使いこなす', sub: 'くらべる' }
 ];
-const UNLOCK = 4;      // 前のステージを、この数だけクリアすると次が開く
 const STAGE_BONUS = 20; // ステージを全部クリアしたときのボーナス
 const P = [
   /* ---------- ステージ1 ---------- */
@@ -264,7 +263,7 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
 const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
-const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) >= UNLOCK;
+const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) === stageIds(g - 1).length;
 // ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
 const SH = (function () {
   const RK = 'jishu-reward-v1';
@@ -314,14 +313,14 @@ function renderHome() {
   const st = S.stat;
   const stages = STAGES.map((g, gi) => {
     const open = stageOpen(gi), ids = stageIds(gi), dn = stageDone(gi);
-    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を あと${Math.max(0, UNLOCK - stageDone(gi - 1))}問クリアすると、開きます。</div>`;
+    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を ぜんぶクリアすると、開きます（あと${stageIds(gi - 1).length - stageDone(gi - 1)}問）。</div>`;
     return `<div class="card"><div class="stg ${open ? '' : 'lock'}"><h2>${esc(g.name)}</h2><span class="lv">ステージ${gi + 1}</span></div>
       <div class="note" style="margin-bottom:6px">${esc(g.sub)}　クリア ${dn} / ${ids.length}${S.sb[gi] ? '　★ステージクリア' : ''}</div>${lockNote}
       <div class="grid3">${ids.map((i, k) => `<button class="mis ${S.done[i] ? 'done' : ''}" data-act="start" data-i="${i}" ${open ? '' : 'disabled'} aria-label="ステージ${gi + 1}のミッション${k + 1}${S.done[i] ? '（クリア）' : ''}">${k + 1}${S.done[i] ? '✓' : ''}<span style="display:block;font-size:11px;font-weight:400;line-height:1.2">${esc(P[i].title)}</span></button>`).join('')}</div></div>`;
   }).join('');
   app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
   <h1 style="margin:0 0 8px">ことば道場</h1>
-  <div class="note" style="margin-bottom:8px">慣用句・ことわざを、文の中で「この文では、どういう意味？」と言いかえてから解こう。前のステージを${UNLOCK}問クリアすると、次のステージが開くよ。</div>
+  <div class="note" style="margin-bottom:8px">慣用句・ことわざを、文の中で「この文では、どういう意味？」と言いかえてから解こう。前のステージをぜんぶクリアすると、次のステージが開くよ。</div>
   ${stages}
   ${rewardCard()}
   <div class="card"><h2>きろく</h2><div class="note">意味のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
@@ -493,7 +492,7 @@ document.addEventListener('click', ev => {
 document.addEventListener('keydown', ev => {
   if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.seg[role=button]')) { ev.preventDefault(); ev.target.click(); }
 });
-window.KD = { P, STAGES, UNLOCK, STAGE_BONUS, get S() { return S; }, get ui() { return ui; }, startM, stageOpen, stageDone, render };
+window.KD = { P, STAGES, STAGE_BONUS, get S() { return S; }, get ui() { return ui; }, startM, stageOpen, stageDone, render };
 render();
 </script>
 </body>

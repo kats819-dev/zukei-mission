@@ -30,6 +30,10 @@ button:focus-visible,input:focus-visible{outline:3px solid #F59E0B;outline-offse
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>button{flex:1}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.stg{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.stg h2{margin:0;font-size:16px}
+.stg .lv{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--blue);color:#fff}
+.stg.lock .lv{background:#8A8F9A}
 .mis{min-height:54px;font-size:18px}
 .mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
 .steps{display:flex;gap:4px;margin:8px 0}
@@ -169,24 +173,133 @@ const P = [
     why: { 1: '40個は、かどの4個を、2回数えているよ。', 2: '100個は、中までぜんぶ積んだときの数。ここは、わくだけだよ。', 3: '44個は、4×11。1辺の数を、まちがえていないかな。' },
     chk: ['表：1辺が2個→4個、3個→8個、4個→12個、5個→16個、6個→20個', 'ふえた数：いつも4個', '1辺が10個：4＋4×(10−2)＝4＋32＝36個']
   }
+  ,{
+    type: 'V', title: '後ろから見る', view: 'back', grid: [[2, 1, 3], [0, 2, 1], [1, 3, 2]], pick: [2], pickLabel: '後ろから見て、いちばん右の列',
+    q: '上から見た図の数字は、そのマスの積み木の段数です。後ろから見た図で、いちばん右の列には、正方形がいくつ見えますか。',
+    forms: ['□個（いちばん右の列に見える正方形）', '□個（見える正方形の全部の数）', '□個（積み木の全部の数）'], form: 0,
+    rel: { opts: ['後ろから見ると、左と右が入れかわる。列ごとに、いちばん大きい数が見える', '前から見た図と、まったく同じに見える', '奥の段の数字だけが見える'], ans: 0, hint: '後ろに立つと、左右が反対になるよ。右に見える列は、前から見たとき、いちばん左の列。' },
+    ans: ['2個', '3個', '8個', '15個'], right: 0,
+    why: { 1: '3個は、前から見て、いちばん右の列。後ろからは、左右が入れかわるよ。', 2: '8個は、見える正方形の全部。ほしいのは、いちばん右の列だけ。', 3: '15個は、積み木の全部の数。見える正方形とはちがうよ。' }
+  },
+  {
+    type: 'V', title: '左から見る', view: 'left', grid: [[1, 0, 2], [2, 3, 1], [1, 1, 0]], pick: [2], pickLabel: '左から見て、いちばん右の段',
+    q: '上から見た図の数字は、そのマスの積み木の段数です。左から見た図で、いちばん右に見える段（手前の段）には、正方形がいくつ見えますか。',
+    forms: ['□個（いちばん右の段に見える正方形）', '□個（見える正方形の全部の数）', '□個（積み木の全部の数）'], form: 0,
+    rel: { opts: ['左から見ると、奥が左、手前が右に見える。段ごとに、いちばん大きい数が見える', '右から見た図と、まったく同じに見える', '左はしの列の数字だけが見える'], ans: 0, hint: '左から見ると、右から見たときと、奥と手前が反対になるよ。' },
+    ans: ['1個', '2個', '6個', '11個'], right: 0,
+    why: { 1: '2個は、右から見て、いちばん右の段（奥の段）。左からは、手前が右がわだよ。', 2: '6個は、見える正方形の全部。ほしいのは、いちばん右の段だけ。', 3: '11個は、積み木の全部の数。見える正方形とはちがうよ。' }
+  },
+  {
+    type: 'M', mode: 'max', title: '高さ4まで（多く）', f: [4, 2, 3], r: [3, 4, 1],
+    q: '正面から見た図と、右から見た図が、下のようになりました。積み木を、いちばん多く使うとき、全部で何個ですか。',
+    forms: ['□個（積み木の全部の数）', '□個（見える正方形の数）', '□段（いちばん高い所）'], form: 0,
+    rel: { opts: ['各マスは、正面の高さと右の高さの、小さいほうまで積める', '各マスは、正面の高さと右の高さを、たした数まで積める', '各マスは、大きいほうの高さまで積める'], ans: 0, hint: '4段の列でも、右で3段の段には、3段までしか積めない。' },
+    ans: ['17個', '10個', '20個', '9個'], right: 2,
+    why: { 0: '17個は、正面と右の正方形の数（9＋8）をたしただけ。マスごとに、積める高さを決めよう。', 1: '10個は、いちばん少なく使うときの数。今回は、いちばん多くだよ。', 3: '9個は、正面から見える正方形の数。ほしいのは、積み木の全部の数だよ。' }
+  },
+  {
+    type: 'M', mode: 'max', title: '高さ4まで（多く2）', f: [2, 4, 4], r: [4, 1, 3],
+    q: '正面から見た図と、右から見た図が、下のようになりました。積み木を、いちばん多く使うとき、全部で何個ですか。',
+    forms: ['□個（積み木の全部の数）', '□個（見える正方形の数）', '□段（いちばん高い所）'], form: 0,
+    rel: { opts: ['各マスは、正面の高さと右の高さの、小さいほうまで積める', '各マスは、正面の高さと右の高さを、たした数まで積める', '各マスは、大きいほうの高さまで積める'], ans: 0, hint: '右で1段の段（まん中）は、どの列も1段までだよ。' },
+    ans: ['18個', '14個', '21個', '10個'], right: 2,
+    why: { 0: '18個は、正面と右の正方形の数（10＋8）をたしただけ。マスごとに、積める高さを決めよう。', 1: '14個は、いちばん少なく使うときの数。今回は、いちばん多くだよ。', 3: '10個は、正面から見える正方形の数。ほしいのは、積み木の全部の数だよ。' }
+  },
+  {
+    type: 'R', title: '十字のきまり', shape: 'cross', unit: '番め', ns: [1, 2, 3, 4, 5], cnt: [5, 9, 13, 17, 21], given: 2,
+    q: '積み木を、図のように、十字の形にならべていきます。10番めの形に使う積み木は、何個ですか。',
+    forms: ['□個（10番めの形の数）', '□番め', '□個（10番めまでの全部の数）'], form: 0,
+    rel: { opts: ['ふえる数は、いつも同じ（4個）', 'ふえる数が、1ずつ大きくなる', 'いつも2倍になる'], ans: 0, hint: '1番ふえると、4つのうでが1個ずつのびるよ。' },
+    ans: ['41個', '40個', '44個', '45個'], right: 0,
+    why: { 1: '40個は、まん中の1個を数えわすれているよ。', 2: '44個は、4×11。まん中の1個と、うでの数を、見直そう。', 3: '45個は、11番めの数だよ。10番めは、1つ前。' },
+    chk: ['表：5、9、13、17、21個', 'ふえた数：いつも4個', '10番め：5＋4×（10−1）＝5＋36＝41個']
+  },
+  {
+    type: 'R', title: '長方形のきまり', shape: 'rect', unit: '番め', ns: [1, 2, 3, 4, 5], cnt: [2, 6, 12, 20, 30], given: 2,
+    q: '積み木を、図のように、たて n個、よこ（n＋1）個の長方形にならべます。10番めの形に使う積み木は、何個ですか。',
+    forms: ['□個（10番めの形の数）', '□番め', '□個（10番めまでの全部の数）'], form: 0,
+    rel: { opts: ['ふえる数が、2ずつ大きくなる（4、6、8、…）', 'ふえる数は、いつも同じ', 'ふえる数は、だんだん小さくなる'], ans: 0, hint: '表の「ふえた数」を見よう。4、6、8、…' },
+    ans: ['110個', '100個', '132個', '90個'], right: 0,
+    why: { 1: '100個は、10×10。よこは、たてより1個多いよ。', 2: '132個は、11番めの数（11×12）だよ。', 3: '90個は、9番めの数（9×10）だよ。' },
+    chk: ['表：2、6、12、20、30個', 'ふえた数：4、6、8、10…と、2ずつ大きくなる', '10番め：10×11＝110個（たて×よこ）']
+  },
+  {
+    type: 'V', title: '後ろから（2つ合わせ）', view: 'back', grid: [[3, 0, 1], [2, 2, 0], [1, 4, 2]], pick: [1, 2], pickLabel: '後ろから見て、左から2番めと3番めの列',
+    q: '上から見た図の数字は、そのマスの積み木の段数です。後ろから見た図で、左から2番めの列と3番めの列に見える正方形は、合わせていくつですか。',
+    forms: ['□個（2つの列に見える正方形の合計）', '□個（見える正方形の全部の数）', '□個（積み木の全部の数）'], form: 0,
+    rel: { opts: ['後ろから見ると、左右が入れかわる。列ごとに、いちばん大きい数が見える', '前から見た図と、まったく同じに見える', '手前の段の数字だけが見える'], ans: 0, hint: '後ろから見て「左から2番め・3番め」は、前から見ると「右から2番め・3番め」だよ。' },
+    ans: ['6個', '7個', '9個', '15個'], right: 1,
+    why: { 0: '6個は、前から見た図で「左から2番めと3番め」を足した数。後ろからは、左右が入れかわるよ。', 2: '9個は、見える正方形の全部。ほしいのは、2つの列だけ。', 3: '15個は、積み木の全部の数。見える正方形とはちがうよ。' }
+  },
+  {
+    type: 'V', title: '左から（2つ合わせ）', view: 'left', grid: [[2, 1, 0], [3, 3, 1], [0, 2, 4]], pick: [0, 1], pickLabel: '左から見て、左から1番めと2番めの段',
+    q: '上から見た図の数字は、そのマスの積み木の段数です。左から見た図で、左から1番めの段と2番めの段に見える正方形は、合わせていくつですか。',
+    forms: ['□個（2つの段に見える正方形の合計）', '□個（見える正方形の全部の数）', '□個（積み木の全部の数）'], form: 0,
+    rel: { opts: ['左から見ると、奥が左、手前が右に見える。段ごとに、いちばん大きい数が見える', '右から見た図と、まったく同じに見える', '左はしの列の数字だけが見える'], ans: 0, hint: '左から見ると、いちばん左に見えるのは、奥の段だよ。' },
+    ans: ['5個', '7個', '9個', '16個'], right: 0,
+    why: { 1: '7個は、右から見た図で「左から1番めと2番め」を足した数。左からは、奥と手前が反対だよ。', 2: '9個は、見える正方形の全部。ほしいのは、2つの段だけ。', 3: '16個は、積み木の全部の数。見える正方形とはちがうよ。' }
+  },
+  {
+    type: 'M', mode: 'min', title: 'いちばん少なく（高さ4）', f: [4, 3, 3], r: [3, 4, 2],
+    q: '正面から見た図と、右から見た図が、下のようになりました。積み木を、いちばん少なく使うとき、全部で何個ですか。',
+    forms: ['□個（積み木の全部の数）', '□個（見える正方形の数）', '□段（いちばん高い所）'], form: 0,
+    rel: { opts: ['正面の高さと右の高さを、同じ積み木でまかなえる場所をさがす', '全部のマスを、小さいほうの高さでうめる', '全部のマスに、1個ずつ置く'], ans: 0, hint: '4段の列に、右で4段の段を重ねると、1か所で2つぶんまかなえるよ。' },
+    ans: ['25個', '10個', '19個', '12個'], right: 3,
+    why: { 0: '25個は、いちばん多いときの数。今回は、いちばん少なくだよ。', 1: '10個は、正面から見える正方形の数。重なる所を使っても、それより少なくはできないよ。', 2: '19個は、正面と右の正方形の数（10＋9）をたした数。重なる所を使えば、もっと少なくできるよ。' }
+  },
+  {
+    type: 'M', mode: 'min', title: 'いちばん少なく（2）', f: [4, 1, 3], r: [3, 4, 2],
+    q: '正面から見た図と、右から見た図が、下のようになりました。積み木を、いちばん少なく使うとき、全部で何個ですか。',
+    forms: ['□個（積み木の全部の数）', '□個（見える正方形の数）', '□段（いちばん高い所）'], form: 0,
+    rel: { opts: ['正面の高さと右の高さを、同じ積み木でまかなえる場所をさがす', '全部のマスを、小さいほうの高さでうめる', '全部のマスに、1個ずつ置く'], ans: 0, hint: '右で4段の段は、正面で4段の列と重ねられるかな。' },
+    ans: ['20個', '8個', '17個', '10個'], right: 3,
+    why: { 0: '20個は、いちばん多いときの数。今回は、いちばん少なくだよ。', 1: '8個は、正面から見える正方形の数。右の図も、満たさないといけないよ。', 2: '17個は、正面と右の正方形の数（8＋9）をたした数。重なる所を使えば、もっと少なくできるよ。' }
+  },
+  {
+    type: 'R', title: 'ひし形のきまり', shape: 'diamond', unit: '番め', ns: [1, 2, 3, 4, 5], cnt: [1, 5, 13, 25, 41], given: 2,
+    q: '積み木を、図のように、ひし形の形にならべていきます。10番めの形に使う積み木は、何個ですか。',
+    forms: ['□個（10番めの形の数）', '□番め', '□個（10番めまでの全部の数）'], form: 0,
+    rel: { opts: ['ふえる数が、4ずつ大きくなる（4、8、12、…）', 'ふえる数は、いつも4', 'ふえる数が、1ずつ大きくなる'], ans: 0, hint: '表の「ふえた数」を見よう。4、8、12、16、…' },
+    ans: ['181個', '180個', '200個', '221個'], right: 0,
+    why: { 1: '180個は、中心の1個を数えわすれていないかな。', 2: '200個は、2×100。ふえ方のきまりを、見直そう。', 3: '221個は、11番めの数だよ。10番めは、1つ前。' },
+    chk: ['表：1、5、13、25、41個', 'ふえた数：4、8、12、16…と、4ずつ大きくなる', '10番め：10×10＋9×9＝100＋81＝181個']
+  },
+  {
+    type: 'R', title: '段ごとの個数', shape: 'pyr', unit: '段', ns: [1, 2, 3, 4, 5], cnt: [1, 5, 14, 30, 55], given: 2, qn: 8,
+    q: '積み木を、k段めにk×k個ずつ、段をふやしながら積みます（図は、各段の個数を横にならべたもの）。8段まで積むと、全部で何個ですか。',
+    forms: ['□個（8段までの全部の数）', '□個（8段めだけの数）', '□段'], form: 0,
+    rel: { opts: ['ふえる数が、2×2、3×3、4×4…と大きくなる（4、9、16、…）', 'ふえる数は、いつも同じ', 'いつも2倍になる'], ans: 0, hint: '表の「ふえた数」を見よう。4、9、16、25、…' },
+    ans: ['204個', '64個', '36個', '255個'], right: 0,
+    why: { 1: '64個は、8段めだけの数（8×8）。全部をたそう。', 2: '36個は、1＋2＋…＋8。k段めは、k個ではなく、k×k個だよ。', 3: '255個は、ふえ方のきまりが、ちがっているよ。' },
+    chk: ['表：1、5、14、30、55個', 'ふえた数：4、9、16、25…（2×2、3×3、4×4、…）', '6段は55＋36＝91、7段は91＋49＝140、8段は140＋64＝204個', '8段まで：1＋4＋9＋…＋64＝204個']
+  }
 ];
 const CIRC = ['①', '②', '③', '④'];
+// ステージ：前のステージをぜんぶクリアすると、次が開く。ステージをぜんぶクリアすると +20pt
+const STAGES = [
+  { name: '見える数・最大と最小・きまり', sub: '基本', n: 9 },
+  { name: '後ろ・左から／高さ4／ふえ方の変化', sub: '見る向きがふえる', n: 6 },
+  { name: '2つ合わせ／いちばん少なく／むずかしいきまり', sub: '考えることがふえる', n: 6 }
+];
+const STAGE_BONUS = 20;
+(function () { let a = 0; STAGES.forEach((g, gi) => { g.from = a; a += g.n; for (let i = g.from; i < a; i++) P[i].stage = gi; }); if (a !== P.length) throw new Error('stage size'); })();
 const NAMES = {
   front: ['左の列', 'まんなかの列', '右の列'],
-  right: ['手前の段', 'まんなかの段', '奥の段']
+  back: ['右の列', 'まんなかの列', '左の列'],
+  right: ['手前の段', 'まんなかの段', '奥の段'],
+  left: ['奥の段', 'まんなかの段', '手前の段']
 };
+const BYCOL = v => v === 'front' || v === 'back';
+const VNAME = { front: '正面', back: '後ろ', right: '右', left: '左' };
 // 問題ごとの、正しい答え（計算で出す）
 P.forEach(p => {
   if (p.type === 'V') {
-    if (p.view === 'front') {
-      p.cols = [0, 1, 2].map(c => [0, 1, 2].map(r => p.grid[r][c]));
-      p.exp = p.cols.map(a => Math.max(...a));
-    } else {
-      p.cols = [2, 1, 0].map(r => p.grid[r].slice());
-      p.exp = p.cols.map(a => Math.max(...a));
-    }
-    p.sum = p.exp.reduce((a, b) => a + b, 0);
-    p.chk = p.cols.map((a, k) => `${NAMES[p.view][k]}：${a.join('、')} のいちばん大きい数 → ${p.exp[k]}段`).concat([`見える正方形：${p.exp.join('＋')}＝${p.sum}個`]);
+    const g = p.grid, cm = c => Math.max(g[0][c], g[1][c], g[2][c]), rm = r => Math.max(...g[r]), cv = c => [g[0][c], g[1][c], g[2][c]];
+    p.exp = { front: [0, 1, 2].map(cm), back: [2, 1, 0].map(cm), right: [2, 1, 0].map(rm), left: [0, 1, 2].map(rm) }[p.view];
+    p.cols = { front: [0, 1, 2].map(cv), back: [2, 1, 0].map(cv), right: [2, 1, 0].map(r => g[r].slice()), left: [0, 1, 2].map(r => g[r].slice()) }[p.view];
+    const ks = p.pick || [0, 1, 2];
+    p.sum = ks.reduce((a, k) => a + p.exp[k], 0);
+    p.chk = p.cols.map((a, k) => `${NAMES[p.view][k]}：${a.join('、')} のいちばん大きい数 → ${p.exp[k]}段`).concat([p.pick ? `${p.pickLabel}：${ks.map(k => p.exp[k]).join('＋')}＝${p.sum}個` : `見える正方形：${p.exp.join('＋')}＝${p.sum}個`]);
   }
   if (p.type === 'M') {
     p.expGrid = [0, 1, 2].map(r => [0, 1, 2].map(c => Math.min(p.f[c], p.r[2 - r])));
@@ -195,18 +308,39 @@ P.forEach(p => {
       p.total = p.expGrid.flat().reduce((a, b) => a + b, 0);
       p.chk = p.expGrid.map((row, r) => `${rowName[r]}：${row.join('＋')}＝${row.reduce((a, b) => a + b, 0)}個`).concat([`合計：${p.expGrid.map(row => row.reduce((a, b) => a + b, 0)).join('＋')}＝${p.total}個`]);
     } else {
-      p.total = p.minTotal;
-      p.chk = ['正面で3段の列：右でも3段の「まんなかの段」に、3段を1か所', '正面で2段の列：右で2段まで積める「手前の段」に、2段を1か所', '正面で1段の列：右で1段の「奥の段」に、1段を1か所', '合計：3＋2＋1＝6個'];
+      const caps = [].concat(...p.expGrid), best = { n: 1e9, g: null }, g = new Array(9).fill(0);
+      const ok = () => [0, 1, 2].every(c => Math.max(g[c], g[3 + c], g[6 + c]) === p.f[c]) && [2, 1, 0].every((r, k) => Math.max(g[r * 3], g[r * 3 + 1], g[r * 3 + 2]) === p.r[k]);
+      (function rec(k, tot) {
+        if (tot >= best.n) return;
+        if (k === 9) { if (ok()) { best.n = tot; best.g = g.slice(); } return; }
+        for (let v = 0; v <= caps[k]; v++) { g[k] = v; rec(k + 1, tot + v); }
+        g[k] = 0;
+      })(0, 0);
+      p.total = best.n; p.minGrid = best.g;
+      p.chk = ['正面の列ごとの、いちばん高い所：' + p.f.join('、') + '（合計' + p.f.reduce((a, b) => a + b, 0) + '）', '右の段ごとの、いちばん高い所：' + p.r.join('、') + '（合計' + p.r.reduce((a, b) => a + b, 0) + '）', '正面と右の両方を、同じ積み木でまかなえる場所を使う', '合計：いちばん少なくて ' + p.total + '個'];
     }
   }
 });
 
 /* ===================== 状態の保存（端末内のみ） ===================== */
 const KEY = 'tsumiki-dansu-v1';
-const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat) return s; } catch (e) {} return null; }
+const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), sb: STAGES.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.done) && s.done.length <= P.length && s.stat) {
+      while (s.done.length < P.length) s.done.push(0);   // 問題がふえても、これまでの記録を引きつぐ
+      if (!Array.isArray(s.sb)) s.sb = STAGES.map(() => 0);
+      return s;
+    }
+  } catch (e) {}
+  return null;
+}
 let S = load() || blank();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
+const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
+const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) === stageIds(g - 1).length;
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 // ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
 const SH = (function () {
@@ -257,8 +391,14 @@ function renderHome() {
   const st = S.stat;
   app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
   <h1 style="margin:0 0 8px">積み木の段数</h1>
-  <div class="card"><div class="note" style="margin-bottom:8px">見える数・いちばん多い数と少ない数・ふえるきまり。数えきれないときは、書きこんで、きまりに切りかえよう。</div>
-  <div class="grid5">${S.done.map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="start" data-i="${i}" aria-label="ミッション${i + 1}${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>
+  <div class="note" style="margin-bottom:8px">見える数・いちばん多い数と少ない数・ふえるきまり。数えきれないときは、書きこんで、きまりに切りかえよう。前のステージをぜんぶクリアすると、次のステージが開くよ。</div>
+  ${STAGES.map((g, gi) => {
+    const open = stageOpen(gi), ids = stageIds(gi), dn = stageDone(gi);
+    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を ぜんぶクリアすると、開きます（あと${stageIds(gi - 1).length - stageDone(gi - 1)}問）。</div>`;
+    return `<div class="card"><div class="stg ${open ? '' : 'lock'}"><h2>${esc(g.name)}</h2><span class="lv">ステージ${gi + 1}</span></div>
+    <div class="note" style="margin-bottom:6px">${esc(g.sub)}　クリア ${dn} / ${ids.length}${S.sb[gi] ? '　★ステージクリア' : ''}</div>${lockNote}
+    <div class="grid5">${ids.map((i, k) => `<button class="mis ${S.done[i] ? 'done' : ''}" data-act="start" data-i="${i}" ${open ? '' : 'disabled'} aria-label="ステージ${gi + 1}のミッション${k + 1}${S.done[i] ? '（クリア）' : ''}">${k + 1}${S.done[i] ? '✓' : ''}</button>`).join('')}</div></div>`;
+  }).join('')}
   ${rewardCard()}
   <div class="card"><h2>きろく</h2><div class="note">書きこみが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
@@ -269,14 +409,19 @@ function colHtml(h, filled) { let s = ''; for (let k = 0; k < h; k++) s += `<div
 function viewHtml(hs, label) { return `<div class="figc"><div class="stk">${hs.map(h => colHtml(h)).join('')}</div><div>${label}</div></div>`; }
 function topHtml(p) {
   const g = p.grid;
-  const mid = r => `<tr><td class="lb">${['奥', '', '手前'][r]}</td>${g[r].map(v => `<td>${v}</td>`).join('')}<td class="lb">${p.view === 'right' && r === 1 ? '右から→' : ''}</td></tr>`;
-  const foot = p.view === 'front' ? '<tr><td class="lb"></td><td class="lb" colspan="3">▲ 正面から見る（手前がわ）</td><td class="lb"></td></tr>' : '<tr><td class="lb"></td><td class="lb" colspan="3">右から見ると、手前が左、奥が右に見える</td><td class="lb"></td></tr>';
+  const mid = r => `<tr><td class="lb">${p.view === 'left' && r === 1 ? '左から→' : ['奥', '', '手前'][r]}</td>${g[r].map(v => `<td>${v}</td>`).join('')}<td class="lb">${p.view === 'right' && r === 1 ? '右から→' : ''}</td></tr>`;
+  const FOOT = { front: '▲ 正面から見る（手前がわ）', right: '右から見ると、手前が左、奥が右に見える', back: '▼ 後ろから見ると、左と右が入れかわって見える', left: '左から見ると、奥が左、手前が右に見える' };
+  const foot = `<tr><td class="lb"></td><td class="lb" colspan="3">${FOOT[p.view]}</td><td class="lb"></td></tr>`;
   return `<div class="fig"><div class="figc"><div>上から見た図（数字＝段数）</div><table class="toptbl" aria-label="上から見た図">${mid(0)}${mid(1)}${mid(2)}${foot}</table></div></div>`;
 }
 function shapeCells(shape, n) {
   const M = [];
   if (shape === 'stairs') { for (let r = 0; r < n; r++) M.push(Array.from({ length: n }, (_, c) => (c <= r ? 1 : 0))); }
   if (shape === 'ell') { for (let r = 0; r < n; r++) M.push(Array.from({ length: n + 1 }, (_, c) => (c === 0 ? 1 : 0))); M.push(Array.from({ length: n + 1 }, () => 1)); }
+  if (shape === 'cross') { for (let r = 0; r < 2 * n + 1; r++) M.push(Array.from({ length: 2 * n + 1 }, (_, c) => (r === n || c === n ? 1 : 0))); }
+  if (shape === 'rect') { for (let r = 0; r < n; r++) M.push(Array.from({ length: n + 1 }, () => 1)); }
+  if (shape === 'diamond') { for (let r = 0; r < 2 * n - 1; r++) { const w = Math.min(r, 2 * n - 2 - r); M.push(Array.from({ length: 2 * n - 1 }, (_, c) => (Math.abs(c - (n - 1)) <= w ? 1 : 0))); } }
+  if (shape === 'pyr') { for (let r = 1; r <= n; r++) M.push(Array.from({ length: n * n }, (_, c) => (c < r * r ? 1 : 0))); }
   if (shape === 'frame') { for (let r = 0; r < n; r++) M.push(Array.from({ length: n }, (_, c) => (r === 0 || r === n - 1 || c === 0 || c === n - 1 ? 1 : 0))); }
   return M;
 }
@@ -294,6 +439,7 @@ function figHtml(p) {
 
 /* ---------- ミッション ---------- */
 function startM(i) {
+  if (!stageOpen(P[i].stage)) return;
   route = { page: 'm', i };
   const p = P[i];
   ui = { step: 0, tries: [0, 0, 0, 0], stat: [false, false, false, false, false], msg: null, formPick: null, relPick: null, ansPick: null, chk: {}, hintKey: null, fin: false, bars: [0, 0, 0], cells: [0, 0, 0, 0, 0, 0, 0, 0, 0], vals: {} };
@@ -301,8 +447,8 @@ function startM(i) {
 }
 function inputHtml(p) {
   if (p.type === 'V') {
-    const lab = p.view === 'front' ? ['左', 'まんなか', '右'] : ['手前', 'まんなか', '奥'];
-    return `<div class="note">${p.view === 'front' ? '正面' : '右'}から見た図</div><div class="barrow">${ui.bars.map((h, k) => `<button class="barbtn ${ui.hintKey === 'b' + k ? 'hint' : ''}" data-act="bar" data-k="${k}" aria-label="${lab[k]}の高さ ${h}段">${colHtml(h, true)}<b>${lab[k]}：${h}段</b></button>`).join('')}</div><div class="note">タップするたびに、0 → 1 → 2 → 3 → 4 と変わる。</div>`;
+    const lab = BYCOL(p.view) ? ['左', 'まんなか', '右'] : (p.view === 'right' ? ['手前', 'まんなか', '奥'] : ['奥', 'まんなか', '手前']);
+    return `<div class="note">${VNAME[p.view]}から見た図</div><div class="barrow">${ui.bars.map((h, k) => `<button class="barbtn ${ui.hintKey === 'b' + k ? 'hint' : ''}" data-act="bar" data-k="${k}" aria-label="${lab[k]}の高さ ${h}段">${colHtml(h, true)}<b>${lab[k]}：${h}段</b></button>`).join('')}</div><div class="note">タップするたびに、0 → 1 → 2 → 3 → 4 と変わる。</div>`;
   }
   if (p.type === 'M') {
     const lab = ['奥', 'まんなか', '手前'];
@@ -321,9 +467,10 @@ const showBtn = pts => `<div class="row" style="margin-top:8px"><button data-act
 function renderM() {
   const i = route.i, p = P[i];
   const fb = ui.msg ? `<div class="fb ${ui.msg.k}" role="status">${esc(ui.msg.t)}</div>` : '';
-  const vname = p.view === 'front' ? '正面' : '右';
+  const vname = VNAME[p.view] || '';
+  const unitCol = BYCOL(p.view) ? '列' : '段';
   const T1 = {
-    V: { ask: '上から見た図の数字は、<b>その場所の積み木の段数</b>。' + vname + 'から見ると、どう見える？', act: vname + 'から見た図の、見える高さを、' + (p.view === 'front' ? '列' : '段') + 'ごとにえらぶ。', hint: '紙では、見る方向に矢印を書いて、' + (p.view === 'front' ? '列' : '段') + 'ごとに、いちばん大きい数に丸をつける。' },
+    V: { ask: '上から見た図の数字は、<b>その場所の積み木の段数</b>。' + vname + 'から見ると、どう見える？', act: vname + 'から見た図の、見える高さを、' + unitCol + 'ごとにえらぶ。', hint: '紙では、見る方向に矢印を書いて、' + unitCol + 'ごとに、いちばん大きい数に丸をつける。' },
     M: { ask: '各マスに、積み木を<b>何段まで</b>積める？', act: p.mode === 'max' ? '正面の図と右の図の、両方に合う範囲で、いちばん多くなるように、各マスに数字を入れる。' : '正面の図と右の図の、両方に合うように、いちばん少なくなるように、各マスに数字を入れる。', hint: '紙では、上から見た図の各マスに、数字を書きこむ。' },
     R: { ask: '1つふえるごとに、積み木は<b>いくつふえる</b>？', act: '表の空らんに、積み木の数と、ふえた数を入れる。', hint: '数えにくくなる前に、ふえ方のきまりを見つけよう。（ここで「全部数える」をやめる合図）' }
   }[p.type];
@@ -336,10 +483,10 @@ function renderM() {
   ];
   let body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card"><div class="note">書きこみのたしかめ（1行ごとに、ラベルをつける）</div><ul class="calc">${p.chk.map(c => `<li>${esc(c)}</li>`).join('')}</ul><div style="margin-top:6px" class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>
       <div class="paper note">紙に戻る：答えの形に四角。見る方向に矢印、マスに数字。数えきれなくなったら、表と「ふえた数」に切りかえる。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 && stageOpen(P[i + 1].stage) ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
   } else if (ui.step === 0) {
     body = `${fb}<div class="card"><div class="opts">${p.forms.map((f, k) => `<button data-act="form" data-k="${k}" ${ui.formPick === k ? 'class="main"' : ''}>${esc(f)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
   } else if (ui.step === 1) {
@@ -351,7 +498,7 @@ function renderM() {
   } else {
     body = `${fb}<div class="card"><div class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>${p.chk.map((c, k) => `<button class="chk ${ui.chk[k] ? 'done' : ''}" data-act="chk" data-k="${k}">${ui.chk[k] ? '✓' : '□'} ${esc(c)}</button>`).join('')}`;
   }
-  app.innerHTML = `${head(`ミッション ${i + 1} / ${P.length}　${p.title}`, true)}
+  app.innerHTML = `${head(`ステージ${p.stage + 1}　${i - STAGES[p.stage].from + 1} / ${STAGES[p.stage].n}　${p.title}`, true)}
   ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
   <div class="prob"><span class="${ui.step >= 1 || ui.fin ? 'qbox' : ''}">${esc(p.q)}</span></div>
   ${figHtml(p)}
@@ -369,6 +516,8 @@ function finish() {
   S.chest = S.done.reduce((a, b) => a + b, 0);
   const clean = ui.tries.every(t => t === 0);
   ui.bonus = (wasNew && clean) ? 10 : 0; S.pt += ui.bonus;
+  const sg = P[route.i].stage;
+  if (!S.sb[sg] && stageDone(sg) === stageIds(sg).length) { S.sb[sg] = 1; S.pt += STAGE_BONUS; ui.stageClear = true; }
   S.stat.mT++; if (ui.tries[1] === 0) S.stat.mF++;
   S.stat.aT++; if (ui.tries[3] === 0) S.stat.aF++;
   save(); ui.stat[4] = true; ui.fin = true;
@@ -377,7 +526,7 @@ function finish() {
 function judge(p) {
   if (p.type === 'V') {
     const bad = ui.bars.map((h, k) => (h === p.exp[k] ? -1 : k)).filter(k => k >= 0);
-    return bad.length ? { ok: false, first: 'b' + bad[0], msg: `見える高さがちがう${p.view === 'front' ? '列' : '段'}が、${bad.length}つあるよ。その${p.view === 'front' ? '列' : '段'}の数字を、ぜんぶ見比べよう。` } : { ok: true };
+    return bad.length ? { ok: false, first: 'b' + bad[0], msg: `見える高さがちがう${BYCOL(p.view) ? '列' : '段'}が、${bad.length}つあるよ。その${BYCOL(p.view) ? '列' : '段'}の数字を、ぜんぶ見比べよう。` } : { ok: true };
   }
   if (p.type === 'M') {
     const g = ui.cells;
@@ -416,7 +565,7 @@ function showAnswer() {
   if (ui.step === 0) { ui.formPick = p.form; return passForm(), render(); }
   if (ui.step === 1) {
     if (p.type === 'V') ui.bars = p.exp.slice();
-    if (p.type === 'M') ui.cells = p.mode === 'max' ? p.expGrid.flat() : [0, 0, 1, 3, 0, 0, 0, 2, 0];
+    if (p.type === 'M') ui.cells = p.mode === 'max' ? p.expGrid.flat() : p.minGrid;
     if (p.type === 'R') p.ns.forEach((n, k) => { if (k >= p.given) ui.vals['c' + k] = String(p.cnt[k]); if (k >= 1) ui.vals['d' + k] = String(p.cnt[k] - p.cnt[k - 1]); });
     ui.tries[1] = Math.max(ui.tries[1], 3); return passInput(), render();
   }
@@ -465,6 +614,7 @@ function renderParentOpen() {
   <div class="card"><h2>きろく</h2><div class="note">ポイント：${S.pt}　クリア：${S.chest} / ${P.length}<br>書きこみが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div>
   <div class="note" style="margin-top:6px">紙の答案でも、「立体の図に数字や矢印を書きこんだ設問の割合」を数えると、変化が見えます。</div></div>
   <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
+  <div class="card"><div class="note">ステージを、すぐ開けたいときは、下のボタンを押します（クリアの記録は変わりません）。</div><div class="row" style="margin-top:8px"><button data-act="openall">ぜんぶのステージを開く</button></div></div>
   <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
 }
 
@@ -476,6 +626,7 @@ document.addEventListener('click', ev => {
   if (a === 'start') return startM(+el.dataset.i);
   if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
   if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
+  if (a === 'openall') { S.open = true; save(); el.textContent = '開きました'; el.disabled = true; return; }
   if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = blank(); save(); route = { page: 'home' }; ui = {}; return render(); }
   if (route.page === 'm') return mAction(a, el);
 });
@@ -483,7 +634,7 @@ document.addEventListener('input', ev => {
   const el = ev.target;
   if (route.page === 'm' && el.matches && el.matches('.ti')) { ui.vals[el.dataset.r] = el.value; ui.hintKey = null; }
 });
-window.TK = { P, get S() { return S; }, get ui() { return ui; }, startM, render };
+window.TK = { P, STAGES, stageOpen, stageDone, stageIds, get S() { return S; }, get ui() { return ui; }, startM, render };
 render();
 </script>
 </body>

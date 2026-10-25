@@ -30,6 +30,10 @@ button:focus-visible,input:focus-visible,.seg:focus-visible{outline:3px solid #F
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>button{flex:1}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.stg{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.stg h2{margin:0}
+.stg .lv{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--blue);color:#fff}
+.stg.lock .lv{background:#8A8F9A}
 .mis{min-height:54px;font-size:18px}
 .mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
 .steps{display:flex;gap:4px;margin:8px 0}
@@ -196,8 +200,162 @@ const P = [
     why: { 0: '38は43−5。「5をひく」をもどすには、ひくのではなく、たすよ。', 1: '43＋5＝48は「8倍した数」。ある数にもどすには、8でわる（条件①）。', 2: '順序がぎゃくだよ。先に「5をひく」をもどして（＋5）、それから8でわる。' },
     calc: ['① 5をひく前にもどす：43＋5＝48（条件②）', '② 8倍する前にもどす：48÷8＝6（条件①）']
   }
+  ,{
+    title: 'テープを切る',
+    text: '長さ[n:2.4][c1:m]のテープから、[n:35][c1:cm]ずつの[c2:ひもを、できるだけたくさん]切り取ります。[q:のこったテープは、何cmですか。]',
+    forms: ['□cm（のこりの長さ）', '□本（切り取った数）', '□m'], form: 0,
+    conds: {
+      1: { opts: ['mのままで、そのまま計算する', 'mをcmにそろえてから計算する（2.4m＝240cm）', 'cmをmにそろえて、35をかける'], ans: 1, hint: 'mとcmがまじっているよ。' },
+      2: { opts: ['切り取れる本数は、小数でもよい', '「できるだけたくさん」→ 本数は整数で、のこりが出る', '1本だけ切り取る'], ans: 1, hint: '「できるだけたくさん」→ 整数の本数。' }
+    },
+    ans: ['65cm', '210cm', '30cm', '6cm'], right: 2,
+    why: { 0: '5本で止めていないかな。条件②「できるだけたくさん」を見直そう。', 1: '210cmは、切り取った長さの合計。のこりは、全体からひくよ。', 3: '6は切り取れる本数。ほしいのは、のこりの長さ。' },
+    calc: ['① 2.4m＝240cm（条件①：単位をそろえる）', '② 240÷35＝6あまり30（条件②：6本取れて、のこりが出る）', '③ のこり 30cm']
+  },
+  {
+    title: '池のまわりの木',
+    text: '周りが[n:60]mの池のまわりに、[c2:[n:5]mおき]に木を植えます。[c1:池のまわりを、ぐるっと一周]して植えます。[q:木は、全部で何本いりますか。]',
+    forms: ['□本（木の数）', '□m（間かく）', '□周'], form: 0,
+    conds: {
+      1: { opts: ['はしからはしまでの1本の道。両はしにも植えるので、＋1する', 'ぐるっとつながった輪。はしが無いので、＋1しない', '池の中に植える'], ans: 1, hint: '輪になっているよ。はじまりと終わりが、同じ場所。' },
+      2: { opts: ['木の太さが5m', '木と木の間を5mにする', '5本ずつ植える'], ans: 1, hint: '「5mおき」は、木と木の間の長さ。' }
+    },
+    ans: ['13本', '11本', '12本', '300本'], right: 2,
+    why: { 0: '13本は、まっすぐな道の数え方（＋1）。池は輪だよ。条件①を見直そう。', 1: '11本は、−1しているよ。輪のときは、60÷5をそのまま。', 3: '300は、60×5。「おき」は、わり算で考えるよ。' },
+    calc: ['① 輪になっている（条件①）→ 木の数＝間の数', '② 間の数：60÷5＝12（条件②：5mおき）', '③ 12本']
+  },
+  {
+    title: '定価と利益',
+    text: '原価[n:800]円の品物に、[c1:原価の3割]の利益を見こんで定価をつけました。その[c2:定価の1割引き]で売ります。[q:売ったときの利益は、いくらですか。]',
+    forms: ['□円（利益）', '□円（売ったねだん）', '□割'], form: 0,
+    conds: {
+      1: { opts: ['定価の3割が利益', '原価の3割が利益（定価＝原価×1.3）', '3割引きで売る'], ans: 1, hint: '「原価の」3割。もとにする量は、原価。' },
+      2: { opts: ['原価の1割引き', '定価の1割引き（定価×0.9）', '利益から1割ひく'], ans: 1, hint: '「定価の」1割引き。もとにする量は、定価。' }
+    },
+    ans: ['936円', '240円', '104円', '136円'], right: 3,
+    why: { 0: '936円は売ったねだん。利益は、売ったねだんから原価をひくよ。', 1: '240円は、はじめに見こんだ利益。1割引きのあとの利益を考えよう。', 2: '104円は、定価から売ったねだんをひいた、値引き額。ほしいのは利益。' },
+    calc: ['① 定価：800×(1＋0.3)＝1040円（条件①）', '② 売るねだん：1040×(1−0.1)＝936円（条件②）', '③ 利益：936−800＝136円']
+  },
+  {
+    title: '年れいの倍',
+    text: '今、母は[n:36]才、子は[n:8]才です。[c1:母の年れいが子の年れいの3倍]になるのは、今から[c2:何年後]ですか。[q:年数を答えなさい。]',
+    forms: ['□年後', '□才（母の年れい）', '□倍'], form: 0,
+    conds: {
+      1: { opts: ['（36＋年数）＝3×（8＋年数）とおく', '36＝3×8 とおく', '（36＋年数）＝3＋（8＋年数）とおく'], ans: 0, hint: '3倍になるのは、年数がたったあと。母も子も、同じだけ年をとるよ。' },
+      2: { opts: ['今の年れいで考える', '年数を、母にも子にも同じようにたす', '年数を、母からひく'], ans: 1, hint: '「何年後」→ 2人とも、その年数ぶん、年をとる。' }
+    },
+    ans: ['12年', '6年', '14年', '4年'], right: 1,
+    why: { 0: '12年後は、母48才、子20才。まだ3倍ではないよ。', 2: '14は、そのときの子の年れい。年数ではないよ。', 3: '4年後は、母40才、子12才。3倍より大きいよ。' },
+    calc: ['① x年後：母 36＋x、子 8＋x（条件②）', '② 36＋x＝3×（8＋x）（条件①）→ 36＋x＝24＋3x', '③ 12＝2x → x＝6年後']
+  },
+  {
+    title: '時速と分',
+    text: 'A君は、[c1:時速[n:4.8]km]で、[n:25][c2:分]歩きました。[q:歩いた道のりは、][c3:何m]ですか。',
+    forms: ['□m（道のり）', '□km（道のり）', '□分（かかった時間）'], form: 0,
+    conds: {
+      1: { opts: ['時速4.8kmは、1分に4.8km進む', '時速4.8kmは、1時間に4.8km進む', '時速4.8kmは、1秒に4.8km進む'], ans: 1, hint: '時速は、「1時間あたり」。' },
+      2: { opts: ['25分は、25時間と同じ', '25分は、25/60時間（時速とそろえる）', '25分は、そのままかける'], ans: 1, hint: '時速に合わせて、分を時間にしよう。1時間＝60分。' },
+      3: { opts: ['kmのまま答える', 'kmをmにする（×1000）', 'cmで答える'], ans: 1, hint: '答えは「何m」。1km＝1000m。' }
+    },
+    ans: ['120m', '2000m', '2km', '12000m'], right: 1,
+    why: { 0: '4.8×25＝120は、単位をそろえていないよ。条件①②を見直そう。', 2: '2kmは正しい道のり。でも条件③は、mで答えること。', 3: 'kmをmにするのは、×1000だよ。' },
+    calc: ['① 25分＝25/60時間（条件②）', '② 4.8×25/60＝2km（条件①）', '③ 2km＝2000m（条件③）']
+  },
+  {
+    title: '平均点から',
+    text: '5回のテストの[c2:平均点]は[n:78]点でした。[c1:はじめの4回の合計は[n:300]点]です。[q:5回目の点数は、何点ですか。]',
+    forms: ['□点（5回目の点数）', '□点（平均点）', '□点（5回の合計）'], form: 0,
+    conds: {
+      1: { opts: ['はじめの4回の平均が300点', 'はじめの4回の点を、ぜんぶたすと300点', '4回目の点が300点'], ans: 1, hint: '「合計」＝ぜんぶたした数。' },
+      2: { opts: ['平均×回数＝合計（5回の合計は 78×5）', '平均に5をたす', '平均を5でわる'], ans: 0, hint: '平均＝合計÷回数。だから、合計＝平均×回数。' }
+    },
+    ans: ['78点', '75点', '90点', '390点'], right: 2,
+    why: { 0: '78は平均点。5回目の点数は、合計から求めるよ。', 1: '75点は、はじめの4回の平均点（300÷4）。5回目の点数ではないよ。', 3: '390点は、5回の合計点。5回目だけは、そこから300をひくよ。' },
+    calc: ['① 5回の合計：78×5＝390点（条件②）', '② はじめの4回の合計：300点（条件①）', '③ 5回目：390−300＝90点']
+  },
+  {
+    title: '3でも4でもない',
+    text: '1から[n:100]までの整数のうち、[c1:3でも4でも割り切れない][q:整数は、何個ありますか。]',
+    forms: ['□個（整数）', '□（あてはまる数の1つ）', '□倍'], form: 0,
+    conds: {
+      1: { opts: ['3の倍数だけをのぞく', '3の倍数も4の倍数も、両方のぞく（12の倍数の重なりに注意）', '3か4の倍数のどちらか1つだけをのぞく'], ans: 1, hint: '12の倍数は、3の倍数にも4の倍数にも入っているよ。' }
+    },
+    ans: ['42個', '58個', '75個', '50個'], right: 3,
+    why: { 0: '42個は、100−33−25。12の倍数（8個）を、2回ひいてしまったよ。', 1: '58個は、3の倍数と4の倍数の個数（33＋25）をたしただけ。ここは、のこりを答えよう。', 2: '75個は、4の倍数だけをのぞいたかな。3の倍数も、のぞこう。' },
+    calc: ['① 3の倍数：100÷3＝33個　4の倍数：100÷4＝25個', '② 12の倍数（重なり）：100÷12＝8個', '③ のぞく数：33＋25−8＝50個（条件①）', '④ のこり：100−50＝50個']
+  },
+  {
+    title: '仕事を2人で',
+    text: 'ある仕事を、Aさん1人では[n:12]日、Bさん1人では[n:6]日で終えます。はじめの[n:3]日間は[c1:Aさんだけ]で仕事をし、そのあと[c2:2人いっしょ]に仕事をしました。[q:仕事を始めてから、][c3:全部で何日]かかりましたか。',
+    forms: ['□日（全部の日数）', '□日（2人でやった日数）', '□（仕事の量）'], form: 0,
+    conds: {
+      1: { opts: ['Aさんは1日に 1/12 の仕事をする（3日で 1/4）', 'Aさんは1日に12の仕事をする', 'Aさんは3日で終える'], ans: 0, hint: '全体を1とすると、12日で終える人は、1日に 1/12。' },
+      2: { opts: ['Aさん1人分だけ進む', 'AさんとBさんの1日ぶんをたして進む（1/12＋1/6）', 'Bさんだけ進む'], ans: 1, hint: '2人いっしょ→ 1日に進む量は、2人のたし算。' },
+      3: { opts: ['2人で働いた日数だけ', 'はじめのAさんだけの日数もふくめた日数', 'Aさんだけの日数だけ'], ans: 1, hint: '「始めてから、全部で」→ 最初の日から数える。' }
+    },
+    ans: ['4日', '9日', '3日', '6日'], right: 3,
+    why: { 0: '4日は、はじめから2人でやったときの日数。条件①②を見直そう。', 1: '9日は、のこりもAさんだけでやったときの日数。条件②は「2人いっしょ」。', 2: '3日は、2人でやった日数だけ。条件③は「全部で」だよ。' },
+    calc: ['① はじめの3日：Aさん 1/12×3＝1/4（条件①）', '② のこり：1−1/4＝3/4', '③ 2人で1日：1/12＋1/6＝1/4 → 3/4÷1/4＝3日（条件②）', '④ 全部で：3＋3＝6日（条件③）']
+  },
+  {
+    title: '水を加える',
+    text: '濃さ[n:8]％の食塩水が[n:300]gあります。この食塩水に、[c1:水を[n:100]g]加えます。[q:できた食塩水の、][c2:濃さは、何％]ですか。',
+    forms: ['□％（濃さ）', '□g（食塩の重さ）', '□g（全体の重さ）'], form: 0,
+    conds: {
+      1: { opts: ['水を加えると、食塩の量もふえる', '水を加えても、食塩の量は変わらない（24gのまま）', '水を加えると、食塩がへる'], ans: 1, hint: '水には、食塩がふくまれていないよ。' },
+      2: { opts: ['分母は、はじめの300g', '分母は、水を加えたあとの全体（400g）', '分母は、水の100g'], ans: 1, hint: '濃さ＝食塩÷「食塩水全体」。全体は、水を加えたあと。' }
+    },
+    ans: ['2％', '8％', '6％', '24％'], right: 2,
+    why: { 0: '2％は、8％をたんに小さくしただけ。食塩の重さ÷全体の重さで求めよう。', 1: '8％は、はじめの濃さ。水を加えて、うすくなるよ。', 3: '24は食塩の重さ（g）。濃さは割合（％）で答えよう。' },
+    calc: ['① 食塩：300×0.08＝24g（水を加えても変わらない・条件①）', '② 全体：300＋100＝400g（条件②）', '③ 濃さ：24÷400＝0.06 → 6％']
+  },
+  {
+    title: '船の上り',
+    text: '川の流れの速さは時速[n:3]kmです。静水で時速[n:9]kmの船が、この川を[c1:上り]で[n:18]km進みます。[q:かかる時間は、][c2:何時間]ですか。',
+    forms: ['□時間（かかる時間）', '□km/時（上りの速さ）', '□km（道のり）'], form: 0,
+    conds: {
+      1: { opts: ['上りの速さは、静水の速さ＋流れの速さ', '上りの速さは、静水の速さ−流れの速さ（9−3）', '上りの速さは、静水の速さと同じ'], ans: 1, hint: '上り＝流れにさからう。流れの分だけ、おそくなるよ。' },
+      2: { opts: ['道のり÷速さ で時間を出す', '道のり×速さ で時間を出す', '速さ÷道のり で時間を出す'], ans: 0, hint: '時間＝道のり÷速さ。' }
+    },
+    ans: ['2時間', '1.5時間', '6時間', '3時間'], right: 3,
+    why: { 0: '2時間は、18÷9。流れの速さを考えていないよ（条件①）。', 1: '1.5時間は、下りの速さ（9＋3＝12）で進んだ時間。条件①は「上り」。', 2: '6時間は、18÷3。船の速さがぬけているよ。' },
+    calc: ['① 上りの速さ：9−3＝6km/時（条件①）', '② 時間：18÷6＝3時間（条件②）']
+  },
+  {
+    title: 'あまりから数を',
+    text: 'ある整数を[n:7]でわると[c1:3あまり]、[n:5]でわると[c2:2あまります]。[q:このような整数のうち、][c3:いちばん小さい数]は、いくつですか。',
+    forms: ['□（ある整数）', '□（7でわった商）', '□（5でわった商）'], form: 0,
+    conds: {
+      1: { opts: ['7でわると、商が3になる', '7の倍数に、3をたした数', '7の倍数から、3をひいた数'], ans: 1, hint: '「3あまる」→ 7の倍数より3大きい数（3、10、17、…）。' },
+      2: { opts: ['5の倍数に、2をたした数', '5の倍数から、2をひいた数', '5でわった商が2'], ans: 0, hint: '「2あまる」→ 5の倍数より2大きい数（2、7、12、…）。' },
+      3: { opts: ['数は、いくつでもよい', '小さい順にならべて、最初にあてはまる数', '大きい順にならべて、最初の数'], ans: 1, hint: '「いちばん小さい」→ 小さいほうからさがす。' }
+    },
+    ans: ['3', '10', '17', '52'], right: 2,
+    why: { 0: '3は、7でわると3あまるけど、5でわると3あまる（2あまるではないよ）。', 1: '10は、5でわると、わりきれてしまうよ（あまり0）。', 3: '52は、条件にあてはまるけど、いちばん小さい数ではないよ。' },
+    calc: ['① 7でわって3あまる数：3、10、17、24、…（条件①）', '② その中で5でわって2あまる数：17（17÷5＝3あまり2）（条件②）', '③ いちばん小さい数：17（条件③）']
+  },
+  {
+    title: '分数の分数',
+    text: 'クラス[n:40]人のうち、男子は全体の[c1:5分の3]です。男子のうち、[c2:4分の1]が部活に入っています。[q:部活に入っている男子は、何人ですか。]',
+    forms: ['□人（部活の男子）', '□人（男子の人数）', '□人（女子の人数）'], form: 0,
+    conds: {
+      1: { opts: ['男子は、40人の5分の3', '男子は、3人と5人', '男子は、40人の3分の5'], ans: 0, hint: '「全体の5分の3」→ 40×3/5。' },
+      2: { opts: ['部活は、全体40人の4分の1', '部活は、男子の人数の4分の1（もとにする量は男子）', '部活は、男子と女子の4分の1'], ans: 1, hint: '「男子のうち」→ もとにする量は、男子の人数。' }
+    },
+    ans: ['10人', '24人', '18人', '6人'], right: 3,
+    why: { 0: '10人は、40人の4分の1。「男子のうち」だから、もとにする量は男子の人数だよ（条件②）。', 1: '24人は、男子の人数。部活に入っているのは、そのうちの一部だよ。', 2: '18人は、部活に入っていない男子の人数（24−6）。ほしいのは、入っている人。' },
+    calc: ['① 男子：40×3/5＝24人（条件①）', '② 部活の男子：24×1/4＝6人（条件②：もとにする量は男子）']
+  }
 ];
 const CIRC = ['①', '②', '③', '④'];
+// ステージ：前のステージをぜんぶクリアすると、次が開く。ステージをぜんぶクリアすると +20pt
+const STAGES = [
+  { name: '条件を見つける', sub: '1〜2つの条件', n: 10 },
+  { name: '条件が重なる', sub: '2〜3つの条件が、かさなる', n: 6 },
+  { name: 'じっくり読む', sub: '定義・全体・順序がからむ', n: 6 }
+];
+const STAGE_BONUS = 20;
+(function () { let a = 0; STAGES.forEach((g, gi) => { g.from = a; a += g.n; for (let i = g.from; i < a; i++) P[i].stage = gi; }); if (a !== P.length) throw new Error('stage size'); })();
 function parse(text) {
   const out = [], re = /\[(n|q|c\d):([^\]]*)\]/g;
   const plain = s => { (s.match(/[^、。]+[、。]?|[、。]/g) || []).forEach(t => out.push({ t, k: 'p', cid: 0 })); };
@@ -221,10 +379,23 @@ P.forEach(p => {
 
 /* ===================== 状態の保存（端末内のみ） ===================== */
 const KEY = 'joken-hunter-v1';
-const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat) return s; } catch (e) {} return null; }
+const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), sb: STAGES.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.done) && s.done.length <= P.length && s.stat) {
+      while (s.done.length < P.length) s.done.push(0);   // 問題がふえても、これまでの記録を引きつぐ
+      if (!Array.isArray(s.sb)) s.sb = STAGES.map(() => 0);
+      return s;
+    }
+  } catch (e) {}
+  return null;
+}
 let S = load() || blank();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
+const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
+const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) === stageIds(g - 1).length;
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 // ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
 const SH = (function () {
@@ -275,8 +446,14 @@ function renderHome() {
   const st = S.stat;
   app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
   <h1 style="margin:0 0 8px">条件ハンター</h1>
-  <div class="card"><div class="note" style="margin-bottom:8px">問題文にかくれた「答えをかえる条件」を見つけて、しるしをつけてから解こう。</div>
-  <div class="grid5">${S.done.map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="start" data-i="${i}" aria-label="ミッション${i + 1}${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>
+  <div class="note" style="margin-bottom:8px">問題文にかくれた「答えをかえる条件」を見つけて、しるしをつけてから解こう。前のステージをぜんぶクリアすると、次のステージが開くよ。</div>
+  ${STAGES.map((g, gi) => {
+    const open = stageOpen(gi), ids = stageIds(gi), dn = stageDone(gi);
+    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を ぜんぶクリアすると、開きます（あと${stageIds(gi - 1).length - stageDone(gi - 1)}問）。</div>`;
+    return `<div class="card"><div class="stg ${open ? '' : 'lock'}"><h2>${esc(g.name)}</h2><span class="lv">ステージ${gi + 1}</span></div>
+    <div class="note" style="margin-bottom:6px">${esc(g.sub)}　クリア ${dn} / ${ids.length}${S.sb[gi] ? '　★ステージクリア' : ''}</div>${lockNote}
+    <div class="grid5">${ids.map((i, k) => `<button class="mis ${S.done[i] ? 'done' : ''}" data-act="start" data-i="${i}" ${open ? '' : 'disabled'} aria-label="ステージ${gi + 1}のミッション${k + 1}${S.done[i] ? '（クリア）' : ''}">${k + 1}${S.done[i] ? '✓' : ''}</button>`).join('')}</div></div>`;
+  }).join('')}
   ${rewardCard()}
   <div class="card"><h2>きろく</h2><div class="note">条件のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
@@ -284,6 +461,7 @@ function renderHome() {
 
 /* ---------- ミッション ---------- */
 function startM(i) {
+  if (!stageOpen(P[i].stage)) return;
   route = { page: 'm', i };
   ui = { step: 0, tries: [0, 0, 0, 0], stat: [false, false, false, false, false], mk: {}, mode: 'o', msg: null, formPick: null, rep: {}, ansPick: null, chk: {}, hintSeg: null, fin: false };
   render();
@@ -323,10 +501,10 @@ function renderM() {
   ];
   let body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card"><div class="note">計算のたしかめ（1行ごとに、ラベルをつける）</div><ul class="calc">${p.calc.map(c => `<li>${esc(c)}</li>`).join('')}</ul><div style="margin-top:6px" class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>
       <div class="paper note">紙に戻る：答えの形に四角。数に○、条件に下線。条件に番号。最後に条件を指でなぞる。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 && stageOpen(P[i + 1].stage) ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
   } else if (ui.step === 0) {
     body = `${fb}<div class="card"><div class="opts">${p.forms.map((f, k) => `<button data-act="form" data-k="${k}" ${ui.formPick === k ? 'class="main"' : ''}>${esc(f)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
   } else if (ui.step === 1) {
@@ -343,7 +521,7 @@ function renderM() {
   } else {
     body = `${fb}<div class="card"><div class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>${p.cids.map(c => `<button class="chk ${ui.chk[c] ? 'done' : ''}" data-act="chk" data-c="${c}">${ui.chk[c] ? '✓' : '□'} <b>${CIRC[c - 1]}</b> ${esc(p.conds[c].opts[p.conds[c].ans])}</button>`).join('')}`;
   }
-  app.innerHTML = `${head(`ミッション ${i + 1} / ${P.length}　${p.title}`, true)}
+  app.innerHTML = `${head(`ステージ${p.stage + 1}　${i - STAGES[p.stage].from + 1} / ${STAGES[p.stage].n}　${p.title}`, true)}
   ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
   <div class="prob">${textHtml(p, ui.step === 1 && !ui.fin)}</div>
   ${body}`;
@@ -360,6 +538,8 @@ function finish() {
   S.chest = S.done.reduce((a, b) => a + b, 0);
   const clean = ui.tries.every(t => t === 0);
   ui.bonus = (wasNew && clean) ? 10 : 0; S.pt += ui.bonus;
+  const sg = P[route.i].stage;
+  if (!S.sb[sg] && stageDone(sg) === stageIds(sg).length) { S.sb[sg] = 1; S.pt += STAGE_BONUS; ui.stageClear = true; }
   S.stat.mT++; if (ui.tries[1] === 0) S.stat.mF++;
   S.stat.aT++; if (ui.tries[3] === 0) S.stat.aF++;
   save(); ui.stat[4] = true; ui.fin = true;
@@ -433,6 +613,7 @@ function renderParentOpen() {
   <div class="card"><h2>きろく</h2><div class="note">ポイント：${S.pt}　クリア：${S.chest} / ${P.length}<br>条件のしるしが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div>
   <div class="note" style="margin-top:6px">紙の答案でも、「条件に下線・番号を書いた設問の割合」を数えると、変化が見えます。</div></div>
   <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
+  <div class="card"><div class="note">ステージを、すぐ開けたいときは、下のボタンを押します（クリアの記録は変わりません）。</div><div class="row" style="margin-top:8px"><button data-act="openall">ぜんぶのステージを開く</button></div></div>
   <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
 }
 
@@ -444,13 +625,14 @@ document.addEventListener('click', ev => {
   if (a === 'start') return startM(+el.dataset.i);
   if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
   if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
+  if (a === 'openall') { S.open = true; save(); el.textContent = '開きました'; el.disabled = true; return; }
   if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = blank(); save(); route = { page: 'home' }; ui = {}; return render(); }
   if (route.page === 'm') return mAction(a, el);
 });
 document.addEventListener('keydown', ev => {
   if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.seg[role=button]')) { ev.preventDefault(); ev.target.click(); }
 });
-window.JK = { P, get S() { return S; }, get ui() { return ui; }, startM, markCheck, render };
+window.JK = { P, STAGES, stageOpen, stageDone, stageIds, get S() { return S; }, get ui() { return ui; }, startM, markCheck, render };
 render();
 </script>
 </body>

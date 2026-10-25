@@ -51,13 +51,13 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 function zInfo() {
   const z = rd(ZK); let g = 0;
   if (z && z.done) Object.values(z.done).forEach(a => { g += (a || []).reduce((x, y) => x + y, 0); });
-  return { pt: z && +z.pt || 0, got: g, n: 20 };
+  return { pt: z && +z.pt || 0, got: g, n: 60 };
 }
 function listInfo(k, n) {
   const j = rd(k);
   return { pt: j && +j.pt || 0, got: j && Array.isArray(j.done) ? j.done.reduce((x, y) => x + y, 0) : 0, n };
 }
-const jInfo = () => listInfo(JK, 10), sInfo = () => listInfo(SK, 8), tInfo = () => listInfo(TK, 9), kInfo = () => listInfo(KK, 18);
+const jInfo = () => listInfo(JK, 22), sInfo = () => listInfo(SK, 20), tInfo = () => listInfo(TK, 21), kInfo = () => listInfo(KK, 18);
 // ごほうび（すべてのアプリで共通）。はじめて読むとき、図形ミッションの旧設定を引き継ぐ
 function reward() {
   let r = rd(RK);

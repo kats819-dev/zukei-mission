@@ -30,6 +30,10 @@ button:focus-visible,input:focus-visible{outline:3px solid #F59E0B;outline-offse
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>button{flex:1}
 .grid5{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stg{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.stg h2{margin:0}
+.stg .lv{flex:none;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--blue);color:#fff}
+.stg.lock .lv{background:#8A8F9A}
 .mis{min-height:54px;font-size:18px}
 .mis.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
 .steps{display:flex;gap:4px;margin:8px 0}
@@ -176,15 +180,180 @@ const P = [
     why: { 1: '1800点は1組。もっと高い組があるよ。', 2: '1600点は3組。平均点は高いけど、人数が少ないよ。', 3: '80点は3組の平均点。ほしいのは合計点だよ。' },
     chk: ['1組：25×72＝1800点', '2組：30×68＝2040点', '3組：20×80＝1600点']
   }
+  ,{
+    title: '入場料の合計',
+    q: '3人の入場料の合計は、いくらですか。',
+    A: { name: '資料1　入場料', rows: [['3さい以下', '0円'], ['4〜12さい', '500円'], ['13さい以上', '900円']] },
+    B: { name: '資料2　家族の年れい', rows: [['兄', '14さい'], ['妹', '9さい'], ['弟', '2さい']] },
+    pr: [2, 1, 0],
+    forms: ['□円（入場料の合計）', '□円（1人の入場料）', '□人'], form: 0,
+    rel: { opts: ['年れいが、どの範囲に入るかでつなぐ', '同じ数どうしを、つなぐ', '上から順に、つなぐ'], ans: 0, hint: '「9さい」は「4〜12さい」の中に入っているね。' },
+    ans: ['1400円', '1900円', '1800円', '900円'], right: 0,
+    why: { 1: '1900円は、弟（2さい）も500円で計算したかな。3さい以下は0円だよ。', 2: '1800円は、妹（9さい）も900円で計算したかな。4〜12さいは500円だよ。', 3: '900円は、兄だけの入場料。3人ぶんをたそう。' },
+    chk: ['3さい以下 0円 ＝ 弟（2さい）', '4〜12さい 500円 ＝ 妹（9さい）', '13さい以上 900円 ＝ 兄（14さい）', '合計：0＋500＋900＝1400円']
+  },
+  {
+    title: 'いちばん速い人',
+    q: 'いちばん速い人の速さは、時速何kmですか。',
+    A: { name: '資料1　走った時間', rows: [['さくら', '20分'], ['あおい', '45分'], ['はると', '30分']] },
+    B: { name: '資料2　走った道のり', rows: [['はると', '5km'], ['さくら', '4km'], ['あおい', '6km']] },
+    pr: [1, 2, 0],
+    forms: ['□km/時（速さ）', '□km（道のり）', '□分（時間）'], form: 0,
+    rel: { opts: ['分を時間にそろえて、道のり÷時間', '道のり÷分 のまま計算する', '道のり×時間'], ans: 0, hint: '時速は「1時間あたり」。分は、60でわって時間にしよう。' },
+    ans: ['時速12km', '時速8km', '時速10km', '時速6km'], right: 0,
+    why: { 1: '時速8kmは、あおい。いちばん速い人ではないよ。', 2: '時速10kmは、はると。もっと速い人がいるよ。', 3: '6は、あおいの道のり（km）。速さにするには、時間でわるよ。' },
+    chk: ['さくら：4km÷（20/60時間）＝時速12km', 'あおい：6km÷（45/60時間）＝時速8km', 'はると：5km÷（30/60時間）＝時速10km', 'いちばん速い：時速12km']
+  },
+  {
+    title: '係と人数',
+    q: '人数がいちばん多い係は、何係ですか。',
+    A: { name: '資料1　係と仕事', rows: [['生き物係', '動物の世話をする'], ['あいさつ係', '朝、校門で声をかける'], ['放送係', '昼休みに放送をする']] },
+    B: { name: '資料2　先生のメモ（仕事と人数）', rows: [['朝の校門に立つ', '5人'], ['えさやり・そうじ', '3人'], ['マイクの準備', '2人']] },
+    pr: [1, 0, 2],
+    forms: ['□係（係の名前）', '□人（人数）', '□つ（仕事の数）'], form: 0,
+    rel: { opts: ['ことばがちがっても、仕事の内容が合うものをつなぐ', '同じ文字が入っているものを、つなぐ', '上から順に、つなぐ'], ans: 0, hint: '「朝、校門で声をかける」と合うのは、どの仕事かな。' },
+    ans: ['あいさつ係', '生き物係', '放送係', '図書係'], right: 0,
+    why: { 1: '生き物係は3人。もっと多い係があるよ。', 2: '放送係は2人。いちばん少ないよ。', 3: '図書係は、資料に出てこないよ。' },
+    chk: ['生き物係 ＝ えさやり・そうじ 3人', 'あいさつ係 ＝ 朝の校門に立つ 5人', '放送係 ＝ マイクの準備 2人', 'いちばん多い：5人 → あいさつ係']
+  },
+  {
+    title: '材料の代金',
+    q: '3つの材料の代金は、全部でいくらですか。',
+    A: { name: '資料1　使った材料の重さ', rows: [['こむぎ粉', '600g'], ['さとう', '200g'], ['バター', '150g']] },
+    B: { name: '資料2　1kgの値段', rows: [['バター', '2400円'], ['こむぎ粉', '300円'], ['さとう', '250円']] },
+    pr: [1, 2, 0],
+    forms: ['□円（代金の合計）', '□g（重さの合計）', '□円（1kgの値段）'], form: 0,
+    rel: { opts: ['gをkgにそろえてから、重さ×1kgの値段', 'gのまま、重さ×1kgの値段', '重さと値段を、たす'], ans: 0, hint: '1kg＝1000g。資料1はg、資料2はkgで、単位がちがうよ。' },
+    ans: ['590円', '5900円', '950円', '360円'], right: 0,
+    why: { 1: '5900円は、桁がちがうよ。gをkgにするときは、1000でわるよ。', 2: '950円は、バターを2回たしていないかな。', 3: '360円は、バターだけの代金。3つぶんをたそう。' },
+    chk: ['こむぎ粉：0.6kg×300円＝180円', 'さとう：0.2kg×250円＝50円', 'バター：0.15kg×2400円＝360円', '合計：180＋50＋360＝590円']
+  },
+  {
+    title: '割引のくらべ',
+    q: 'いちばん安く買える店の、買うねだんは、いくらですか。',
+    A: { name: '資料1　定価', rows: [['A店', '2000円'], ['B店', '2400円'], ['C店', '1800円']] },
+    B: { name: '資料2　割引', rows: [['C店', '2割引'], ['A店', '3割引'], ['B店', '25％引']] },
+    pr: [1, 2, 0],
+    forms: ['□円（買うねだん）', '□円（割引の金額）', '□店'], form: 0,
+    rel: { opts: ['割や％を小数になおして、定価に（1−割合）をかける', '割引の数を、定価からそのままひく', '割引の数を、定価にかける'], ans: 0, hint: '3割引き＝0.3ぶん安くなる。25％＝0.25。「割」と「％」を、そろえよう。' },
+    ans: ['1400円', '1440円', '1800円', '600円'], right: 0,
+    why: { 1: '1440円はC店。もっと安い店があるよ。', 2: '1800円はB店。もっと安い店があるよ。', 3: '600円は、A店の割引の金額。買うねだんは、定価からひくよ。' },
+    chk: ['A店：2000×（1−0.3）＝1400円', 'B店：2400×（1−0.25）＝1800円', 'C店：1800×（1−0.2）＝1440円', 'いちばん安い：1400円']
+  },
+  {
+    title: '下がった水位',
+    q: 'いちばん水位が下がった池は、何cm下がりましたか。',
+    A: { name: '資料1　朝の水位', rows: [['ひょうたん池', '120cm'], ['さくら池', '95cm'], ['かめ池', '110cm']] },
+    B: { name: '資料2　夕方の水位', rows: [['かめ池', '98cm'], ['ひょうたん池', '125cm'], ['さくら池', '80cm']] },
+    pr: [1, 2, 0],
+    forms: ['□cm（下がった量）', '□cm（夕方の水位）', '□池'], form: 0,
+    rel: { opts: ['夕方の水位から、朝の水位をひく（マイナスなら、下がった）', '朝と夕方の水位を、たす', '夕方の水位がいちばん低い池をさがす'], ans: 0, hint: '「へった」は「ふえた」がマイナスのこと。' },
+    ans: ['15cm', '12cm', '5cm', '80cm'], right: 0,
+    why: { 1: '12cmは、かめ池。もっと下がった池があるよ。', 2: '5cmは、ひょうたん池。この池は、水位が上がっているよ。', 3: '80cmは、さくら池の夕方の水位。下がった量は、朝との差だよ。' },
+    chk: ['ひょうたん池：125−120＝＋5cm（上がった）', 'さくら池：80−95＝−15cm（15cm下がった）', 'かめ池：98−110＝−12cm（12cm下がった）', 'いちばん下がった：さくら池 15cm']
+  },
+  {
+    title: '人口密度の2番め',
+    q: '人口密度が2番めに高い町の、人口密度は、1km²あたり何人ですか。',
+    A: { name: '資料1　人口', rows: [['東町', '9600人'], ['西町', '7500人'], ['南町', '5600人'], ['北町', '8400人']] },
+    B: { name: '資料2　面積', rows: [['南町', '2km²'], ['北町', '6km²'], ['東町', '4km²'], ['西町', '3km²']] },
+    pr: [2, 3, 0, 1],
+    forms: ['□人（1km²あたり）', '□人（人口）', '□町'], form: 0,
+    rel: { opts: ['人口を面積でわって、大きい順にならべる', '人口をたして、面積でわる', '面積を人口でわる'], ans: 0, hint: '密度は「1km²あたり」の人口。4つとも出して、くらべよう。' },
+    ans: ['2800人', '2400人', '2500人', '1400人'], right: 2,
+    why: { 0: '2800人は、いちばん高い町。ほしいのは2番めだよ。', 1: '2400人は、3番めの町だよ。', 3: '1400人は、いちばん低い町だよ。' },
+    chk: ['東町：9600÷4＝2400人/km²', '西町：7500÷3＝2500人/km²', '南町：5600÷2＝2800人/km²', '北町：8400÷6＝1400人/km²', '大きい順：南2800、西2500、東2400、北1400 → 2番めは2500人']
+  },
+  {
+    title: '似た名前の品物',
+    q: '売り上げが2番めに多い品物の、売り上げは、いくらですか。',
+    A: { name: '資料1　売れた個数', rows: [['オレンジジュース', '30こ'], ['オレンジゼリー', '20こ'], ['りんごジュース', '25こ'], ['りんごゼリー', '40こ']] },
+    B: { name: '資料2　1個の値段', rows: [['りんごゼリー', '120円'], ['オレンジジュース', '150円'], ['りんごジュース', '140円'], ['オレンジゼリー', '100円']] },
+    pr: [1, 3, 2, 0],
+    forms: ['□円（売り上げ）', '□こ（売れた個数）', '□円（1個の値段）'], form: 0,
+    rel: { opts: ['名前が全部同じものどうしをつなぐ（オレンジとりんご、ジュースとゼリーに注意）', '名前の一部が同じならつなぐ', '上から順に、つなぐ'], ans: 0, hint: '「オレンジジュース」と「オレンジゼリー」は、別の品物だよ。' },
+    ans: ['4800円', '3500円', '4500円', '2000円'], right: 2,
+    why: { 0: '4800円は、いちばん多い品物。ほしいのは2番めだよ。', 1: '3500円は、3番めの品物だよ。', 3: '2000円は、いちばん少ない品物だよ。' },
+    chk: ['オレンジジュース：30×150＝4500円', 'オレンジゼリー：20×100＝2000円', 'りんごジュース：25×140＝3500円', 'りんごゼリー：40×120＝4800円', '大きい順：4800、4500、3500、2000 → 2番めは4500円']
+  },
+  {
+    title: '4人の入場料',
+    q: '4人の入場料の合計は、いくらですか。',
+    A: { name: '資料1　入場料', rows: [['5さい以下', '0円'], ['6〜12さい', '400円'], ['13〜64さい', '800円'], ['65さい以上', '500円']] },
+    B: { name: '資料2　家族の年れい', rows: [['祖父', '68さい'], ['母', '40さい'], ['兄', '10さい'], ['妹', '4さい']] },
+    pr: [3, 2, 1, 0],
+    forms: ['□円（入場料の合計）', '□円（1人の入場料）', '□人'], form: 0,
+    rel: { opts: ['年れいが、どの範囲に入るかでつなぐ', '同じ数どうしを、つなぐ', '上から順に、つなぐ'], ans: 0, hint: '範囲のはしに注意。「5さい以下」と「6〜12さい」。' },
+    ans: ['2100円', '1700円', '2000円', '1200円'], right: 1,
+    why: { 0: '2100円は、妹（4さい）を400円で計算したかな。5さい以下は0円だよ。', 2: '2000円は、祖父（68さい）を800円で計算したかな。65さい以上は500円だよ。', 3: '1200円は、4人ぜんぶをたしていないよ。' },
+    chk: ['5さい以下 0円 ＝ 妹（4さい）', '6〜12さい 400円 ＝ 兄（10さい）', '13〜64さい 800円 ＝ 母（40さい）', '65さい以上 500円 ＝ 祖父（68さい）', '合計：0＋400＋800＋500＝1700円']
+  },
+  {
+    title: 'むし歯のない人',
+    q: 'むし歯のない人がいちばん多い組の、むし歯のない人は何人ですか。',
+    A: { name: '資料1　人数', rows: [['1組', '30人'], ['2組', '28人'], ['3組', '32人'], ['4組', '25人']] },
+    B: { name: '資料2　むし歯のない人の割合', rows: [['3組', '50％'], ['4組', '80％'], ['1組', '60％'], ['2組', '75％']] },
+    pr: [2, 3, 0, 1],
+    forms: ['□人（むし歯のない人）', '□％（割合）', '□組'], form: 0,
+    rel: { opts: ['人数×割合で、むし歯のない人数を出す', '人数と割合を、たす', '割合を人数でわる'], ans: 0, hint: '％は、0.01倍。60％＝0.6。' },
+    ans: ['20人', '80人', '21人', '18人'], right: 2,
+    why: { 0: '20人は、4組。もっと多い組があるよ。', 1: '80は、4組の割合（％）。人数ではないよ。', 3: '18人は、1組。もっと多い組があるよ。' },
+    chk: ['1組：30×0.6＝18人', '2組：28×0.75＝21人', '3組：32×0.5＝16人', '4組：25×0.8＝20人', 'いちばん多い：2組 21人']
+  },
+  {
+    title: '着くのが3番め',
+    q: '着くのが3番めに早い人の、かかった時間は、何分ですか。',
+    A: { name: '資料1　歩く速さ', rows: [['ゆう', '分速80m'], ['まい', '分速60m'], ['けん', '分速100m'], ['りか', '分速50m']] },
+    B: { name: '資料2　道のり', rows: [['まい', '480m'], ['ゆう', '400m'], ['けん', '600m'], ['りか', '450m']] },
+    pr: [1, 0, 2, 3],
+    forms: ['□分（かかった時間）', '□m（道のり）', '□人'], form: 0,
+    rel: { opts: ['道のり÷速さで、時間を出して、短い順にならべる', '道のりと速さを、かける', '速さの速い順に、そのまま答える'], ans: 0, hint: '時間＝道のり÷速さ。着くのが早い＝時間が短い。' },
+    ans: ['6分', '8分', '9分', '5分'], right: 1,
+    why: { 0: '6分は、2番めに早い人だよ。', 2: '9分は、いちばん遅い人だよ。', 3: '5分は、いちばん早い人だよ。' },
+    chk: ['ゆう：400÷80＝5分', 'まい：480÷60＝8分', 'けん：600÷100＝6分', 'りか：450÷50＝9分', '短い順：5、6、8、9 → 3番めは8分']
+  },
+  {
+    title: '水そうに水を',
+    q: 'いっぱいになるまで、いちばん時間がかかる水そうの、時間は何分ですか。',
+    A: { name: '資料1　水そうの大きさ', rows: [['ア', '120L'], ['イ', '90L'], ['ウ', '150L'], ['エ', '60L']] },
+    B: { name: '資料2　1分間に入る水の量', rows: [['ウ', '10L'], ['エ', '6L'], ['ア', '8L'], ['イ', '5L']] },
+    pr: [2, 3, 0, 1],
+    forms: ['□分（時間）', '□L（水の量）', '□つ（水そうの数）'], form: 0,
+    rel: { opts: ['大きさ÷1分間の量で、時間を出して、くらべる', '大きさに1分間の量をかける', 'いちばん大きい水そうを答える'], ans: 0, hint: '大きい水そうでも、たくさん入れば早いよ。時間でくらべよう。' },
+    ans: ['15分', '18分', '150分', '10分'], right: 1,
+    why: { 0: '15分は、アとウ。もっとかかる水そうがあるよ。', 2: '150は、ウの大きさ（L）。時間ではないよ。', 3: '10分は、エ。いちばん早く入るよ。' },
+    chk: ['ア：120÷8＝15分', 'イ：90÷5＝18分', 'ウ：150÷10＝15分', 'エ：60÷6＝10分', 'いちばん長い：イ 18分']
+  }
 ];
 const CIRC = ['①', '②', '③', '④'];
+// ステージ：前のステージをぜんぶクリアすると、次が開く。ステージをぜんぶクリアすると +20pt
+const STAGES = [
+  { name: '同じ項目をつなぐ', sub: '名前・数でつなぐ', n: 8 },
+  { name: 'ことば・単位・範囲でつなぐ', sub: '意味・単位・範囲に注意', n: 6 },
+  { name: '4つの項目をつなぐ', sub: '項目がふえて、くらべる', n: 6 }
+];
+const STAGE_BONUS = 20;
+(function () { let a = 0; STAGES.forEach((g, gi) => { g.from = a; a += g.n; for (let i = g.from; i < a; i++) P[i].stage = gi; }); if (a !== P.length) throw new Error('stage size'); })();
 
 /* ===================== 状態の保存（端末内のみ） ===================== */
 const KEY = 'shiryo-tsunagi-v1';
-const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat) return s; } catch (e) {} return null; }
+const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), sb: STAGES.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.done) && s.done.length <= P.length && s.stat) {
+      while (s.done.length < P.length) s.done.push(0);   // 問題がふえても、これまでの記録を引きつぐ
+      if (!Array.isArray(s.sb)) s.sb = STAGES.map(() => 0);
+      return s;
+    }
+  } catch (e) {}
+  return null;
+}
 let S = load() || blank();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
+const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
+const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) === stageIds(g - 1).length;
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 // ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
 const SH = (function () {
@@ -235,8 +404,14 @@ function renderHome() {
   const st = S.stat;
   app.innerHTML = `<div class="top"><a class="btnlink back" href="../" aria-label="入口にもどる">← 入口</a><div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">宝箱 ${S.chest} / ${P.length}</span></div></div>
   <h1 style="margin:0 0 8px">資料つなぎ</h1>
-  <div class="card"><div class="note" style="margin-bottom:8px">2つの資料の「同じものについて書いてある項目」を、自分でつないでから解こう。</div>
-  <div class="grid5">${S.done.map((d, i) => `<button class="mis ${d ? 'done' : ''}" data-act="start" data-i="${i}" aria-label="ミッション${i + 1}${d ? '（クリア）' : ''}">${i + 1}${d ? '✓' : ''}</button>`).join('')}</div></div>
+  <div class="note" style="margin-bottom:8px">2つの資料の「同じものについて書いてある項目」を、自分でつないでから解こう。前のステージをぜんぶクリアすると、次のステージが開くよ。</div>
+  ${STAGES.map((g, gi) => {
+    const open = stageOpen(gi), ids = stageIds(gi), dn = stageDone(gi);
+    const lockNote = open ? '' : `<div class="note" style="margin-bottom:6px">ステージ${gi}を ぜんぶクリアすると、開きます（あと${stageIds(gi - 1).length - stageDone(gi - 1)}問）。</div>`;
+    return `<div class="card"><div class="stg ${open ? '' : 'lock'}"><h2>${esc(g.name)}</h2><span class="lv">ステージ${gi + 1}</span></div>
+    <div class="note" style="margin-bottom:6px">${esc(g.sub)}　クリア ${dn} / ${ids.length}${S.sb[gi] ? '　★ステージクリア' : ''}</div>${lockNote}
+    <div class="grid5">${ids.map((i, k) => `<button class="mis ${S.done[i] ? 'done' : ''}" data-act="start" data-i="${i}" ${open ? '' : 'disabled'} aria-label="ステージ${gi + 1}のミッション${k + 1}${S.done[i] ? '（クリア）' : ''}">${k + 1}${S.done[i] ? '✓' : ''}</button>`).join('')}</div></div>`;
+  }).join('')}
   ${rewardCard()}
   <div class="card"><h2>きろく</h2><div class="note">資料のつなぎが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div></div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
@@ -244,6 +419,7 @@ function renderHome() {
 
 /* ---------- ミッション ---------- */
 function startM(i) {
+  if (!stageOpen(P[i].stage)) return;
   route = { page: 'm', i };
   ui = { step: 0, tries: [0, 0, 0, 0], stat: [false, false, false, false, false], links: {}, sel: null, msg: null, formPick: null, relPick: null, ansPick: null, chk: {}, hintA: null, fin: false };
   render();
@@ -278,10 +454,10 @@ function renderM() {
   ];
   let body = '';
   if (ui.fin) {
-    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}</div>
+    body = `<div class="fb ok"><b>クリア！</b> 宝箱が開きました。${ui.bonus ? `ボーナス +${ui.bonus} pt` : ''}${ui.stageClear ? ` <b>ステージクリア！ +${STAGE_BONUS} pt</b>` : ''}</div>
       <div class="card"><div class="note">組ごとの書き出し（1行ずつ、ラベルをつける）</div><ul class="calc">${p.chk.map(c => `<li>${esc(c)}</li>`).join('')}</ul><div style="margin-top:6px" class="ans">答：<b>${esc(p.ans[p.right])}</b></div></div>
       <div class="paper note">紙に戻る：答えの形に四角。同じ項目を線で結んで、組に番号。組ごとの計算を1行ずつ。</div>
-      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
+      <div class="row" style="margin-top:8px"><button data-act="home">ホームへ</button>${i < P.length - 1 && stageOpen(P[i + 1].stage) ? `<button class="main" data-act="start" data-i="${i + 1}">次のミッション</button>` : ''}</div>`;
   } else if (ui.step === 0) {
     body = `${fb}<div class="card"><div class="opts">${p.forms.map((f, k) => `<button data-act="form" data-k="${k}" ${ui.formPick === k ? 'class="main"' : ''}>${esc(f)}</button>`).join('')}</div>${showBtn('0 pt')}</div>`;
   } else if (ui.step === 1) {
@@ -300,7 +476,7 @@ function renderM() {
   if (!showLinks) ui.links = {};
   const docs = `<div class="docs"><div class="doc"><div class="dn">${esc(p.A.name)}</div>${docRows(p, 'A', inter)}</div><div class="doc"><div class="dn">${esc(p.B.name)}</div>${docRows(p, 'B', inter)}</div></div>`;
   ui.links = savedLinks;
-  app.innerHTML = `${head(`ミッション ${i + 1} / ${P.length}　${p.title}`, true)}
+  app.innerHTML = `${head(`ステージ${p.stage + 1}　${i - STAGES[p.stage].from + 1} / ${STAGES[p.stage].n}　${p.title}`, true)}
   ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
   <div class="prob"><span class="${ui.step >= 1 || ui.fin ? 'qbox' : ''}">${esc(p.q)}</span></div>
   ${docs}
@@ -318,6 +494,8 @@ function finish() {
   S.chest = S.done.reduce((a, b) => a + b, 0);
   const clean = ui.tries.every(t => t === 0);
   ui.bonus = (wasNew && clean) ? 10 : 0; S.pt += ui.bonus;
+  const sg = P[route.i].stage;
+  if (!S.sb[sg] && stageDone(sg) === stageIds(sg).length) { S.sb[sg] = 1; S.pt += STAGE_BONUS; ui.stageClear = true; }
   S.stat.mT++; if (ui.tries[1] === 0) S.stat.mF++;
   S.stat.aT++; if (ui.tries[3] === 0) S.stat.aF++;
   save(); ui.stat[4] = true; ui.fin = true;
@@ -405,6 +583,7 @@ function renderParentOpen() {
   <div class="card"><h2>きろく</h2><div class="note">ポイント：${S.pt}　クリア：${S.chest} / ${P.length}<br>資料のつなぎが、1回で通った：${st.mF} / ${st.mT}<br>答えが、1回で正解：${st.aF} / ${st.aT}</div>
   <div class="note" style="margin-top:6px">紙の答案でも、「資料の同じ項目を線で結んだ設問の割合」を数えると、変化が見えます。</div></div>
   <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
+  <div class="card"><div class="note">ステージを、すぐ開けたいときは、下のボタンを押します（クリアの記録は変わりません）。</div><div class="row" style="margin-top:8px"><button data-act="openall">ぜんぶのステージを開く</button></div></div>
   <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
 }
 
@@ -416,10 +595,11 @@ document.addEventListener('click', ev => {
   if (a === 'start') return startM(+el.dataset.i);
   if (a === 'parent') { route = { page: 'parent' }; return renderParent(); }
   if (a === 'gate') { const v = +document.getElementById('gate').value; if (v === ui.gate) renderParentOpen(); else document.getElementById('gm').innerHTML = '<div class="fb ng">ちがいます。</div>'; return; }
+  if (a === 'openall') { S.open = true; save(); el.textContent = '開きました'; el.disabled = true; return; }
   if (a === 'preset') { if (!ui.armed) { ui.armed = true; el.textContent = 'もう一度押すと、全部消えます'; el.classList.add('org'); return; } S = blank(); save(); route = { page: 'home' }; ui = {}; return render(); }
   if (route.page === 'm') return mAction(a, el);
 });
-window.SY = { P, get S() { return S; }, get ui() { return ui; }, startM, render };
+window.SY = { P, STAGES, stageOpen, stageDone, stageIds, get S() { return S; }, get ui() { return ui; }, startM, render };
 render();
 </script>
 </body>
