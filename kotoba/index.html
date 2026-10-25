@@ -395,7 +395,7 @@ function renderM() {
   app.innerHTML = `${head(`ステージ${p.stage + 1}　${p.title}`, true)}
   ${stepBar(ui.fin ? 5 : ui.step, ui.stat)}${ui.fin ? '' : taskCard(T[ui.step])}
   <div class="prob">${textHtml(p, ui.step === 1 && !ui.fin)}</div>
-  ${ui.step >= 1 || ui.fin ? `<div class="qline">${esc(p.q)}</div>` : ''}
+  <div class="qline">${esc(p.q)}</div>
   ${body}`;
 }
 
