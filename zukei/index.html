@@ -70,11 +70,11 @@ function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s &
 let S = load() || { pt: 0, chest: 0, done: { cut: [0, 0, 0, 0, 0], net: [0, 0, 0, 0, 0] }, reward: { text: '', need: 300 }, spent: 0 };
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
-// ポイントとごほうびは、条件ハンターと合算（ごほうびの設定は入口で行う）
+// ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
 const SH = (function () {
   const RK = 'jishu-reward-v1';
   const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
-  function pts() { const z = rd('zukei-mission-v1'), j = rd('joken-hunter-v1'); return (z && +z.pt || 0) + (j && +j.pt || 0); }
+  function pts() { return ['zukei-mission-v1','joken-hunter-v1','shiryo-tsunagi-v1','tsumiki-dansu-v1'].reduce((a, k) => { const o = rd(k); return a + (o && +o.pt || 0); }, 0); }
   function reward() {
     let r = rd(RK);
     if (!r || typeof r !== 'object') {
@@ -309,7 +309,7 @@ function renderHome() {
   app.innerHTML = `<a class="entry" href="../" aria-label="入口にもどる">← 入口</a>${head('図形ミッション')}
   ${mods}
   <div class="card"><h2>ごほうび</h2>
-    ${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（条件ハンターと合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}
+    ${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（すべてのアプリの合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}
   </div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button data-act="parent">おうちの人向け</button></div></div>`;
 }
@@ -594,7 +594,7 @@ function renderParent() {
 }
 function renderParentOpen() {
   app.innerHTML = `${head('おうちの人向け', true)}
-  <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントは条件ハンターと合算）。</div></div>
+  <div class="card"><div class="note">ごほうびの設定とポイントの使用は、入口ページの「おうちの人向け」で行います（ポイントはすべてのアプリで合算）。</div></div>
   <div class="card"><div class="note">この画面の記録だけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button data-act="preset">全部リセット</button></div></div>`;
 }
 
