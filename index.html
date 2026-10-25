@@ -87,7 +87,7 @@ function renderHub() {
   <a class="door" href="shiryo/"><h2>資料つなぎ</h2><p>2つの資料の「同じものについて書いてある項目」を、自分でつないでから解こう。</p><div class="prog">${chips(s)}</div><span class="go">はじめる →</span></a>
   <a class="door" href="tsumiki/"><h2>積み木の段数</h2><p>見える数・いちばん多い数と少ない数・ふえるきまり。書きこんで、きまりに切りかえよう。</p><div class="prog">${chips(t)}</div><span class="go">はじめる →</span></a>
   <a class="door" href="kotoba/"><h2>ことば道場</h2><p>慣用句・ことわざを、「この文では、どういう意味？」と言いかえて解こう。3つのステージ。</p><div class="prog">${chips(k)}</div><span class="go">はじめる →</span></a>
-  <a class="door" href="tempo/"><h2>ことばテンポ</h2><p>慣用句・ことわざ・四字熟語を、1問ずつ、テンポよく。まちがえた語は、何度でも出る。</p><div class="prog"><span class="chip pt">${pp.pt} pt</span><span class="chip box">覚えた ${pp.known} / 135</span></div><span class="go">はじめる →</span></a>
+  <a class="door" href="tempo/"><h2>ことばテンポ</h2><p>慣用句・ことわざ・四字熟語を、1問ずつ、テンポよく。まちがえた語は、何度でも出る。</p><div class="prog"><span class="chip pt">${pp.pt} pt</span><span class="chip box">覚えた ${pp.known} / 284</span></div><span class="go">はじめる →</span></a>
   <a class="door" href="test/"><h2>テスト</h2><p>クリアした問題から、時間を決めて出題。解けた・解けなかったを記録して、解けなかったものだけやり直せる。</p><div class="prog">${testChip()}</div><span class="go">はじめる →</span></a>
   <div class="card"><h2>ごほうび</h2>${r.text ? `<div style="margin-bottom:6px">${esc(r.text)}（${need} pt）</div><div class="bar" aria-label="ごほうびまで"><i style="width:${pct}%"></i></div><div class="note" style="margin-top:4px">${have} / ${need} pt（合計）</div>${have >= need ? '<div class="fb ok">ポイントがたまりました。おうちの人に見せよう。</div>' : ''}` : '<div class="note">[ごほうびの中身は、おうちの人が決めます]</div>'}</div>
   <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button id="bparent">おうちの人向け</button></div></div>`;
