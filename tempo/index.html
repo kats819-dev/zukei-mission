@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>ことばテンポ</title>
+<style>
+:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+a{color:var(--blue)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.chip{padding:5px 10px;border-radius:99px}
+.chip.pt{background:var(--gold-soft);color:var(--gold)}
+.chip.box{background:var(--blue-soft);color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note{font-size:13px;color:var(--sub)}
+button,.btnlink{font-family:inherit;font-size:16px;font-weight:700;min-height:50px;border-radius:10px;border:1px solid var(--blue);background:#fff;color:var(--blue);padding:0 14px;cursor:pointer}
+.btnlink{display:inline-flex;align-items:center;text-decoration:none;min-height:44px}
+button.main{background:var(--blue);color:#fff}
+button.org{background:var(--org);color:#fff;border-color:var(--org)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,label:focus-within{outline:3px solid #F59E0B;outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{flex:1;min-width:80px;text-align:center;border:1px solid var(--blue);border-radius:10px;padding:8px 6px;font-weight:700;font-size:14px;color:var(--blue);background:#fff;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--blue);color:#fff}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--blue)}
+.fb{border-radius:10px;padding:10px 12px;font-size:15px;margin:8px 0}
+.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
+.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
+.stem{font-size:19px;line-height:1.7;margin:4px 0 6px}
+.stem b{color:var(--blue)}
+.kind{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;background:var(--blue);color:#fff;margin-bottom:6px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opts button{text-align:left;padding:10px 14px;line-height:1.45;min-height:54px}
+.opts button.right{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.opts button.wrong{background:var(--org-soft);border-color:var(--org);color:var(--org)}
+.big{font-size:30px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.ok{color:var(--green);font-weight:700}
+.ng{color:var(--org);font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ===================== ことばの一覧（辞書サイトで語釈を確かめたもの） ===================== */
+const BANK = [{"id":0,"cat":"慣用句","w":"顔が広い","yomi":"かおがひろい","mean":"知り合いが多い","ex":"父は町内会の世話役なので、《顔が広い》。","hole":"顔","grp":""},{"id":1,"cat":"慣用句","w":"耳が痛い","yomi":"みみがいたい","mean":"自分の弱点を言われて、聞くのがつらい","ex":"母の注意は本当のことだったので、《耳が痛い》。","hole":"耳","grp":""},{"id":2,"cat":"慣用句","w":"目がない","yomi":"めがない","mean":"とても好きで、夢中になる","ex":"妹は甘いものに《目がない》。","hole":"目","grp":""},{"id":3,"cat":"慣用句","w":"鼻が高い","yomi":"はながたかい","mean":"じまんに思う、ほこらしい","ex":"弟の活やくが新聞にのって、《鼻が高い》。","hole":"鼻","grp":""},{"id":4,"cat":"慣用句","w":"口が重い","yomi":"くちがおもい","mean":"あまり話さない、無口である","ex":"兄は、大事なことになると《口が重い》。","hole":"重","grp":""},{"id":5,"cat":"慣用句","w":"口が軽い","yomi":"くちがかるい","mean":"ひみつなどを、すぐ話してしまう","ex":"あの人は《口が軽い》から、ひみつは話せない。","hole":"軽","grp":""},{"id":6,"cat":"慣用句","w":"口がかたい","yomi":"くちがかたい","mean":"ひみつなどを、かんたんには話さない","ex":"彼は《口がかたい》ので、安心して相談できる。","hole":"","grp":""},{"id":7,"cat":"慣用句","w":"手を焼く","yomi":"てをやく","mean":"あつかいに困る、てこずる","ex":"いたずらな弟に《手を焼く》。","hole":"手","grp":""},{"id":8,"cat":"慣用句","w":"手が足りない","yomi":"てがたりない","mean":"人手が足りない","ex":"大そうじで、家族だけでは《手が足りない》。","hole":"手","grp":""},{"id":9,"cat":"慣用句","w":"足を引っ張る","yomi":"あしをひっぱる","mean":"人のじゃまをして、うまくいかなくする","ex":"ミスをして、チームの《足を引っ張る》ことになった。","hole":"足","grp":""},{"id":10,"cat":"慣用句","w":"足が出る","yomi":"あしがでる","mean":"予定よりお金がかかる、赤字になる","ex":"旅行の費用が予算を超えて、《足が出る》。","hole":"足","grp":""},{"id":11,"cat":"慣用句","w":"頭が下がる","yomi":"あたまがさがる","mean":"感心して、尊敬の気持ちになる","ex":"毎日続ける努力には《頭が下がる》。","hole":"頭","grp":""},{"id":12,"cat":"慣用句","w":"腕が鳴る","yomi":"うでがなる","mean":"力を見せたくて、わくわくする","ex":"決勝戦を前にして《腕が鳴る》。","hole":"腕","grp":""},{"id":13,"cat":"慣用句","w":"腕を上げる","yomi":"うでをあげる","mean":"技術が上手になる","ex":"毎日練習して、ピアノの《腕を上げる》。","hole":"腕","grp":""},{"id":14,"cat":"慣用句","w":"肩を落とす","yomi":"かたをおとす","mean":"がっかりして、元気をなくす","ex":"試合に負けて《肩を落とす》。","hole":"肩","grp":""},{"id":15,"cat":"慣用句","w":"肩身が狭い","yomi":"かたみがせまい","mean":"世間に対して、引け目を感じる","ex":"ひとりだけ宿題を忘れて《肩身が狭い》。","hole":"","grp":""},{"id":16,"cat":"慣用句","w":"胸をなでおろす","yomi":"むねをなでおろす","mean":"ほっと安心する","ex":"無事に着いたと聞いて《胸をなでおろす》。","hole":"胸","grp":""},{"id":17,"cat":"慣用句","w":"腹を決める","yomi":"はらをきめる","mean":"覚悟を決める","ex":"失敗を覚悟して、挑戦すると《腹を決める》。","hole":"腹","grp":""},{"id":18,"cat":"慣用句","w":"首を長くする","yomi":"くびをながくする","mean":"今か今かと、待ちこがれる","ex":"","hole":"首","grp":""},{"id":19,"cat":"慣用句","w":"首をかしげる","yomi":"くびをかしげる","mean":"疑問に思う、ふしぎに思う","ex":"説明を聞いても、《首をかしげる》ばかりだった。","hole":"首","grp":""},{"id":20,"cat":"慣用句","w":"眉をひそめる","yomi":"まゆをひそめる","mean":"心配やふゆかいで、顔をしかめる","ex":"大声で話す人に、まわりが《眉をひそめる》。","hole":"眉","grp":""},{"id":21,"cat":"慣用句","w":"目を丸くする","yomi":"めをまるくする","mean":"おどろいて、目を大きく開く","ex":"思いがけない贈り物に《目を丸くする》。","hole":"丸","grp":""},{"id":22,"cat":"慣用句","w":"舌を巻く","yomi":"したをまく","mean":"おどろいて、感心する","ex":"その見事な演奏に《舌を巻く》。","hole":"舌","grp":""},{"id":23,"cat":"慣用句","w":"歯が立たない","yomi":"はがたたない","mean":"相手が強くて、とてもかなわない","ex":"強い相手に、まったく《歯が立たない》。","hole":"歯","grp":""},{"id":24,"cat":"慣用句","w":"骨が折れる","yomi":"ほねがおれる","mean":"苦労する、たいへんである","ex":"この仕事は、なかなか《骨が折れる》。","hole":"骨","grp":""},{"id":25,"cat":"慣用句","w":"気が置けない","yomi":"きがおけない","mean":"えんりょがいらず、気楽につき合える","ex":"《気が置けない》友人と、ひさしぶりに会った。","hole":"気","grp":""},{"id":26,"cat":"慣用句","w":"猫の手も借りたい","yomi":"ねこのてもかりたい","mean":"とてもいそがしくて、だれでもいいから手伝ってほしい","ex":"店がこんで、《猫の手も借りたい》ほどだ。","hole":"猫","grp":""},{"id":27,"cat":"慣用句","w":"猫をかぶる","yomi":"ねこをかぶる","mean":"本当の性格をかくして、おとなしそうにする","ex":"あの人は先生の前では《猫をかぶる》。","hole":"猫","grp":""},{"id":28,"cat":"慣用句","w":"猫の額","yomi":"ねこのひたい","mean":"場所がとてもせまい","ex":"うちの庭は《猫の額》ほどの広さだ。","hole":"猫","grp":""},{"id":29,"cat":"慣用句","w":"馬が合う","yomi":"うまがあう","mean":"気が合う、気持ちがよく合う","ex":"転校生とは、すぐに《馬が合う》ようになった。","hole":"馬","grp":""},{"id":30,"cat":"慣用句","w":"虫がいい","yomi":"むしがいい","mean":"自分に都合のいいことばかり考える","ex":"何もしないで成功したいなんて《虫がいい》話だ。","hole":"虫","grp":""},{"id":31,"cat":"慣用句","w":"水に流す","yomi":"みずにながす","mean":"過去のもめごとを、なかったことにする","ex":"けんかのことは、《水に流す》ことにした。","hole":"水","grp":""},{"id":32,"cat":"慣用句","w":"油を売る","yomi":"あぶらをうる","mean":"むだ話などをして、仕事をなまける","ex":"使いに出たまま、途中で《油を売る》。","hole":"油","grp":""},{"id":33,"cat":"慣用句","w":"火の車","yomi":"ひのくるま","mean":"お金のやりくりが、とても苦しい","ex":"家計が《火の車》になる。","hole":"火","grp":""},{"id":34,"cat":"慣用句","w":"板につく","yomi":"いたにつく","mean":"仕事などが身について、ふさわしくなる","ex":"先生姿が、すっかり《板につく》。","hole":"板","grp":""},{"id":35,"cat":"慣用句","w":"棒に振る","yomi":"ぼうにふる","mean":"せっかくの努力や機会をむだにする","ex":"油断して、これまでの努力を《棒に振る》。","hole":"棒","grp":""},{"id":36,"cat":"慣用句","w":"二の足を踏む","yomi":"にのあしをふむ","mean":"ためらう、決心がつかない","ex":"ねだんを聞いて、買うのに《二の足を踏む》。","hole":"二","grp":""},{"id":37,"cat":"慣用句","w":"三日坊主","yomi":"みっかぼうず","mean":"あきっぽくて、長続きしない","ex":"日記は三日で終わって、《三日坊主》になった。","hole":"","grp":""},{"id":38,"cat":"慣用句","w":"一目置く","yomi":"いちもくおく","mean":"相手のすぐれた点を認めて、敬意を払う","ex":"","hole":"一","grp":""},{"id":39,"cat":"ことわざ","w":"石の上にも三年","yomi":"いしのうえにもさんねん","mean":"がまんして続ければ、いつか成功する","ex":"《石の上にも三年》と思って、毎日練習を続けた。","hole":"三年","grp":""},{"id":40,"cat":"ことわざ","w":"花より団子","yomi":"はなよりだんご","mean":"見た目より、実際に得になるほうを選ぶ","ex":"花見に来たのに、弟は《花より団子》でお菓子ばかり食べている。","hole":"団子","grp":""},{"id":41,"cat":"ことわざ","w":"猫に小判","yomi":"ねこにこばん","mean":"ねうちがわからない人に、よいものをあたえても、むだである","ex":"ゲームを知らない祖父に最新機を贈っても《猫に小判》だ。","hole":"小判","grp":"wasted"},{"id":42,"cat":"ことわざ","w":"豚に真珠","yomi":"ぶたにしんじゅ","mean":"ねうちがわからない人に、よいものをあたえても、むだである","ex":"音楽がわからない人に名曲を聞かせても《豚に真珠》だ。","hole":"真珠","grp":"wasted"},{"id":43,"cat":"ことわざ","w":"馬の耳に念仏","yomi":"うまのみみにねんぶつ","mean":"いくら言い聞かせても、少しも聞き入れない","ex":"説教しても、弟には《馬の耳に念仏》だった。","hole":"念仏","grp":"wasted"},{"id":44,"cat":"ことわざ","w":"急がば回れ","yomi":"いそがばまわれ","mean":"急ぐときほど、安全で確実な方法をとるほうがよい","ex":"《急がば回れ》で、遠くても大通りを通った。","hole":"回れ","grp":"careful"},{"id":45,"cat":"ことわざ","w":"善は急げ","yomi":"ぜんはいそげ","mean":"よいことは、ためらわずに、すぐに実行するのがよい","ex":"《善は急げ》というから、今日から始めよう。","hole":"急げ","grp":"quick"},{"id":46,"cat":"ことわざ","w":"果報は寝て待て","yomi":"かほうはねてまて","mean":"幸運は、あせらずに、待っているのがよい","ex":"あとは《果報は寝て待て》で、結果を待とう。","hole":"寝て","grp":"wait"},{"id":47,"cat":"ことわざ","w":"待てば海路の日和あり","yomi":"まてばかいろのひよりあり","mean":"あせらずに待っていれば、よい機会がめぐってくる","ex":"《待てば海路の日和あり》と信じて、辛抱した。","hole":"海路","grp":"wait"},{"id":48,"cat":"ことわざ","w":"情けは人のためならず","yomi":"なさけはひとのためならず","mean":"人に親切にすれば、めぐりめぐって自分によい結果が返ってくる","ex":"《情けは人のためならず》だから、困っている人を助けよう。","hole":"情け","grp":""},{"id":49,"cat":"ことわざ","w":"名は体を表す","yomi":"なはたいをあらわす","mean":"名前は、そのものの中身や性質をよく表している","ex":"ふわふわ堂のパンは、《名は体を表す》ふわふわだ。","hole":"名","grp":""},{"id":50,"cat":"ことわざ","w":"一年の計は元旦にあり","yomi":"いちねんのけいはがんたんにあり","mean":"何をするにも、はじめに計画を立てることが大切である","ex":"《一年の計は元旦にあり》で、新学期に目標を立てた。","hole":"一年","grp":""},{"id":51,"cat":"ことわざ","w":"対岸の火事","yomi":"たいがんのかじ","mean":"自分には関係のない、他人ごと","ex":"遠くの国の災害でも《対岸の火事》と思ってはいけない。","hole":"対岸","grp":""},{"id":52,"cat":"ことわざ","w":"七転び八起き","yomi":"ななころびやおき","mean":"何度失敗しても、あきらめずに立ち上がる","ex":"《七転び八起き》の気持ちで、また挑戦した。","hole":"七転び","grp":""},{"id":53,"cat":"ことわざ","w":"二兎を追う者は一兎をも得ず","yomi":"にとをおうものはいっとをもえず","mean":"欲ばって二つのことを同時にねらうと、どちらもうまくいかない","ex":"勉強と遊びの両方を欲ばって、《二兎を追う者は一兎をも得ず》だった。","hole":"二兎","grp":""},{"id":54,"cat":"ことわざ","w":"犬も歩けば棒に当たる","yomi":"いぬもあるけばぼうにあたる","mean":"出歩くと、思いがけない幸運や災難にあう","ex":"散歩に出たら友人に会えた。《犬も歩けば棒に当たる》だ。","hole":"棒","grp":""},{"id":55,"cat":"ことわざ","w":"蛙の子は蛙","yomi":"かえるのこはかえる","mean":"子は、親に似るものである","ex":"父も泳ぎが得意だ。《蛙の子は蛙》だね。","hole":"子","grp":""},{"id":56,"cat":"ことわざ","w":"弘法にも筆の誤り","yomi":"こうぼうにもふでのあやまり","mean":"名人でも、時には失敗することがある","ex":"あの名人が失敗するとは、《弘法にも筆の誤り》だ。","hole":"筆","grp":"miss"},{"id":57,"cat":"ことわざ","w":"猿も木から落ちる","yomi":"さるもきからおちる","mean":"名人でも、時には失敗することがある","ex":"泳ぎの達人が、おぼれかけた。《猿も木から落ちる》だ。","hole":"猿","grp":"miss"},{"id":58,"cat":"ことわざ","w":"河童の川流れ","yomi":"かっぱのかわながれ","mean":"名人でも、時には失敗することがある","ex":"水泳の選手が、ゴール前で失速した。《河童の川流れ》だ。","hole":"河童","grp":"miss"},{"id":59,"cat":"ことわざ","w":"失敗は成功のもと","yomi":"しっぱいはせいこうのもと","mean":"失敗しても、原因を考えて直せば、成功につながる","ex":"《失敗は成功のもと》と、もう一度やってみた。","hole":"失敗","grp":""},{"id":60,"cat":"ことわざ","w":"転ばぬ先の杖","yomi":"ころばぬさきのつえ","mean":"失敗しないように、前もって用心しておく","ex":"《転ばぬ先の杖》として、予備の電池を持ち歩く。","hole":"杖","grp":"careful"},{"id":61,"cat":"ことわざ","w":"石橋をたたいて渡る","yomi":"いしばしをたたいてわたる","mean":"とても用心深く、物事を行う","ex":"彼は、《石橋をたたいて渡る》性格だ。","hole":"石橋","grp":"careful"},{"id":62,"cat":"ことわざ","w":"備えあれば憂いなし","yomi":"そなえあればうれいなし","mean":"ふだんから準備しておけば、いざというとき心配がない","ex":"《備えあれば憂いなし》で、非常食を用意した。","hole":"備え","grp":"careful"},{"id":63,"cat":"ことわざ","w":"灯台下暗し","yomi":"とうだいもとくらし","mean":"身近なことは、かえって気づきにくい","ex":"探していた本は、机の上にあった。まさに《灯台下暗し》だ。","hole":"灯台","grp":""},{"id":64,"cat":"ことわざ","w":"立つ鳥跡を濁さず","yomi":"たつとりあとをにごさず","mean":"去るときは、あとが見苦しくないように、きれいにしていく","ex":"引っ越し前に、《立つ鳥跡を濁さず》で部屋をそうじした。","hole":"鳥","grp":""},{"id":65,"cat":"ことわざ","w":"雨降って地固まる","yomi":"あめふってじかたまる","mean":"もめごとのあとは、かえってかたい関係になる","ex":"けんかのあと、かえって仲よくなった。《雨降って地固まる》だ。","hole":"地","grp":""},{"id":66,"cat":"ことわざ","w":"能ある鷹は爪を隠す","yomi":"のうあるたかはつめをかくす","mean":"本当に力のある人は、それをむやみに見せない","ex":"《能ある鷹は爪を隠す》というように、彼は実力を自慢しない。","hole":"鷹","grp":""},{"id":67,"cat":"ことわざ","w":"百聞は一見にしかず","yomi":"ひゃくぶんはいっけんにしかず","mean":"何度も聞くより、一度自分の目で見るほうがよくわかる","ex":"《百聞は一見にしかず》で、実際に見に行った。","hole":"百聞","grp":""},{"id":68,"cat":"ことわざ","w":"良薬は口に苦し","yomi":"りょうやくはくちににがし","mean":"ためになる忠告は、聞くのがつらいものである","ex":"《良薬は口に苦し》と思って、注意を聞いた。","hole":"薬","grp":""},{"id":69,"cat":"ことわざ","w":"論より証拠","yomi":"ろんよりしょうこ","mean":"あれこれ言うより、証拠を見せるほうが確かである","ex":"《論より証拠》、実際にやってみせた。","hole":"証拠","grp":""},{"id":70,"cat":"ことわざ","w":"笑う門には福来る","yomi":"わらうかどにはふくきたる","mean":"いつも明るく笑っている家には、幸せがやってくる","ex":"《笑う門には福来る》で、いつも笑顔でいよう。","hole":"福","grp":""},{"id":71,"cat":"ことわざ","w":"塵も積もれば山となる","yomi":"ちりもつもればやまとなる","mean":"小さなものでも、積み重なれば大きなものになる","ex":"毎日の貯金は《塵も積もれば山となる》だ。","hole":"塵","grp":""},{"id":72,"cat":"ことわざ","w":"三人寄れば文殊の知恵","yomi":"さんにんよればもんじゅのちえ","mean":"三人集まって相談すれば、よい考えが浮かぶ","ex":"みんなで考えたら解けた。《三人寄れば文殊の知恵》だ。","hole":"文殊","grp":""},{"id":73,"cat":"ことわざ","w":"船頭多くして船山に上る","yomi":"せんどうおおくしてふねやまにのぼる","mean":"指図する人が多すぎて、物事がうまく進まない","ex":"意見が多すぎて、《船頭多くして船山に上る》結果になった。","hole":"船頭","grp":""},{"id":74,"cat":"ことわざ","w":"二度あることは三度ある","yomi":"にどあることはさんどある","mean":"同じことは、くり返し起こりやすい","ex":"また忘れ物をした。《二度あることは三度ある》だ。","hole":"三度","grp":""},{"id":75,"cat":"ことわざ","w":"嘘も方便","yomi":"うそもほうべん","mean":"よい目的のためなら、時にはうそも必要なことがある","ex":"《嘘も方便》で、びっくりパーティーのため、ひみつにした。","hole":"方便","grp":""},{"id":76,"cat":"ことわざ","w":"腐っても鯛","yomi":"くさってもたい","mean":"よいものは、いたんでも、ねうちが残る","ex":"《腐っても鯛》で、古くなっても価値は高い。","hole":"鯛","grp":""},{"id":77,"cat":"ことわざ","w":"負けるが勝ち","yomi":"まけるがかち","mean":"相手に勝ちをゆずるほうが、結局は得になることがある","ex":"ここは《負けるが勝ち》と、あえて争わなかった。","hole":"勝ち","grp":""},{"id":78,"cat":"ことわざ","w":"案ずるより産むが易し","yomi":"あんずるよりうむがやすし","mean":"心配していたが、実際にやってみると、案外かんたんである","ex":"発表は心配したが、《案ずるより産むが易し》だった。","hole":"産む","grp":""},{"id":79,"cat":"ことわざ","w":"急いては事を仕損じる","yomi":"せいてはことをしそんじる","mean":"あわてると、かえって失敗する","ex":"《急いては事を仕損じる》ので、落ち着いて解こう。","hole":"事","grp":""},{"id":80,"cat":"ことわざ","w":"先んずれば人を制す","yomi":"せんずればひとをせいす","mean":"人より先に行えば、有利になる","ex":"《先んずれば人を制す》というから、早く申しこんだ。","hole":"先んずれば","grp":"quick"},{"id":81,"cat":"ことわざ","w":"鉄は熱いうちに打て","yomi":"てつはあついうちにうて","mean":"人は、若くて吸収のよいうちに、きたえるのがよい","ex":"《鉄は熱いうちに打て》、子どものうちに基礎を身につけよう。","hole":"鉄","grp":""},{"id":82,"cat":"ことわざ","w":"山椒は小粒でもぴりりと辛い","yomi":"さんしょうはこつぶでもぴりりとからい","mean":"体は小さくても、能力が高くて、あなどれない","ex":"あの小柄な選手は《山椒は小粒でもぴりりと辛い》だ。","hole":"山椒","grp":""},{"id":83,"cat":"ことわざ","w":"親しき仲にも礼儀あり","yomi":"したしきなかにもれいぎあり","mean":"仲がよくても、礼儀は守るべきである","ex":"《親しき仲にも礼儀あり》で、借りた物は必ず返す。","hole":"礼儀","grp":""},{"id":84,"cat":"ことわざ","w":"習うより慣れよ","yomi":"ならうよりなれよ","mean":"教わるより、実際にやってなれるほうが身につく","ex":"《習うより慣れよ》で、とにかく何度もやってみた。","hole":"慣れ","grp":""},{"id":85,"cat":"故事成語","w":"矛盾","yomi":"むじゅん","mean":"二つのことがくいちがって、つじつまが合わない","ex":"言っていることとやっていることが《矛盾》している。","hole":"矛","grp":""},{"id":86,"cat":"故事成語","w":"蛇足","yomi":"だそく","mean":"よけいなもの、つけ足し","ex":"この説明は《蛇足》だった。","hole":"蛇","grp":""},{"id":87,"cat":"故事成語","w":"杞憂","yomi":"きゆう","mean":"いらない心配、取りこし苦労","ex":"けっきょく《杞憂》に終わった。","hole":"杞","grp":""},{"id":88,"cat":"故事成語","w":"完璧","yomi":"かんぺき","mean":"欠点がなく、完全であるさま","ex":"発表は《完璧》だった。","hole":"璧","grp":""},{"id":89,"cat":"故事成語","w":"推敲","yomi":"すいこう","mean":"文章を何度も考え直して、よくすること","ex":"作文を何度も《推敲》した。","hole":"敲","grp":""},{"id":90,"cat":"故事成語","w":"漁夫の利","yomi":"ぎょふのり","mean":"二人が争っている間に、第三者が利益を横取りする","ex":"二人のけんかの間に、弟が《漁夫の利》を得た。","hole":"漁夫","grp":""},{"id":91,"cat":"故事成語","w":"背水の陣","yomi":"はいすいのじん","mean":"あとがない覚悟で、全力でことにあたる","ex":"《背水の陣》で、決勝にのぞんだ。","hole":"背水","grp":""},{"id":92,"cat":"故事成語","w":"塞翁が馬","yomi":"さいおうがうま","mean":"幸せや不幸は予想できない","ex":"失敗が成功につながった。まさに《塞翁が馬》だ。","hole":"塞翁","grp":""},{"id":93,"cat":"故事成語","w":"登竜門","yomi":"とうりゅうもん","mean":"立身出世のための、むずかしい関門","ex":"この大会は、プロへの《登竜門》だ。","hole":"竜","grp":""},{"id":94,"cat":"故事成語","w":"四面楚歌","yomi":"しめんそか","mean":"まわりが敵ばかりで、助けがない","ex":"クラスで孤立して、《四面楚歌》の状態だ。","hole":"楚歌","grp":""},{"id":95,"cat":"故事成語","w":"呉越同舟","yomi":"ごえつどうしゅう","mean":"仲の悪い者どうしが、同じ場所にいる","ex":"ライバルと同じチームで、《呉越同舟》になった。","hole":"呉越","grp":""},{"id":96,"cat":"故事成語","w":"朝三暮四","yomi":"ちょうさんぼし","mean":"目先の違いにこだわって、結果が同じだと気づかない","ex":"言い方を変えただけの《朝三暮四》にだまされた。","hole":"朝三","grp":""},{"id":97,"cat":"故事成語","w":"五十歩百歩","yomi":"ごじっぽひゃっぽ","mean":"少しの差はあるが、本質的には同じである","ex":"どちらも間違いで、《五十歩百歩》だ。","hole":"五十歩","grp":""},{"id":98,"cat":"故事成語","w":"画竜点睛を欠く","yomi":"がりょうてんせいをかく","mean":"大切な最後の仕上げが、足りない","ex":"最後の見直しがなくて《画竜点睛を欠く》結果だ。","hole":"点睛","grp":""},{"id":99,"cat":"四字熟語","w":"一石二鳥","yomi":"いっせきにちょう","mean":"一つのことで、二つの利益を得る","ex":"歩いて通えば、運動にもなって《一石二鳥》だ。","hole":"二鳥","grp":"ichi"},{"id":100,"cat":"四字熟語","w":"一挙両得","yomi":"いっきょりょうとく","mean":"一つのことで、二つの利益を得る","ex":"仕事と観光が両方できる《一挙両得》の出張だ。","hole":"両得","grp":"ichi"},{"id":101,"cat":"四字熟語","w":"一朝一夕","yomi":"いっちょういっせき","mean":"ごく短い期間","ex":"この技術は《一朝一夕》には身につかない。","hole":"一夕","grp":""},{"id":102,"cat":"四字熟語","w":"一日千秋","yomi":"いちじつせんしゅう","mean":"とても待ち遠しく、長く感じる","ex":"発売日が《一日千秋》の思いで待ち遠しい。","hole":"千秋","grp":""},{"id":103,"cat":"四字熟語","w":"一心不乱","yomi":"いっしんふらん","mean":"一つのことに集中して、ほかに心を向けない","ex":"《一心不乱》に練習した。","hole":"不乱","grp":"focus"},{"id":104,"cat":"四字熟語","w":"起死回生","yomi":"きしかいせい","mean":"だめなものを立て直して、よい状態にもどす","ex":"《起死回生》の逆転ホームランだ。","hole":"回生","grp":""},{"id":105,"cat":"四字熟語","w":"七転八倒","yomi":"しちてんばっとう","mean":"苦しくて、転げまわる","ex":"腹痛で《七転八倒》した。","hole":"八倒","grp":"suffer"},{"id":106,"cat":"四字熟語","w":"四苦八苦","yomi":"しくはっく","mean":"とても苦しむ、苦労する","ex":"宿題に《四苦八苦》している。","hole":"八苦","grp":"suffer"},{"id":107,"cat":"四字熟語","w":"十人十色","yomi":"じゅうにんといろ","mean":"人の好みや考えは、人によってちがう","ex":"好きな食べ物は《十人十色》だ。","hole":"十色","grp":""},{"id":108,"cat":"四字熟語","w":"異口同音","yomi":"いくどうおん","mean":"みんなが、同じことを言う","ex":"全員が《異口同音》に賛成した。","hole":"同音","grp":""},{"id":109,"cat":"四字熟語","w":"以心伝心","yomi":"いしんでんしん","mean":"言葉にしなくても、心が通じ合う","ex":"親友とは《以心伝心》で通じ合う。","hole":"伝心","grp":""},{"id":110,"cat":"四字熟語","w":"自画自賛","yomi":"じがじさん","mean":"自分のことを、自分でほめる","ex":"《自画自賛》するほどの出来だ。","hole":"自賛","grp":""},{"id":111,"cat":"四字熟語","w":"電光石火","yomi":"でんこうせっか","mean":"とても動きがすばやい","ex":"《電光石火》の早わざで、点を決めた。","hole":"石火","grp":""},{"id":112,"cat":"四字熟語","w":"無我夢中","yomi":"むがむちゅう","mean":"あることに熱中して、我を忘れる","ex":"《無我夢中》で、ボールを追いかけた。","hole":"夢中","grp":"focus"},{"id":113,"cat":"四字熟語","w":"試行錯誤","yomi":"しこうさくご","mean":"何度も試して、失敗をくり返しながら、方法を見つける","ex":"《試行錯誤》しながら、やっと完成した。","hole":"錯誤","grp":""},{"id":114,"cat":"四字熟語","w":"臨機応変","yomi":"りんきおうへん","mean":"その場の状況に合わせて、適切に対応する","ex":"《臨機応変》に作戦を変えた。","hole":"応変","grp":""},{"id":115,"cat":"四字熟語","w":"日進月歩","yomi":"にっしんげっぽ","mean":"たえまなく、どんどん進歩する","ex":"科学技術は《日進月歩》で進む。","hole":"月歩","grp":""},{"id":116,"cat":"四字熟語","w":"自給自足","yomi":"じきゅうじそく","mean":"必要なものを、自分で作ってまかなう","ex":"畑で野菜を作り、《自給自足》の生活をする。","hole":"自足","grp":""},{"id":117,"cat":"四字熟語","w":"付和雷同","yomi":"ふわらいどう","mean":"自分の意見がなく、人の意見にすぐ従う","ex":"《付和雷同》せず、自分の意見を持つ。","hole":"雷同","grp":""},{"id":118,"cat":"四字熟語","w":"弱肉強食","yomi":"じゃくにくきょうしょく","mean":"強いものが、弱いものを食いものにする","ex":"自然界は《弱肉強食》の世界だ。","hole":"強食","grp":""},{"id":119,"cat":"四字熟語","w":"大器晩成","yomi":"たいきばんせい","mean":"大人物は、年をとってから大成する","ex":"彼は《大器晩成》型で、後半から伸びた。","hole":"晩成","grp":""},{"id":120,"cat":"四字熟語","w":"温故知新","yomi":"おんこちしん","mean":"昔のことを学んで、新しい知識を得る","ex":"《温故知新》で、歴史から学ぶ。","hole":"知新","grp":""},{"id":121,"cat":"四字熟語","w":"順風満帆","yomi":"じゅんぷうまんぱん","mean":"物事が、順調に進む","ex":"仕事は《順風満帆》に進んでいる。","hole":"満帆","grp":""},{"id":122,"cat":"四字熟語","w":"質実剛健","yomi":"しつじつごうけん","mean":"かざりけがなく、まじめで、心身ともに強い","ex":"校風は《質実剛健》だ。","hole":"剛健","grp":""},{"id":123,"cat":"四字熟語","w":"公明正大","yomi":"こうめいせいだい","mean":"公平で、かくしごとがなく、正しい","ex":"審判は《公明正大》な判定をした。","hole":"正大","grp":""},{"id":124,"cat":"四字熟語","w":"傍若無人","yomi":"ぼうじゃくぶじん","mean":"人のことを気にせず、勝手にふるまう","ex":"電車で《傍若無人》に騒ぐ。","hole":"無人","grp":""},{"id":125,"cat":"四字熟語","w":"二束三文","yomi":"にそくさんもん","mean":"数が多くても、ねだんがとても安い","ex":"古本をまとめて売ったら《二束三文》だった。","hole":"三文","grp":""},{"id":126,"cat":"四字熟語","w":"不言実行","yomi":"ふげんじっこう","mean":"ごちゃごちゃ言わずに、黙って実行する","ex":"彼は《不言実行》の人だ。","hole":"実行","grp":""},{"id":127,"cat":"四字熟語","w":"有言実行","yomi":"ゆうげんじっこう","mean":"口に出したことを、きちんと実行する","ex":"宣言どおりやり遂げた、《有言実行》の人だ。","hole":"実行","grp":""},{"id":128,"cat":"四字熟語","w":"前代未聞","yomi":"ぜんだいみもん","mean":"今までに聞いたことがない、めずらしいこと","ex":"《前代未聞》の大事件が起きた。","hole":"未聞","grp":""},{"id":129,"cat":"四字熟語","w":"半信半疑","yomi":"はんしんはんぎ","mean":"半分信じて、半分疑う","ex":"うわさを《半信半疑》で聞く。","hole":"半疑","grp":""},{"id":130,"cat":"四字熟語","w":"優柔不断","yomi":"ゆうじゅうふだん","mean":"ぐずぐずして、なかなか決められない","ex":"彼は《優柔不断》で、決めるのが遅い。","hole":"不断","grp":""},{"id":131,"cat":"四字熟語","w":"天衣無縫","yomi":"てんいむほう","mean":"かざりけがなく、自然で、むじゃきである","ex":"《天衣無縫》な笑顔の子どもだ。","hole":"無縫","grp":""},{"id":132,"cat":"四字熟語","w":"孤立無援","yomi":"こりつむえん","mean":"ひとりぼっちで、助けてくれる人がいない","ex":"会議で《孤立無援》の状態になった。","hole":"無援","grp":""},{"id":133,"cat":"四字熟語","w":"意味深長","yomi":"いみしんちょう","mean":"言葉の裏に、深い意味がかくれている","ex":"先生の《意味深長》な言葉が気になった。","hole":"深長","grp":""},{"id":134,"cat":"四字熟語","w":"栄枯盛衰","yomi":"えいこせいすい","mean":"栄えたり、おとろえたりすること","ex":"歴史は《栄枯盛衰》のくり返しだ。","hole":"盛衰","grp":""}];
+const KEY = 'kotoba-tempo-v1';
+const CATS = ['慣用句', 'ことわざ', '故事成語', '四字熟語'];
+const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const blank = () => ({ pt: 0, box: {}, stat: { ses: 0, ok: 0, n: 0 }, cat: 'all' });
+let S = (() => { const s = rd(KEY); return s && s.box ? Object.assign(blank(), s) : blank(); })();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const shuffle = a => { const r = a.slice(); for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+// ポイントとごほうびは、すべてのアプリで合算（ごほうびの設定は入口で行う）
+const SH = (function () {
+  const RK = 'jishu-reward-v1';
+  function pts() { return ['zukei-mission-v1', 'joken-hunter-v1', 'shiryo-tsunagi-v1', 'tsumiki-dansu-v1', 'kotoba-dojo-v1', 'kotoba-tempo-v1'].reduce((a, k) => { const o = rd(k); return a + (o && +o.pt || 0); }, 0); }
+  return { pts };
+})();
+
+/* ===================== 問題をつくる =====================
+   mean：語 → 意味 ／ word：意味 → 語 ／ blank：例文の□に入る語 ／ hole：語の一部の□に入る字 */
+function pick3(e, pool) {
+  const out = [], seenMean = new Set([e.mean]), seenW = new Set([e.w]), seenGrp = new Set(e.grp ? [e.grp] : []);
+  for (const x of shuffle(pool)) {
+    if (seenW.has(x.w) || seenMean.has(x.mean) || (x.grp && seenGrp.has(x.grp))) continue;
+    out.push(x); seenW.add(x.w); seenMean.add(x.mean); if (x.grp) seenGrp.add(x.grp);
+    if (out.length === 3) break;
+  }
+  return out;
+}
+const sameCat = e => BANK.filter(x => x.cat === e.cat && x.id !== e.id);
+const holeCands = e => BANK.filter(x => x.hole && x.id !== e.id && x.hole !== e.hole && x.hole.length === e.hole.length && x.cat === e.cat && !(e.grp && x.grp === e.grp));
+function formsOf(e) { const f = ['mean', 'word']; if (e.ex) f.push('blank'); if (e.hole && new Set(holeCands(e).map(x => x.hole)).size >= 3) f.push('hole'); return f; }
+function gen(e, fmt) {
+  const pool = sameCat(e), d = pick3(e, pool);
+  let stem, hint = '', opts, kind;
+  if (fmt === 'mean') {
+    kind = '意味はどれ？'; stem = `「<b>${esc(e.w)}</b>」の意味は？`;
+    opts = [e.mean].concat(d.map(x => x.mean));
+  } else if (fmt === 'word') {
+    kind = 'ことばはどれ？'; stem = `つぎの意味にあてはまる${e.cat === '四字熟語' ? '四字熟語' : (e.cat === 'ことわざ' ? 'ことわざ' : (e.cat === '故事成語' ? '故事成語' : '慣用句'))}は？<br><b>${esc(e.mean)}</b>`;
+    opts = [e.w].concat(d.map(x => x.w));
+  } else if (fmt === 'blank') {
+    kind = '文に入ることばは？'; stem = e.ex.replace(/《[^》]*》/, '<b>（　）</b>').replace(/[<>&]/g, c => c);
+    stem = esc(e.ex).replace(/《[^》]*》/, '<b>（　）</b>');
+    hint = '意味：' + e.mean;
+    opts = [e.w].concat(d.map(x => x.w));
+  } else {
+    kind = '□に入る字は？';
+    const shown = e.w.replace(e.hole, '□'.repeat(e.hole.length));
+    stem = `「<b>${esc(shown)}</b>」の□に入ることばは？`; hint = '意味：' + e.mean;
+    const cand = shuffle(holeCands(e));
+    const out = [], seen = new Set([e.hole]);
+    for (const x of cand) { if (seen.has(x.hole)) continue; out.push(x.hole); seen.add(x.hole); if (out.length === 3) break; }
+    opts = [e.hole].concat(out);
+  }
+  const order = shuffle(opts.map((t, i) => ({ t, ok: i === 0 })));
+  return { id: e.id, fmt, kind, stem, hint, opts: order.map(o => o.t), ans: order.findIndex(o => o.ok), e };
+}
+
+/* ===================== 出す順番 ===================== */
+function pickWords(n) {
+  const list = BANK.filter(e => S.cat === 'all' || e.cat === S.cat);
+  const seen = list.filter(e => S.box[e.id] !== undefined), fresh = list.filter(e => S.box[e.id] === undefined);
+  const scoreSeen = seen.map(e => ({ e, s: (4 - S.box[e.id]) + Math.random() * 1.2 })).sort((a, b) => b.s - a.s);
+  const chosen = [];
+  const newCount = Math.min(fresh.length, seen.length ? Math.min(4, n) : n);
+  shuffle(fresh).slice(0, newCount).forEach(e => chosen.push(e));
+  for (const x of scoreSeen) { if (chosen.length >= n) break; chosen.push(x.e); }
+  for (const e of shuffle(fresh)) { if (chosen.length >= n) break; if (!chosen.includes(e)) chosen.push(e); }
+  return shuffle(chosen).slice(0, n);
+}
+function chooseFmt(e, avoid) {
+  const b = S.box[e.id] === undefined ? 0 : S.box[e.id], f = formsOf(e).filter(x => x !== avoid);
+  const w = { mean: b <= 1 ? 3 : 1, hole: b <= 1 ? 2 : 1, word: b >= 2 ? 3 : 1, blank: b >= 2 ? 3 : 1 };
+  const bag = []; f.forEach(x => { for (let i = 0; i < w[x]; i++) bag.push(x); });
+  return bag[Math.floor(Math.random() * bag.length)] || f[0] || 'mean';
+}
+
+/* ===================== 画面 ===================== */
+const app = document.getElementById('app');
+let ses = null, armed = false;
+const known = () => BANK.filter(e => (S.box[e.id] || 0) >= 3).length;
+function head(title, back) {
+  const chips = `<div class="chips"><span class="chip pt">${SH.pts()} pt</span><span class="chip box">覚えた ${known()} / ${BANK.length}</span></div>`;
+  return `<div class="top">${back ? '<button class="back" id="bhome" style="min-height:44px">← もどる</button>' : '<a class="btnlink" href="../" aria-label="入口にもどる">← 入口</a>'}${chips}</div>${title ? `<h1 style="margin:0 0 8px">${esc(title)}</h1>` : ''}`;
+}
+function renderHome() {
+  const cnt = c => { const l = BANK.filter(e => c === 'all' || e.cat === c); return `${l.filter(e => (S.box[e.id] || 0) >= 3).length} / ${l.length}`; };
+  const weak = BANK.filter(e => S.box[e.id] === 0).slice(0, 8);
+  const sel = BANK.filter(e => S.cat === 'all' || e.cat === S.cat);
+  app.innerHTML = `${head('ことばテンポ')}
+  <p class="note" style="margin:0 0 10px">慣用句・ことわざ・故事成語・四字熟語を、1問ずつ、タップで答えるドリル。1回10問。まちがえた語は、その回のさいごと、あとの回にも出ます。</p>
+  <div class="card"><h2>どれを練習する？</h2><div class="seg">${['all'].concat(CATS).map(c => `<label><input type="radio" name="cat" value="${c}" ${S.cat === c ? 'checked' : ''}><span>${c === 'all' ? 'ぜんぶ' : c}</span></label>`).join('')}</div>
+  <div class="note" style="margin:8px 0 4px">覚えた：${cnt(S.cat)}（${sel.length}語から出ます）</div><div class="bar" aria-label="覚えた割合"><i style="width:${Math.round(sel.filter(e => (S.box[e.id] || 0) >= 3).length / Math.max(1, sel.length) * 100)}%"></i></div>
+  <button class="main" id="bstart" style="width:100%;margin-top:12px">10問、はじめる</button></div>
+  ${weak.length ? `<div class="card"><h2>まちがえたことば</h2><table>${weak.map(e => `<tr><td><b>${esc(e.w)}</b></td><td>${esc(e.mean)}</td></tr>`).join('')}</table></div>` : ''}
+  <div class="card"><h2>きろく</h2><div class="note">練習した回数：${S.stat.ses}回　／　正解：${S.stat.ok} / ${S.stat.n}問（1回めで正解した数）</div>
+  <div class="note" style="margin-top:6px">「覚えた」は、1回めで、つづけて3回正解したことばです。まちがえると、はじめにもどります。</div></div>
+  <div class="card"><div class="note">学習のきろくは、この端末の中だけに保存されます。</div><div class="row" style="margin-top:8px"><button id="breset" class="${armed ? 'org' : ''}">${armed ? 'もう一度押すと、消えます' : 'きろくを消す'}</button></div></div>`;
+  app.querySelectorAll('input[name=cat]').forEach(i => i.addEventListener('change', () => { S.cat = i.value; save(); renderHome(); }));
+  document.getElementById('bstart').addEventListener('click', start);
+  document.getElementById('breset').addEventListener('click', () => { if (!armed) { armed = true; renderHome(); return; } armed = false; S = blank(); save(); renderHome(); });
+}
+function start() {
+  const words = pickWords(10);
+  ses = { q: words.map(e => ({ e, fmt: chooseFmt(e), retry: false })), pos: 0, results: [], tries: {}, total: words.length, cur: null, answered: false, pts: 0 };
+  next();
+}
+function next() {
+  if (ses.pos >= ses.q.length) return renderEnd();
+  const it = ses.q[ses.pos];
+  ses.cur = gen(it.e, it.fmt); ses.cur.retry = it.retry; ses.answered = false;
+  renderQ();
+}
+function renderQ() {
+  const c = ses.cur, left = ses.q.length - ses.pos;
+  app.innerHTML = `${head('', true)}
+  <div class="card"><div class="bar" aria-label="進み具合"><i style="width:${Math.round(ses.pos / ses.q.length * 100)}%"></i></div>
+  <div class="note" style="margin:6px 0">${ses.pos + 1} / ${ses.q.length} 問${c.retry ? '　（もう一度）' : ''}</div>
+  <span class="kind">${c.kind}</span><div class="stem">${c.stem}</div>${c.hint ? `<div class="note">${esc(c.hint)}</div>` : ''}
+  <div class="opts">${c.opts.map((t, i) => `<button data-i="${i}">${esc(t)}</button>`).join('')}</div>
+  <div id="fb"></div></div>`;
+  document.getElementById('bhome').addEventListener('click', () => { if (confirm0()) { ses = null; renderHome(); } });
+  app.querySelectorAll('.opts button').forEach(b => b.addEventListener('click', () => answer(+b.dataset.i)));
+}
+function confirm0() { return true; }
+function answer(i) {
+  if (ses.answered) return;
+  const c = ses.cur, e = c.e, right = i === c.ans, first = !(e.id in ses.tries);
+  ses.answered = true;
+  const btns = app.querySelectorAll('.opts button');
+  btns.forEach((b, k) => { b.disabled = true; if (k === c.ans) b.classList.add('right'); else if (k === i) b.classList.add('wrong'); });
+  if (first) {
+    ses.tries[e.id] = right;
+    S.stat.n++; if (right) { S.stat.ok++; ses.pts++; S.pt++; }
+    S.box[e.id] = right ? Math.min(4, (S.box[e.id] || 0) + 1) : 0;
+    ses.results.push({ e, ok: right });
+    if (!right) ses.q.push({ e, fmt: chooseFmt(e, c.fmt), retry: true });
+    save();
+  }
+  const fb = document.getElementById('fb');
+  fb.innerHTML = `<div class="fb ${right ? 'ok' : 'ng'}" role="status">${right ? '<b>正解！</b>' : '<b>ざんねん。</b>'}<br><b>${esc(e.w)}</b>（${esc(e.yomi)}）：${esc(e.mean)}${!right && e.ex ? `<br><span class="note">${esc(e.ex.replace(/[《》]/g, ''))}</span>` : ''}</div><div class="row"><button class="main" id="bnext">つぎへ</button></div>`;
+  document.getElementById('bnext').addEventListener('click', () => { ses.pos++; next(); });
+  document.getElementById('bnext').focus();
+  if (right) { clearTimeout(ses.t); ses.t = setTimeout(() => { if (ses && ses.cur === c && ses.answered) { ses.pos++; next(); } }, 900); }
+}
+function renderEnd() {
+  const ok_ = ses.results.filter(r => r.ok).length, n = ses.results.length, ng = ses.results.filter(r => !r.ok);
+  S.stat.ses++; save();
+  app.innerHTML = `${head('おわり', true)}
+  <div class="card"><div class="big">${ok_} <span style="font-size:18px">/ ${n} 問　1回めで正解</span></div><div class="bar" style="margin:8px 0"><i style="width:${Math.round(ok_ / Math.max(1, n) * 100)}%"></i></div>
+  <div class="note">+${ses.pts} pt　／　覚えた：${known()} / ${BANK.length}</div></div>
+  ${ng.length ? `<div class="card"><h2>まちがえたことば</h2><table>${ng.map(r => `<tr><td><b>${esc(r.e.w)}</b><div class="note">${esc(r.e.yomi)}</div></td><td>${esc(r.e.mean)}</td></tr>`).join('')}</table></div>` : '<div class="fb ok">ぜんぶ、1回めで正解！</div>'}
+  <div class="row"><button class="main" id="bagain">もう10問</button><button id="bhome2">ホームへ</button></div>`;
+  document.getElementById('bhome').addEventListener('click', () => { ses = null; renderHome(); });
+  document.getElementById('bhome2').addEventListener('click', () => { ses = null; renderHome(); });
+  document.getElementById('bagain').addEventListener('click', start);
+}
+window.TP = { BANK, gen, formsOf, pickWords, get S() { return S; }, get ses() { return ses; }, start, renderHome };
+renderHome();
+</script>
+</body>
+</html>

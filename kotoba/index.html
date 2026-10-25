@@ -276,7 +276,7 @@ const stageOpen = g => g === 0 || S.open === true || stageDone(g - 1) === stageI
 const SH = (function () {
   const RK = 'jishu-reward-v1';
   const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
-  function pts() { return ['zukei-mission-v1', 'joken-hunter-v1', 'shiryo-tsunagi-v1', 'tsumiki-dansu-v1', 'kotoba-dojo-v1'].reduce((a, k) => { const o = rd(k); return a + (o && +o.pt || 0); }, 0); }
+  function pts() { return ['zukei-mission-v1', 'joken-hunter-v1', 'shiryo-tsunagi-v1', 'tsumiki-dansu-v1', 'kotoba-dojo-v1', 'kotoba-tempo-v1'].reduce((a, k) => { const o = rd(k); return a + (o && +o.pt || 0); }, 0); }
   function reward() {
     let r = rd(RK);
     if (!r || typeof r !== 'object') {
