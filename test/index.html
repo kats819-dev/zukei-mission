@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>テスト</title>
+<style>
+:root{--bg:#F7F6F2;--card:#FFFFFF;--ink:#1F2430;--sub:#4A5160;--line:#D9D6CC;--blue:#1F4E79;--blue-soft:#E0EAF4;--org:#C2410C;--org-soft:#FBE7DE;--green:#2F6B3A;--green-soft:#E3F0E3;--gold:#6B4A06;--gold-soft:#F5ECD2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+a{color:var(--blue)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.note{font-size:13px;color:var(--sub)}
+button,.btnlink{font-family:inherit;font-size:15px;font-weight:700;min-height:46px;border-radius:10px;border:1px solid var(--blue);background:#fff;color:var(--blue);padding:0 14px;cursor:pointer}
+.btnlink{display:inline-flex;align-items:center;text-decoration:none}
+button.main{background:var(--blue);color:#fff}
+button.org{background:var(--org);color:#fff;border-color:var(--org)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid #F59E0B;outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{flex:1;min-width:84px;text-align:center;border:1px solid var(--blue);border-radius:10px;padding:10px 6px;font-weight:700;color:var(--blue);background:#fff;cursor:pointer;min-height:46px;display:flex;align-items:center;justify-content:center}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:#fff}
+.seg label:has(input:checked){background:var(--blue);color:#fff}
+.chk{display:flex;align-items:center;gap:10px;min-height:46px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff;cursor:pointer}
+.chk input{width:22px;height:22px;flex:none}
+.chk.off{color:#8A8F9A;background:#F1F0EC}
+.chk .n{margin-left:auto;font-size:13px;color:var(--sub);white-space:nowrap}
+.fb{border-radius:10px;padding:10px 12px;font-size:14px;margin:8px 0}
+.fb.ok{background:var(--green-soft);border:1px solid var(--green);color:#1F3B25}
+.fb.ng{background:var(--org-soft);border:1px solid var(--org);color:#7A2A08}
+.fb.hint{background:var(--gold-soft);border:1px solid #C9A24A;color:var(--gold)}
+.big{font-size:30px;font-weight:700}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+.ok{color:var(--green);font-weight:700}
+.ng{color:var(--org);font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ===================== 出題のもと（各アプリのクリア済みの問題） =====================
+   ここでの「実施ずみ」は、各アプリで、クリアした問題（宝箱が開いた問題）のこと */
+const AREAS = [
+  { id: 'zukei:cut', app: 'zukei', k: 'cut', name: '図形：立体の切断', path: 'zukei/', key: 'zukei-mission-v1' },
+  { id: 'zukei:net', app: 'zukei', k: 'net', name: '図形：展開図', path: 'zukei/', key: 'zukei-mission-v1' },
+  { id: 'zukei:ref', app: 'zukei', k: 'ref', name: '図形：反射の作図', path: 'zukei/', key: 'zukei-mission-v1' },
+  { id: 'zukei:aux', app: 'zukei', k: 'aux', name: '図形：補助線', path: 'zukei/', key: 'zukei-mission-v1' },
+  { id: 'joken', app: 'joken', k: '', name: '条件ハンター', path: 'joken/', key: 'joken-hunter-v1', sizes: [10, 6, 6] },
+  { id: 'shiryo', app: 'shiryo', k: '', name: '資料つなぎ', path: 'shiryo/', key: 'shiryo-tsunagi-v1', sizes: [8, 6, 6] },
+  { id: 'tsumiki', app: 'tsumiki', k: '', name: '積み木の段数', path: 'tsumiki/', key: 'tsumiki-dansu-v1', sizes: [9, 6, 6] },
+  { id: 'kotoba', app: 'kotoba', k: '', name: 'ことば道場', path: 'kotoba/', key: 'kotoba-dojo-v1', sizes: [6, 6, 6] }
+];
+const KEY = 'jishu-test-v1';
+const rd = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let D = (() => { const d = rd(KEY); return d && typeof d === 'object' ? d : {}; })();
+if (!Array.isArray(D.hist)) D.hist = [];
+function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+
+// ステージ（0〜2）の求め方
+function stageOf(a, i) {
+  if (a.app === 'zukei') return Math.floor(i / 5);
+  let s = 0, acc = 0;
+  for (let g = 0; g < a.sizes.length; g++) { acc += a.sizes[g]; if (i < acc) return g; s = g; }
+  return s;
+}
+function stageNo(a, i) {   // ステージ内の番号（1から）
+  if (a.app === 'zukei') return i % 5 + 1;
+  let acc = 0;
+  for (let g = 0; g < a.sizes.length; g++) { if (i < acc + a.sizes[g]) return i - acc + 1; acc += a.sizes[g]; }
+  return i + 1;
+}
+// 各アプリの、クリア済みの問題
+function clearedOf(a) {
+  const s = rd(a.key), out = [];
+  if (!s || !s.done) return out;
+  const arr = a.app === 'zukei' ? s.done[a.k] : s.done;
+  if (!Array.isArray(arr)) return out;
+  arr.forEach((v, i) => { if (v) out.push({ id: a.id, app: a.app, k: a.k, i, path: a.path, name: a.name, stage: stageOf(a, i), no: stageNo(a, i) }); });
+  return out;
+}
+const labelOf = it => `${it.name}　ステージ${it.stage + 1}・${it.no}番`;
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+
+/* ===================== 画面 ===================== */
+const app = document.getElementById('app');
+let st = { mode: 'area', areas: AREAS.map(a => a.id), stages: [0, 1, 2], n: 10, lim: 300 };
+try { const o = rd(KEY + '-set'); if (o) st = Object.assign(st, o); } catch (e) {}
+let view = 'setup', armed = false;
+
+function pool() {
+  let all = [];
+  AREAS.forEach(a => { all = all.concat(clearedOf(a)); });
+  if (st.mode === 'random') return all;
+  return all.filter(it => st.areas.includes(it.id) && st.stages.includes(it.stage));
+}
+function nextPos(cur) { return cur.items.findIndex(x => x.status === 'todo'); }
+function urlOf(cur, pos) {
+  const it = cur.items[pos];
+  return `../${it.path}?test=1&k=${encodeURIComponent(it.k)}&i=${it.i}&lim=${cur.lim}&rid=${cur.id}&pos=${pos}&n=${cur.items.length}`;
+}
+function finalize(cur) {
+  if (cur.fin) return;
+  cur.fin = true;
+  D.hist.unshift({ id: cur.id, ts: Date.now(), mode: cur.retryOf ? 'retry' : cur.mode, n: cur.items.length, solved: cur.items.filter(x => x.status === 'solved').length });
+  D.hist = D.hist.slice(0, 30);
+  save();
+}
+
+function render() {
+  if (view === 'setup') return renderSetup();
+  if (view === 'ready') return renderReady();
+  if (view === 'result') return renderResult();
+  if (view === 'hist') return renderHist();
+}
+
+function renderSetup() {
+  const all = {};
+  AREAS.forEach(a => { all[a.id] = clearedOf(a); });
+  const p = pool();
+  const areaRows = AREAS.map(a => {
+    const total = all[a.id].length, use = all[a.id].filter(it => st.stages.includes(it.stage)).length;
+    return `<label class="chk ${total ? '' : 'off'}"><input type="checkbox" data-area="${a.id}" ${st.areas.includes(a.id) ? 'checked' : ''} ${total ? '' : 'disabled'}><span>${esc(a.name)}</span><span class="n">${use} / ${total}問</span></label>`;
+  }).join('');
+  app.innerHTML = `<div class="top"><a class="btnlink" href="../" aria-label="入口にもどる">← 入口</a><button id="bhist">きろく</button></div>
+  <h1 style="margin:0 0 4px">テスト</h1>
+  <p class="note" style="margin:0 0 10px">各アプリで、クリアした問題から出ます。時間は、1問ごと。時間内に解ければ「解けた」、解けなければ「解けなかった」。解けなかった問題だけ、やり直せます。</p>
+  <div class="card"><h2>1. 出し方</h2><div class="seg">
+    <label><input type="radio" name="mode" value="area" ${st.mode === 'area' ? 'checked' : ''}><span>領域をえらぶ</span></label>
+    <label><input type="radio" name="mode" value="random" ${st.mode === 'random' ? 'checked' : ''}><span>ランダム（ぜんぶから）</span></label></div></div>
+  ${st.mode === 'area' ? `<div class="card"><h2>2. 領域とステージ</h2>${areaRows}
+    <div class="note" style="margin:8px 0 4px">ステージ</div><div class="seg">${[0, 1, 2].map(g => `<label><input type="checkbox" data-stage="${g}" ${st.stages.includes(g) ? 'checked' : ''}><span>ステージ${g + 1}</span></label>`).join('')}</div></div>` : ''}
+  <div class="card"><h2>${st.mode === 'area' ? '3' : '2'}. 問題の数</h2><div class="seg">${[5, 10, 15, 0].map(n => `<label><input type="radio" name="n" value="${n}" ${st.n === n ? 'checked' : ''}><span>${n ? n + '問' : 'ぜんぶ'}</span></label>`).join('')}</div></div>
+  <div class="card"><h2>${st.mode === 'area' ? '4' : '3'}. 1問の時間</h2><div class="seg">${[180, 300, 480].map(s => `<label><input type="radio" name="lim" value="${s}" ${st.lim === s ? 'checked' : ''}><span>${s / 60}分</span></label>`).join('')}</div></div>
+  <div class="card"><div style="margin-bottom:8px">いま出せる問題：<b>${p.length}</b>問${p.length < (st.n || 1) && p.length ? `（${st.n}問より少ないので、${p.length}問になります）` : ''}</div>
+  ${p.length ? '' : '<div class="fb hint">クリアした問題が、まだ（この条件には）ありません。各アプリで問題をクリアすると、ここに出ます。</div>'}
+  <button class="main" id="bstart" style="width:100%" ${p.length ? '' : 'disabled'}>テストをはじめる</button></div>`;
+  app.querySelectorAll('input[name=mode]').forEach(e => e.addEventListener('change', () => { st.mode = e.value; keep(); renderSetup(); }));
+  app.querySelectorAll('input[data-area]').forEach(e => e.addEventListener('change', () => { st.areas = Array.from(app.querySelectorAll('input[data-area]:checked')).map(x => x.dataset.area); keep(); renderSetup(); }));
+  app.querySelectorAll('input[data-stage]').forEach(e => e.addEventListener('change', () => { st.stages = Array.from(app.querySelectorAll('input[data-stage]:checked')).map(x => +x.dataset.stage); keep(); renderSetup(); }));
+  app.querySelectorAll('input[name=n]').forEach(e => e.addEventListener('change', () => { st.n = +e.value; keep(); renderSetup(); }));
+  app.querySelectorAll('input[name=lim]').forEach(e => e.addEventListener('change', () => { st.lim = +e.value; keep(); renderSetup(); }));
+  document.getElementById('bhist').addEventListener('click', () => { view = 'hist'; render(); });
+  document.getElementById('bstart').addEventListener('click', startRun);
+}
+function keep() { try { localStorage.setItem(KEY + '-set', JSON.stringify(st)); } catch (e) {} }
+function newId() { return 't' + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36); }
+function startRun() {
+  const p = shuffle(pool());
+  const items = (st.n ? p.slice(0, st.n) : p).map(it => Object.assign({}, it, { status: 'todo', secs: 0, mist: 0 }));
+  if (!items.length) return;
+  D.cur = { id: newId(), mode: st.mode, lim: st.lim, items, fin: false, ts: Date.now() };
+  save(); view = 'ready'; render();
+}
+function retryRun() {
+  const cur = D.cur;
+  const items = cur.items.filter(x => x.status !== 'solved').map(it => Object.assign({}, it, { status: 'todo', secs: 0, mist: 0 }));
+  if (!items.length) return;
+  D.cur = { id: newId(), mode: cur.mode, lim: cur.lim, items, fin: false, ts: Date.now(), retryOf: cur.id };
+  save(); view = 'ready'; render();
+}
+
+function renderReady() {
+  const cur = D.cur, pos = nextPos(cur), n = cur.items.length;
+  if (pos < 0) { view = 'result'; return render(); }
+  const done = cur.items.filter(x => x.status !== 'todo').length, last = cur.items.slice().reverse().find(x => x.status !== 'todo');
+  app.innerHTML = `<div class="top"><h1>${cur.retryOf ? 'やり直し' : 'テスト'}</h1><span class="note">${done} / ${n} 問おわり</span></div>
+  <div class="card"><div class="bar" aria-label="進み具合"><i style="width:${Math.round(done / n * 100)}%"></i></div>
+  ${last ? `<div class="fb ${last.status === 'solved' ? 'ok' : 'ng'}" role="status" style="margin-top:10px">前の問題：<b>${last.status === 'solved' ? '解けた' : '解けなかった'}</b>（${mmss(last.secs)}）</div>` : ''}
+  <div style="margin:12px 0 4px">つぎは <b>${pos + 1} 問め</b> ／ ぜんぶで ${n} 問</div>
+  <div class="note">${esc(labelOf(cur.items[pos]))}</div>
+  <div class="note">制限時間：${cur.lim / 60}分。時間がすぎると、「解けなかった」になります。</div>
+  <div class="row" style="margin-top:10px"><button class="main" id="bgo">${done ? 'つぎの問題へ' : 'はじめる'}</button></div></div>
+  <div class="card"><button id="bquit" class="${armed ? 'org' : ''}">${armed ? 'もう一度押すと、ここで終わります' : 'ここで、おわる'}</button></div>`;
+  document.getElementById('bgo').addEventListener('click', () => { location.href = urlOf(cur, pos); });
+  document.getElementById('bquit').addEventListener('click', () => {
+    if (!armed) { armed = true; renderReady(); return; }
+    armed = false;
+    cur.items.forEach(x => { if (x.status === 'todo') { x.status = 'fail'; x.skipped = true; } });
+    save(); view = 'result'; render();
+  });
+}
+
+function renderResult() {
+  const cur = D.cur;
+  finalize(cur);
+  const n = cur.items.length, ok_ = cur.items.filter(x => x.status === 'solved').length, ng = n - ok_;
+  app.innerHTML = `<div class="top"><h1>けっか</h1><span class="note">${cur.retryOf ? 'やり直し' : (cur.mode === 'random' ? 'ランダム' : '領域をえらぶ')}</span></div>
+  <div class="card"><div class="big">${ok_} <span style="font-size:18px">/ ${n} 問　解けた</span></div>
+  <div class="bar" style="margin:8px 0"><i style="width:${Math.round(ok_ / n * 100)}%"></i></div>
+  <div class="note">解けなかった：${ng}問</div></div>
+  <div class="card"><table><tr><th></th><th>問題</th><th>時間</th></tr>${cur.items.map(x => `<tr><td class="${x.status === 'solved' ? 'ok' : 'ng'}">${x.status === 'solved' ? '解けた' : '×'}</td><td>${esc(labelOf(x))}${x.skipped ? '（やらなかった）' : (x.mist ? `<div class="note">まちがい ${x.mist}回</div>` : '')}</td><td>${x.skipped ? '—' : mmss(x.secs)}</td></tr>`).join('')}</table></div>
+  <div class="card"><div class="row">${ng ? '<button class="main" id="bretry">解けなかった問題だけ、やり直す</button>' : ''}<button id="bnew">あたらしいテスト</button></div>
+  ${ng ? '' : '<div class="fb ok" style="margin-top:8px">ぜんぶ解けました！</div>'}
+  <div class="row" style="margin-top:8px"><a class="btnlink" href="../" style="flex:1;justify-content:center">入口へ</a></div></div>`;
+  const r = document.getElementById('bretry');
+  if (r) r.addEventListener('click', retryRun);
+  document.getElementById('bnew').addEventListener('click', () => { view = 'setup'; render(); });
+}
+
+function renderHist() {
+  const label = m => (m === 'retry' ? 'やり直し' : (m === 'random' ? 'ランダム' : '領域をえらぶ'));
+  app.innerHTML = `<div class="top"><button id="bback">← もどる</button></div><h1 style="margin:0 0 8px">テストのきろく</h1>
+  <div class="card">${D.hist.length ? `<table><tr><th>日時</th><th>出し方</th><th>解けた</th></tr>${D.hist.map(h => { const d = new Date(h.ts); return `<tr><td>${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}</td><td>${label(h.mode)}</td><td>${h.solved} / ${h.n}</td></tr>`; }).join('')}</table>` : '<div class="note">まだ、きろくがありません。</div>'}</div>
+  <div class="card"><div class="note">テストのきろくだけを消します（元に戻せません）。</div><div class="row" style="margin-top:8px"><button id="bclr" class="${armed ? 'org' : ''}" ${D.hist.length ? '' : 'disabled'}>${armed ? 'もう一度押すと、消えます' : 'きろくを消す'}</button></div></div>`;
+  document.getElementById('bback').addEventListener('click', () => { armed = false; view = 'setup'; render(); });
+  document.getElementById('bclr').addEventListener('click', () => {
+    if (!armed) { armed = true; renderHist(); return; }
+    armed = false; D.hist = []; save(); renderHist();
+  });
+}
+
+/* ===================== はじまり ===================== */
+(function boot() {
+  const cur = D.cur;
+  if (cur && Array.isArray(cur.items)) {
+    const q = new URLSearchParams(location.search);
+    const todo = nextPos(cur) >= 0;
+    if (q.get('r') === cur.id || todo) { view = todo ? 'ready' : 'result'; }
+  }
+  render();
+})();
+window.TST = { AREAS, clearedOf, stageOf, stageNo, pool, get D() { return D; }, get st() { return st; }, startRun, retryRun, render, urlOf };
+</script>
+</body>
+</html>

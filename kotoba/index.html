@@ -73,6 +73,14 @@ button:focus-visible,input:focus-visible,.seg:focus-visible{outline:3px solid #F
 <div id="app"></div>
 <script>
 'use strict';
+// テストモード（?test=1）：テストページから開かれたとき。時間制限つきで1問だけ出し、結果をテストページに返す。記録は変えない
+const TEST = (function () {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get('test') !== '1') return null;
+    return { k: q.get('k') || '', i: +q.get('i'), lim: +q.get('lim') || 300, rid: q.get('rid') || '', pos: +q.get('pos') || 0, n: +q.get('n') || 1 };
+  } catch (e) { return null; }
+})();
 /* ===================== 問題 =====================
    [i:…]＝意味を決めることば（○）  [h:…]＝意味の手がかり（下線）
    kind：use＝正しい使い方 / misuse＝取り違えている人 / same＝ほぼ同じ意味 / opp＝反対に近い / blank＝共通する□
@@ -259,7 +267,7 @@ const KEY = 'kotoba-dojo-v1';
 const blank = () => ({ pt: 0, chest: 0, done: P.map(() => 0), sb: STAGES.map(() => 0), stat: { mF: 0, mT: 0, aF: 0, aT: 0 } });
 function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.done) && s.done.length === P.length && s.stat && Array.isArray(s.sb)) return s; } catch (e) {} return null; }
 let S = load() || blank();
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function save() { if (TEST) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function award(wrong) { const p = wrong === 0 ? 10 : (wrong <= 2 ? 5 : 0); S.pt += p; save(); return p; }
 const stageIds = g => P.map((p, i) => (p.stage === g ? i : -1)).filter(i => i >= 0);
 const stageDone = g => stageIds(g).filter(i => S.done[i]).length;
@@ -493,7 +501,60 @@ document.addEventListener('keydown', ev => {
   if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.seg[role=button]')) { ev.preventDefault(); ev.target.click(); }
 });
 window.KD = { P, STAGES, STAGE_BONUS, get S() { return S; }, get ui() { return ui; }, startM, stageOpen, stageDone, render };
-render();
+/* ---------- テストモード ---------- */
+function testBoot() {
+  if (!TEST) return false;
+  S.open = true;   // この画面だけ。保存はしない（save()が何もしない）
+  const css = document.createElement('style');
+  css.textContent = '#tbar{position:fixed;top:0;left:0;right:0;z-index:50;background:#1F2430;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;font-size:14px}#tbar b{font-size:20px;font-variant-numeric:tabular-nums}#tbar button{min-height:36px;background:#fff;color:#1F2430;border:0;font-size:13px;padding:0 10px}body{padding-top:58px}.back,.entry,[data-act="home"],[data-act="show"],[data-act="parent"],[data-act="start"],[data-act="cut"],[data-act="net"],[data-act="ref"],[data-act="aux"],.paper{display:none!important}#tov{position:fixed;inset:0;z-index:60;background:rgba(31,36,48,.92);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-size:26px;font-weight:700;text-align:center;padding:20px}#tov button{font-size:16px;min-height:46px;padding:0 18px;border-radius:10px;border:0;background:#fff;color:#1F2430}';
+  document.head.appendChild(css);
+  const bar = document.createElement('div');
+  bar.id = 'tbar';
+  bar.innerHTML = '<span>テスト <b id="tno"></b></span><span>のこり <b id="tleft"></b></span><button id="tgive" type="button">あきらめる</button>';
+  document.body.insertBefore(bar, document.body.firstChild);
+  document.getElementById('tno').textContent = (TEST.pos + 1) + ' / ' + TEST.n;
+  const key = 'tstart:' + TEST.rid + ':' + TEST.pos;
+  let t0 = 0;
+  try { t0 = +sessionStorage.getItem(key) || 0; } catch (e) {}
+  if (!t0) { t0 = Date.now(); try { sessionStorage.setItem(key, String(t0)); } catch (e) {} }
+  let over = false, armed = false;
+  function report(res, msg) {
+    if (over) return;
+    over = true;
+    const secs = Math.min(TEST.lim, Math.round((Date.now() - t0) / 1000));
+    const mist = Array.isArray(ui.tries) ? ui.tries.reduce((a, b) => a + (+b || 0), 0) : 0;
+    try {
+      const d = JSON.parse(localStorage.getItem('jishu-test-v1') || '{}');
+      if (d.cur && d.cur.id === TEST.rid && d.cur.items[TEST.pos] && d.cur.items[TEST.pos].status === 'todo') {
+        d.cur.items[TEST.pos].status = res; d.cur.items[TEST.pos].secs = secs; d.cur.items[TEST.pos].mist = mist;
+        localStorage.setItem('jishu-test-v1', JSON.stringify(d));
+      }
+    } catch (e) {}
+    const ov = document.createElement('div');
+    ov.id = 'tov';
+    ov.innerHTML = '<div>' + msg + '</div><button id="tback" type="button">テストにもどる</button>';
+    document.body.appendChild(ov);
+    const go = () => { location.href = '../test/?r=' + encodeURIComponent(TEST.rid); };
+    document.getElementById('tback').addEventListener('click', go);
+    setTimeout(go, 1800);
+  }
+  document.getElementById('tgive').addEventListener('click', ev => {
+    if (!armed) { armed = true; ev.target.textContent = 'もう一度で、やめる'; setTimeout(() => { armed = false; ev.target.textContent = 'あきらめる'; }, 3000); return; }
+    report('fail', 'あきらめた');
+  });
+  function tick() {
+    if (over) return;
+    const left = Math.max(0, TEST.lim - (Date.now() - t0) / 1000);
+    document.getElementById('tleft').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+    if (ui && ui.fin) report('solved', '解けた！');
+    else if (left <= 0) report('fail', '時間切れ');
+  }
+  startM(TEST.i);
+  tick();
+  setInterval(tick, 400);
+  return true;
+}
+if (!testBoot()) render();
 </script>
 </body>
 </html>
